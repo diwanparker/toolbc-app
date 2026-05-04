@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # flutter_tbc
 
 A new Flutter project.
@@ -15,3 +16,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# toolbc-app
+Aplikasi mobile monitoring pasien TBC dengan fitur reminder minum OAT, chatbot edukasi, dan skrining awal risiko TBC berbasis AI.
+>>>>>>> 118f65e5184cafe08bf89156438d7be6cc134e03
