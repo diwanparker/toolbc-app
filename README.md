@@ -1,22 +1,65 @@
-<<<<<<< HEAD
-# flutter_tbc
+# ToolBC App
 
-A new Flutter project.
+ToolBC adalah aplikasi Flutter untuk monitoring pengobatan TBC dengan tiga role utama: `admin`, `dokter`, dan `pasien/user`.
 
-## Getting Started
+## Fitur Utama
 
-This project is a starting point for a Flutter application.
+- Login berbasis role dari domain email: `@admin.com`, `@dokter.com`, dan `@pasien.com`.
+- Admin membuat akun pasien/user dan dokter dari dashboard internal.
+- Dokter memantau pasien, adherence, reminder, dan tindak lanjut kasus.
+- Pasien melihat progress pengobatan, checkup harian, riwayat, notifikasi, dan chatbot AI.
+- Chatbot terhubung ke Gemini untuk menjawab pertanyaan seputar alur aplikasi dan edukasi dasar TBC.
 
-A few resources to get you started if this is your first Flutter project:
+## Struktur Singkat
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- `lib/app/`:
+  entry widget dan tema aplikasi.
+- `lib/core/`:
+  model, service, dan komponen UI reusable.
+- `lib/features/`:
+  halaman per role dan fitur utama aplikasi.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
-# toolbc-app
-Aplikasi mobile monitoring pasien TBC dengan fitur reminder minum OAT, chatbot edukasi, dan skrining awal risiko TBC berbasis AI.
->>>>>>> 118f65e5184cafe08bf89156438d7be6cc134e03
+## Menjalankan Proyek
+
+Tooling yang dipakai di repo ini:
+
+- Flutter `3.41.7` via [`.fvmrc`](./.fvmrc)
+- Dart `3.11.x`
+
+Langkah lokal:
+
+```bash
+flutter pub get
+flutter run
+```
+
+Jika ingin mengaktifkan login Supabase, jalankan dengan `dart-define`:
+
+```bash
+flutter run \
+  --dart-define=SUPABASE_URL=your_supabase_url \
+  --dart-define=SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+Jika ingin mengaktifkan chatbot Gemini:
+
+```bash
+flutter run \
+  --dart-define=GEMINI_API_KEY=your_gemini_api_key
+```
+
+## Verifikasi
+
+Perintah yang biasa dipakai untuk validasi:
+
+```bash
+flutter analyze
+flutter test
+flutter build apk --debug
+```
+
+## Catatan Role
+
+- Tidak ada register publik.
+- Dokter dapat meminta admin/resepsionis membuat akun pasien.
+- Admin fokus pada manajemen akun pasien/user dan dokter.

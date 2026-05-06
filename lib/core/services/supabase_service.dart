@@ -1,4 +1,4 @@
-part of flutter_tbc;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseService {
   static bool _initialized = false;
@@ -18,10 +18,7 @@ class SupabaseService {
       return;
     }
 
-    await Supabase.initialize(
-      url: _url,
-      anonKey: _anonKey,
-    );
+    await Supabase.initialize(url: _url, anonKey: _anonKey);
     _configured = true;
   }
 
@@ -36,10 +33,7 @@ class SupabaseService {
     required String email,
     required String password,
   }) {
-    return client.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+    return client.auth.signInWithPassword(email: email, password: password);
   }
 
   static Future<AuthResponse> signUp({
@@ -47,10 +41,6 @@ class SupabaseService {
     required String password,
     Map<String, dynamic>? data,
   }) {
-    return client.auth.signUp(
-      email: email,
-      password: password,
-      data: data,
-    );
+    return client.auth.signUp(email: email, password: password, data: data);
   }
 }
