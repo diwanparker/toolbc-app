@@ -1,4 +1,4 @@
-part of flutter_tbc;
+import 'package:flutter/material.dart';
 
 const Color kPrimary = Color(0xFF2563EB);
 const Color kPrimaryDark = Color(0xFF1D4ED8);
@@ -16,13 +16,19 @@ ThemeData buildAppTheme() {
   return ThemeData(
     useMaterial3: true,
     scaffoldBackgroundColor: kBackground,
-    colorScheme: ColorScheme.fromSeed(seedColor: kPrimary, brightness: Brightness.light),
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: kPrimary,
+      brightness: Brightness.light,
+    ),
     textTheme: const TextTheme(
       bodyMedium: TextStyle(fontFamily: 'Inter'),
       bodyLarge: TextStyle(fontFamily: 'Inter'),
       titleLarge: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700),
       titleMedium: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700),
-      headlineSmall: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700),
+      headlineSmall: TextStyle(
+        fontFamily: 'Inter',
+        fontWeight: FontWeight.w700,
+      ),
     ),
   );
 }
