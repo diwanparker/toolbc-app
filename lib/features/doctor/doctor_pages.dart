@@ -113,13 +113,13 @@ class DoctorPatientsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      children: const [
-        PageHeader(
+      children: [
+        const PageHeader(
           title: 'Pengingat',
           subtitle: 'Pantau status pengobatan dan antrian eskalasi pasien.',
         ),
-        SizedBox(height: 16),
-        SectionCard(
+        const SizedBox(height: 16),
+        const SectionCard(
           background: Color(0xFFFFF7ED),
           borderColor: Color(0xFFFDBA74),
           title: 'Antrian Eskalasi',
@@ -133,43 +133,58 @@ class DoctorPatientsPage extends StatelessWidget {
             style: TextStyle(fontSize: 10.5, color: kMuted),
           ),
         ),
-        SizedBox(height: 12),
-        _ReminderQueueTile(
+        const SizedBox(height: 12),
+        const _ReminderQueueTile(
           name: 'Davina Karambol',
           message: 'Melewatkan obat pagi > 2 jam',
           status: 'Escalated',
         ),
-        SizedBox(height: 10),
-        _ReminderQueueTile(
+        const SizedBox(height: 10),
+        const _ReminderQueueTile(
           name: 'Nadia Putri',
           message: 'Menunggu konfirmasi setelah pengingat',
           status: 'Pending',
         ),
-        SizedBox(height: 16),
-        Text(
-          'Daftar Pasien',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: kText,
-          ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Daftar Pasien',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: kText,
+              ),
+            ),
+            Builder(
+              builder: (context) => TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const DoctorAllPatientsPage(),
+                  ));
+                },
+                child: const Text('Lihat Selengkapnya', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: 12),
-        _DoctorPatientTile(
+        const SizedBox(height: 12),
+        const _DoctorPatientTile(
           name: 'Davina Karambol',
           treatmentDay: 'Hari ke-24 (Intensif)',
           adherence: '86%',
           badge: 'Perlu ditinjau',
         ),
-        SizedBox(height: 12),
-        _DoctorPatientTile(
+        const SizedBox(height: 12),
+        const _DoctorPatientTile(
           name: 'Nadia Putri',
           treatmentDay: 'Hari ke-11 (Intensif)',
           adherence: '78%',
           badge: 'Risiko sedang',
         ),
-        SizedBox(height: 12),
-        _DoctorPatientTile(
+        const SizedBox(height: 12),
+        const _DoctorPatientTile(
           name: 'Rizky Mahendra',
           treatmentDay: 'Hari ke-36 (Intensif)',
           adherence: '92%',
@@ -544,6 +559,90 @@ class _ReminderQueueTile extends StatelessWidget {
             fg: color,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class DoctorAllPatientsPage extends StatefulWidget {
+  const DoctorAllPatientsPage({super.key});
+
+  @override
+  State<DoctorAllPatientsPage> createState() => _DoctorAllPatientsPageState();
+}
+
+class _DoctorAllPatientsPageState extends State<DoctorAllPatientsPage> {
+  String _searchQuery = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final allPatients = [
+      {'name': 'Davina Karambol', 'day': 'Hari ke-24 (Intensif)', 'adh': '86%', 'badge': 'Perlu ditinjau'},
+      {'name': 'Nadia Putri', 'day': 'Hari ke-11 (Intensif)', 'adh': '78%', 'badge': 'Risiko sedang'},
+      {'name': 'Rizky Mahendra', 'day': 'Hari ke-36 (Intensif)', 'adh': '92%', 'badge': 'Stabil'},
+      {'name': 'Budi Santoso', 'day': 'Hari ke-40 (Lanjutan)', 'adh': '95%', 'badge': 'Stabil'},
+      {'name': 'Siti Aminah', 'day': 'Hari ke-5 (Intensif)', 'adh': '60%', 'badge': 'Risiko tinggi'},
+    ];
+
+    final filtered = allPatients
+        .where((p) => p['name']!.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
+
+    return Scaffold(
+      backgroundColor: kBackground,
+      appBar: AppBar(
+        backgroundColor: Colors.white.withValues(alpha: 0.85),
+        elevation: 0,
+        leading: const BackButton(color: kText),
+        title: const Text('Semua Pasien', style: TextStyle(fontWeight: FontWeight.w700, color: kText)),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                hintText: 'Cari nama pasien...',
+                hintStyle: const TextStyle(color: kMuted),
+                prefixIcon: const Icon(Icons.search, color: kMuted),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: kPrimary),
+                ),
+              ),
+              onChanged: (val) {
+                setState(() => _searchQuery = val);
+              },
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.separated(
+                itemCount: filtered.length,
+                separatorBuilder: (ctx, i) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final p = filtered[index];
+                  return _DoctorPatientTile(
+                    name: p['name']!,
+                    treatmentDay: p['day']!,
+                    adherence: p['adh']!,
+                    badge: p['badge']!,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
