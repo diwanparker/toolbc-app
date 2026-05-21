@@ -186,40 +186,7 @@ class _ChatIntro extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Chat Support',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: kText,
-          ),
-        ),
-        const SizedBox(height: 6),
-        const Text(
-          'Ask ToolBC AI about treatment reminders, checkup flow, and app roles.',
-          style: TextStyle(fontSize: 12, color: kMuted),
-        ),
-        const SizedBox(height: 16),
-        SectionCard(
-          background: aiReady
-              ? const Color(0xFFF0FDF4)
-              : const Color(0xFFFFF7ED),
-          borderColor: aiReady
-              ? const Color(0xFFBBF7D0)
-              : const Color(0xFFFDBA74),
-          title: aiReady ? 'AI siap' : 'AI perlu setup',
-          trailing: StatusPill(
-            text: aiReady ? 'AI' : 'Setup',
-            bg: aiReady ? const Color(0xFF22C55E) : const Color(0xFFF97316),
-            fg: Colors.white,
-          ),
-          child: Text(
-            aiReady
-                ? 'Respons dibuat oleh AI dengan konteks aplikasi ToolBC.'
-                : 'Konfigurasi AI belum aktif. Hubungi admin untuk mengaktifkan chatbot.',
-            style: const TextStyle(fontSize: 9.8, color: kMuted),
-          ),
-        ),
+
         const SizedBox(height: 16),
         SectionCard(
           title: 'Quick Prompts',
