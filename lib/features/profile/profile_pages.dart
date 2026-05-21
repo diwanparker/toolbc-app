@@ -9,45 +9,52 @@ class PatientProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      children: const [
-        PageHeader(
+      children: [
+        const PageHeader(
           title: 'Profile',
           subtitle: 'Patient details, treatment plan, and settings.',
         ),
-        SizedBox(height: 16),
-        _PatientIdentityCard(),
-        SizedBox(height: 16),
-        ProfileMenuTile(
+        const SizedBox(height: 16),
+        const _PatientIdentityCard(),
+        const SizedBox(height: 16),
+        const ProfileMenuTile(
           icon: Icons.medication_outlined,
           title: 'Treatment Plan',
           subtitle: 'Medicine schedule and care phase',
         ),
-        SizedBox(height: 10),
-        ProfileMenuTile(
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.notifications_active_outlined,
           title: 'Reminder Settings',
           subtitle: 'Medication and checkup alerts',
         ),
-        SizedBox(height: 10),
-        ProfileMenuTile(
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.phone_in_talk_outlined,
           title: 'Doctor Contact',
           subtitle: 'Dr. Arya Pratama - TB Care',
         ),
-        SizedBox(height: 10),
-        ProfileMenuTile(
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.lock_outline_rounded,
           title: 'Medical Data Privacy',
           subtitle: 'Control data access and consent',
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         ProfileMenuTile(
+          icon: Icons.language_rounded,
+          title: 'Language',
+          subtitle: 'Change app language (ID/EN)',
+          onTap: () => showLanguageDialog(context),
+        ),
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.security_outlined,
           title: 'Security',
           subtitle: 'Password and login control',
         ),
-        SizedBox(height: 10),
-        ProfileMenuTile(
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.logout_rounded,
           title: 'Logout',
           subtitle: 'Exit patient account',
@@ -64,28 +71,35 @@ class AdminProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      children: const [
-        PageHeader(title: 'Profile'),
-        SizedBox(height: 16),
-        ProfileMenuTile(
+      children: [
+        const PageHeader(title: 'Profile'),
+        const SizedBox(height: 16),
+        const ProfileMenuTile(
           icon: Icons.person_rounded,
           title: 'Workspace',
           subtitle: 'Admin dashboard access',
         ),
-        SizedBox(height: 10),
-        ProfileMenuTile(
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.settings_outlined,
           title: 'Preferences',
           subtitle: 'Theme, alerts, and tools',
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         ProfileMenuTile(
+          icon: Icons.language_rounded,
+          title: 'Language',
+          subtitle: 'Change app language (ID/EN)',
+          onTap: () => showLanguageDialog(context),
+        ),
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.lock_outline_rounded,
           title: 'Security',
           subtitle: 'Login and session controls',
         ),
-        SizedBox(height: 10),
-        ProfileMenuTile(
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.logout_rounded,
           title: 'Logout',
           subtitle: 'Exit admin account',

@@ -583,22 +583,27 @@ class ProfileMenuTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.titleColor = kText,
+    this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
   final Color titleColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: kSurface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: kBorder),
-      ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: kSurface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: kBorder),
+        ),
       child: Row(
         children: [
           Container(
@@ -633,6 +638,7 @@ class ProfileMenuTile extends StatelessWidget {
           ),
           const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
         ],
+      ),
       ),
     );
   }
@@ -697,4 +703,40 @@ class AuthField extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> showLanguageDialog(BuildContext context) async {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Change Language / Ganti Bahasa', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.language_rounded),
+              title: const Text('Bahasa Indonesia'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Bahasa diubah ke Indonesia (Mock)')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.language_rounded),
+              title: const Text('English'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Language changed to English (Mock)')),
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
