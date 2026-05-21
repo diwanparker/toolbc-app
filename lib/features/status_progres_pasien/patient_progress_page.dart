@@ -11,8 +11,8 @@ class PatientProgressPage extends StatelessWidget {
     return AppPage(
       children: [
         const PageHeader(
-          title: 'Progress History',
-          subtitle: 'Track your treatment timeline and adherence streak.',
+          title: 'Riwayat Pengobatan',
+          subtitle: 'Pantau timeline pengobatan dan streak kepatuhan.',
         ),
         const SizedBox(height: 16),
         Container(
@@ -30,7 +30,7 @@ class PatientProgressPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Adherence Streak',
+                      'Streak Kepatuhan',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -48,7 +48,7 @@ class PatientProgressPage extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'Keep going, every dose matters.',
+                      'Terus semangat, setiap dosis penting!',
                       style: TextStyle(fontSize: 11, color: Color(0xFFDDFEE3)),
                     ),
                   ],
@@ -75,7 +75,7 @@ class PatientProgressPage extends StatelessWidget {
           children: const [
             Expanded(
               child: MetricCard(
-                label: 'Treatment day',
+                label: 'Hari pengobatan',
                 value: '24',
                 icon: Icons.timeline_rounded,
                 tint: kSurface,
@@ -85,7 +85,7 @@ class PatientProgressPage extends StatelessWidget {
             SizedBox(width: 12),
             Expanded(
               child: MetricCard(
-                label: 'Monthly adherence',
+                label: 'Kepatuhan bulanan',
                 value: '86%',
                 icon: Icons.check_circle_outline_rounded,
                 tint: kSurface,
@@ -96,7 +96,7 @@ class PatientProgressPage extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         const Text(
-          'History Logs',
+          'Riwayat',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w700,
@@ -105,24 +105,24 @@ class PatientProgressPage extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         const HistoryLogCard(
-          title: 'Morning medicine completed',
-          subtitle: 'Today • 08:04 WIB',
+          title: 'Obat pagi sudah diminum',
+          subtitle: 'Hari ini • 07:04 WIB',
           leading: Icons.check_circle_rounded,
           tint: kSoftGreen,
           fg: Color(0xFF16A34A),
         ),
         const SizedBox(height: 12),
         const HistoryLogCard(
-          title: 'Symptom log submitted',
-          subtitle: 'Yesterday • Low risk feedback',
-          leading: Icons.info_rounded,
+          title: 'Jadwal tes dahak bulan ke-2',
+          subtitle: 'Minggu depan • Evaluasi fase intensif',
+          leading: Icons.biotech_rounded,
           tint: kSoftBlue,
           fg: kPrimary,
         ),
         const SizedBox(height: 12),
         const HistoryLogCard(
-          title: 'Reminder sent for evening dose',
-          subtitle: '2 days ago • Confirmed after reminder',
+          title: 'Pengingat dosis pagi terkirim',
+          subtitle: '2 hari lalu • Dikonfirmasi setelah pengingat',
           leading: Icons.notifications_active_rounded,
           tint: Color(0xFFFFF7ED),
           fg: Color(0xFFF97316),
