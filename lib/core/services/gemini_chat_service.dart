@@ -23,7 +23,19 @@ class GeminiChatException implements Exception {
 class GeminiChatService {
   static final http.Client _client = http.Client();
 
-  static const String _apiKey = String.fromEnvironment('GEMINI_API_KEY');
+  static const String _apiKeysEnv = String.fromEnvironment('GEMINI_API_KEY');
+  static final List<String> _apiKeys = _apiKeysEnv.isNotEmpty
+      ? _apiKeysEnv
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList()
+      : [
+          'AIzaSyCztpkQcKjUsIgx55t5UkXuiKlmvGiKsrE', // Key 1
+          'AIzaSyB6IYxcwUwXseRS3tNvoDQTWoivsc-bIM4', // Key 2
+          'AIzaSyB1RqLB9d8MmTdIrcejMg8a2ZA-8WFsn1U', // Key 3
+          'AIzaSyA_tjTvUOYc-foCVq0hF-2fge7hwVQkCVo', // Key 4
+        ];
   static const String _model = String.fromEnvironment(
     'GEMINI_MODEL',
     defaultValue: 'gemini-2.5-flash',
@@ -31,7 +43,7 @@ class GeminiChatService {
   static const Duration _timeout = Duration(seconds: 28);
   static const int _maxHistoryTurns = 8;
 
-  static bool get isConfigured => _apiKey.isNotEmpty;
+  static bool get isConfigured => _apiKeys.isNotEmpty;
 
   static Future<String> generateReply({
     required List<GeminiChatTurn> history,
@@ -43,44 +55,59 @@ class GeminiChatService {
       );
     }
 
-    final uri = Uri.https(
-      'generativelanguage.googleapis.com',
-      '/v1beta/models/$_model:generateContent',
-      {'key': _apiKey},
-    );
+    GeminiChatException? lastException;
 
-    final response = await _client
-        .post(
-          uri,
-          headers: const {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'systemInstruction': {
-              'parts': [
-                {'text': _systemPrompt(mode)},
-              ],
-            },
-            'contents': _toGeminiContents(history),
-            'generationConfig': {
-              'temperature': 0.45,
-              'topP': 0.9,
-              'maxOutputTokens': 360,
-            },
-          }),
-        )
-        .timeout(_timeout);
-
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw GeminiChatException(_errorMessageFrom(response));
-    }
-
-    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    final text = _extractText(decoded);
-    if (text == null || text.trim().isEmpty) {
-      throw const GeminiChatException(
-        'AI tidak mengirim jawaban. Coba tanya ulang dengan kalimat yang lebih jelas.',
+    for (final apiKey in _apiKeys) {
+      final uri = Uri.https(
+        'generativelanguage.googleapis.com',
+        '/v1beta/models/$_model:generateContent',
+        {'key': apiKey},
       );
+
+      try {
+        final response = await _client
+            .post(
+              uri,
+              headers: const {'Content-Type': 'application/json'},
+              body: jsonEncode({
+                'systemInstruction': {
+                  'parts': [
+                    {'text': _systemPrompt(mode)},
+                  ],
+                },
+                'contents': _toGeminiContents(history),
+                'generationConfig': {
+                  'temperature': 0.45,
+                  'topP': 0.9,
+                  'maxOutputTokens': 360,
+                },
+              }),
+            )
+            .timeout(_timeout);
+
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+          final text = _extractText(decoded);
+          if (text == null || text.trim().isEmpty) {
+            throw const GeminiChatException(
+              'AI tidak mengirim jawaban. Coba tanya ulang dengan kalimat yang lebih jelas.',
+            );
+          }
+          return text.trim();
+        } else {
+          lastException = GeminiChatException(_errorMessageFrom(response));
+        }
+      } on GeminiChatException catch (e) {
+        lastException = e;
+      } catch (e) {
+        lastException = GeminiChatException('Layanan AI gagal: $e');
+      }
     }
-    return text.trim();
+
+    throw lastException ??
+        const GeminiChatException(
+          'Semua API key gagal memproses permintaan.',
+        );
   }
 
   static List<Map<String, dynamic>> _toGeminiContents(

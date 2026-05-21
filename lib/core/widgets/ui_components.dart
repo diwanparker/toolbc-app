@@ -405,6 +405,24 @@ class ChatBubble extends StatelessWidget {
   final String text;
   final bool incoming;
 
+  List<TextSpan> _parseMarkdown(String input) {
+    final parts = input.split('**');
+    final spans = <TextSpan>[];
+    for (int i = 0; i < parts.length; i++) {
+      if (i % 2 == 1) {
+        // Teks di antara ** dan **
+        spans.add(TextSpan(
+          text: parts[i],
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ));
+      } else {
+        // Teks biasa
+        spans.add(TextSpan(text: parts[i]));
+      }
+    }
+    return spans;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -416,11 +434,11 @@ class ChatBubble extends StatelessWidget {
           color: incoming ? kSoftBlue : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Text(
-          text,
+        child: Text.rich(
+          TextSpan(children: _parseMarkdown(text)),
           style: const TextStyle(
             fontSize: 10.5,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             color: kText,
           ),
         ),
@@ -565,22 +583,27 @@ class ProfileMenuTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.titleColor = kText,
+    this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
   final Color titleColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: kSurface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: kBorder),
-      ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: kSurface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: kBorder),
+        ),
       child: Row(
         children: [
           Container(
@@ -615,6 +638,7 @@ class ProfileMenuTile extends StatelessWidget {
           ),
           const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
         ],
+      ),
       ),
     );
   }
@@ -679,4 +703,40 @@ class AuthField extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> showLanguageDialog(BuildContext context) async {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Change Language / Ganti Bahasa', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.language_rounded),
+              title: const Text('Bahasa Indonesia'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Bahasa diubah ke Indonesia (Mock)')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.language_rounded),
+              title: const Text('English'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Language changed to English (Mock)')),
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

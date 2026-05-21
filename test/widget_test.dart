@@ -19,12 +19,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Good morning, Davina'), findsOneWidget);
-    expect(find.text('Treatment Progress'), findsOneWidget);
+    expect(find.text('Fase Intensif • Minggu ke-4 dari 8'), findsOneWidget);
 
-    await tester.tap(find.text('Checkup').last);
+    await tester.tap(find.text('Riwayat').last);
     await tester.pumpAndSettle();
 
-    expect(find.text('Daily Checkup'), findsOneWidget);
-    expect(find.text('Symptom Checker'), findsOneWidget);
+    expect(find.text('Riwayat Pengobatan'), findsOneWidget);
+    expect(find.text('Streak Kepatuhan'), findsOneWidget);
   });
 }

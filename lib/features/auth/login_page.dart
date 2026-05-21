@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../app/theme/app_theme.dart';
 import '../../core/models/app_mode.dart';
 import '../../core/services/supabase_service.dart';
 import '../../core/widgets/app_shell.dart';
@@ -154,8 +155,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
                     const _AuthFieldLabel('Email Address'),
                     const SizedBox(height: 10),
                     AuthField(
-                      hintText:
-                          'nama@pasien.com / nama@dokter.com / nama@admin.com',
+                      hintText: 'Contoh: nama@pasien.com',
                       prefixIcon: Icons.mail_outline_rounded,
                       controller: _emailController,
                       onChanged: (_) => setState(() {}),
@@ -182,7 +182,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 18),
                     SizedBox(
                       width: double.infinity,
                       height: 56,
@@ -190,12 +190,11 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
                         key: const ValueKey('auth_login_button'),
                         onPressed: _openDashboard,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0B57D0),
+                          backgroundColor: kPrimary,
                           foregroundColor: Colors.white,
-                          elevation: 6,
-                          shadowColor: Colors.black45,
+                          elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
                         child: const Text(
@@ -207,37 +206,35 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 26),
                     const Center(
                       child: Text(
-                        'Belum punya akun? Minta admin/resepsionis membuat akun pasien atau dokter.',
+                        'Belum memiliki akun?\nSilakan hubungi admin atau klinik untuk pendaftaran.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF424752),
+                          height: 1.5,
+                          color: Color(0xFF6B7280),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 14),
                     Center(
-                      child: Text(
-                        role == _DomainRole.invalid
-                            ? 'Format akun: @pasien.com, @dokter.com, atau @admin.com.'
-                            : 'Akun terdeteksi sebagai ${_roleLabel(role)}.',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF6B7280),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(999),
                         ),
-                      ),
-                    ),
-                    const Center(
-                      child: Text(
-                        'Admin membuat akun baru dari dashboard setelah login.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF6B7280),
+                        child: Text(
+                          role == _DomainRole.invalid
+                              ? 'Format: @pasien.com, @dokter.com, @admin.com'
+                              : 'Login sebagai: ${_roleLabel(role)}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: role == _DomainRole.invalid ? const Color(0xFF6B7280) : kPrimary,
+                          ),
                         ),
                       ),
                     ),
@@ -259,20 +256,18 @@ class _LoginAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 72,
-      height: 72,
+      width: 88,
+      height: 88,
       decoration: BoxDecoration(
-        color: const Color(0xFFE8F0FE),
-        borderRadius: BorderRadius.circular(999),
+        color: kSoftBlue,
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFFBFDBFE), width: 6),
       ),
       child: const Center(
-        child: Text(
-          'T',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF111827),
-          ),
+        child: Icon(
+          Icons.health_and_safety_rounded,
+          size: 38,
+          color: kPrimary,
         ),
       ),
     );
