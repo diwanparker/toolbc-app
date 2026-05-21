@@ -11,15 +11,15 @@ class DoctorDashboardPage extends StatelessWidget {
     return AppPage(
       children: [
         const PageHeader(
-          title: 'Doctor Dashboard',
-          subtitle: 'Review urgent cases and daily clinical workload.',
+          title: 'Dashboard Dokter',
+          subtitle: 'Tinjau kasus mendesak dan beban kerja klinis harian.',
         ),
         const SizedBox(height: 16),
         Row(
           children: const [
             Expanded(
               child: MetricCard(
-                label: 'Assigned Patients',
+                label: 'Pasien Terdaftar',
                 value: '48',
                 icon: Icons.groups_rounded,
                 tint: kSurface,
@@ -29,7 +29,7 @@ class DoctorDashboardPage extends StatelessWidget {
             SizedBox(width: 12),
             Expanded(
               child: MetricCard(
-                label: 'Urgent Alerts',
+                label: 'Peringatan Mendesak',
                 value: '6',
                 icon: Icons.notification_important_outlined,
                 tint: kSurface,
@@ -43,7 +43,7 @@ class DoctorDashboardPage extends StatelessWidget {
           children: const [
             Expanded(
               child: MetricCard(
-                label: 'Today Reviews',
+                label: 'Tinjauan Hari Ini',
                 value: '22',
                 icon: Icons.fact_check_outlined,
                 tint: kSurface,
@@ -53,7 +53,7 @@ class DoctorDashboardPage extends StatelessWidget {
             SizedBox(width: 12),
             Expanded(
               child: MetricCard(
-                label: 'Pending Follow-up',
+                label: 'Tindak Lanjut',
                 value: '9',
                 icon: Icons.pending_actions_rounded,
                 tint: kSurface,
@@ -66,37 +66,37 @@ class DoctorDashboardPage extends StatelessWidget {
         const SectionCard(
           background: Color(0xFFFEF2F2),
           borderColor: Color(0xFFFCA5A5),
-          title: 'Critical Alert',
+          title: 'Peringatan Kritis',
           trailing: StatusPill(
-            text: 'Urgent',
+            text: 'Mendesak',
             bg: Color(0xFFEF4444),
             fg: Colors.white,
           ),
           child: Text(
-            '2 patients missed medication for > 24 hours. Immediate follow-up is recommended.',
+            '2 pasien tidak minum obat pagi > 24 jam. Tindak lanjut segera diperlukan.',
             style: TextStyle(fontSize: 10.5, color: kMuted),
           ),
         ),
         const SizedBox(height: 16),
         const SectionCard(
-          title: 'Today Queue',
+          title: 'Antrian Hari Ini',
           child: Column(
             children: [
               _DoctorQueueTile(
                 name: 'Davina Karambol',
-                status: 'Missed evening dose',
+                status: 'Melewatkan dosis pagi',
                 severity: 'High',
               ),
               SizedBox(height: 10),
               _DoctorQueueTile(
                 name: 'Nadia Putri',
-                status: 'Mild symptom escalation',
+                status: 'Eskalasi gejala ringan',
                 severity: 'Medium',
               ),
               SizedBox(height: 10),
               _DoctorQueueTile(
                 name: 'Rizky Mahendra',
-                status: 'Daily report submitted',
+                status: 'Laporan harian dikirim',
                 severity: 'Low',
               ),
             ],
@@ -115,29 +115,29 @@ class DoctorPatientsPage extends StatelessWidget {
     return AppPage(
       children: const [
         PageHeader(
-          title: 'Patients',
-          subtitle: 'Track assigned patients and current treatment status.',
+          title: 'Pasien Saya',
+          subtitle: 'Pantau pasien dan status pengobatan saat ini.',
         ),
         SizedBox(height: 16),
         _DoctorPatientTile(
           name: 'Davina Karambol',
-          treatmentDay: 'Day 24',
+          treatmentDay: 'Hari ke-24 (Intensif)',
           adherence: '86%',
-          badge: 'Needs review',
+          badge: 'Perlu ditinjau',
         ),
         SizedBox(height: 12),
         _DoctorPatientTile(
           name: 'Nadia Putri',
-          treatmentDay: 'Day 11',
+          treatmentDay: 'Hari ke-11 (Intensif)',
           adherence: '78%',
-          badge: 'Moderate risk',
+          badge: 'Risiko sedang',
         ),
         SizedBox(height: 12),
         _DoctorPatientTile(
           name: 'Rizky Mahendra',
-          treatmentDay: 'Day 36',
+          treatmentDay: 'Hari ke-36 (Intensif)',
           adherence: '92%',
-          badge: 'Stable',
+          badge: 'Stabil',
         ),
       ],
     );
@@ -152,8 +152,8 @@ class DoctorAdherencePage extends StatelessWidget {
     return AppPage(
       children: [
         const PageHeader(
-          title: 'Adherence',
-          subtitle: 'Identify risk clusters from adherence trend.',
+          title: 'Kepatuhan Minum Obat',
+          subtitle: 'Identifikasi klaster risiko dari tren kepatuhan.',
         ),
         const SizedBox(height: 16),
         SectionCard(
@@ -161,7 +161,7 @@ class DoctorAdherencePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Weekly adherence trend',
+                'Tren kepatuhan mingguan',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -178,13 +178,13 @@ class DoctorAdherencePage extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: const Text(
-                  'Chart placeholder',
+                  'Grafik (segera hadir)',
                   style: TextStyle(color: kMuted, fontSize: 12),
                 ),
               ),
               const SizedBox(height: 10),
               const Text(
-                'Top issue: evening dose misses increased by 8% this week.',
+                'Masalah utama: dosis pagi terlewat meningkat 8% minggu ini.',
                 style: TextStyle(fontSize: 10.5, color: kMuted),
               ),
             ],
@@ -192,24 +192,24 @@ class DoctorAdherencePage extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         const SectionCard(
-          title: 'Risk Buckets',
+          title: 'Kelompok Risiko',
           child: Column(
             children: [
               _RiskBucketTile(
-                label: 'High Risk',
-                count: '6 patients',
+                label: 'Risiko Tinggi',
+                count: '6 pasien',
                 color: Color(0xFFEF4444),
               ),
               SizedBox(height: 10),
               _RiskBucketTile(
-                label: 'Moderate Risk',
-                count: '14 patients',
+                label: 'Risiko Sedang',
+                count: '14 pasien',
                 color: Color(0xFFF97316),
               ),
               SizedBox(height: 10),
               _RiskBucketTile(
-                label: 'Stable',
-                count: '28 patients',
+                label: 'Stabil',
+                count: '28 pasien',
                 color: Color(0xFF22C55E),
               ),
             ],
@@ -228,40 +228,40 @@ class DoctorReminderPage extends StatelessWidget {
     return AppPage(
       children: const [
         PageHeader(
-          title: 'Reminder',
-          subtitle: 'Medication reminders and escalations queue.',
+          title: 'Pengingat',
+          subtitle: 'Pengingat minum obat dan antrian eskalasi.',
         ),
         SizedBox(height: 16),
         SectionCard(
           background: Color(0xFFFFF7ED),
           borderColor: Color(0xFFFDBA74),
-          title: 'Escalation queue',
+          title: 'Antrian Eskalasi',
           trailing: StatusPill(
-            text: '3 Active',
+            text: '3 Aktif',
             bg: Color(0xFFF97316),
             fg: Colors.white,
           ),
           child: Text(
-            '3 reminders are waiting for doctor confirmation.',
+            '3 pengingat menunggu konfirmasi dokter.',
             style: TextStyle(fontSize: 10.5, color: kMuted),
           ),
         ),
         SizedBox(height: 12),
         _ReminderQueueTile(
           name: 'Davina Karambol',
-          message: 'Missed evening medication > 2 hours',
+          message: 'Melewatkan obat pagi > 2 jam',
           status: 'Escalated',
         ),
         SizedBox(height: 10),
         _ReminderQueueTile(
           name: 'Nadia Putri',
-          message: 'Pending confirmation after reminder',
+          message: 'Menunggu konfirmasi setelah pengingat',
           status: 'Pending',
         ),
         SizedBox(height: 10),
         _ReminderQueueTile(
           name: 'Rizky Mahendra',
-          message: 'Reminder resolved by patient',
+          message: 'Pengingat diselesaikan oleh pasien',
           status: 'Resolved',
         ),
       ],
@@ -275,40 +275,47 @@ class DoctorProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      children: const [
-        PageHeader(
-          title: 'Profile',
-          subtitle: 'Doctor account, availability, and security settings.',
+      children: [
+        const PageHeader(
+          title: 'Profil',
+          subtitle: 'Akun dokter, jadwal, dan pengaturan keamanan.',
         ),
-        SizedBox(height: 16),
-        ProfileMenuTile(
+        const SizedBox(height: 16),
+        const ProfileMenuTile(
           icon: Icons.badge_outlined,
-          title: 'Professional Identity',
-          subtitle: 'Dr. Arya Pratama • Pulmonology',
+          title: 'Identitas Profesional',
+          subtitle: 'Dr. Arya Pratama • Pulmonologi',
         ),
-        SizedBox(height: 10),
-        ProfileMenuTile(
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.schedule_outlined,
-          title: 'Availability',
-          subtitle: 'Set active consultation schedule',
+          title: 'Ketersediaan',
+          subtitle: 'Atur jadwal konsultasi aktif',
         ),
-        SizedBox(height: 10),
-        ProfileMenuTile(
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.notifications_active_outlined,
-          title: 'Reminder Preferences',
-          subtitle: 'Escalation and alert threshold',
+          title: 'Preferensi Pengingat',
+          subtitle: 'Eskalasi dan batas peringatan',
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         ProfileMenuTile(
+          icon: Icons.language_rounded,
+          title: 'Bahasa',
+          subtitle: 'Ganti bahasa aplikasi (ID/EN)',
+          onTap: () => showLanguageDialog(context),
+        ),
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.security_outlined,
-          title: 'Security',
-          subtitle: 'Password and session management',
+          title: 'Keamanan',
+          subtitle: 'Password dan manajemen sesi',
         ),
-        SizedBox(height: 10),
-        ProfileMenuTile(
+        const SizedBox(height: 10),
+        const ProfileMenuTile(
           icon: Icons.logout_rounded,
-          title: 'Logout',
-          subtitle: 'Exit doctor account',
+          title: 'Keluar',
+          subtitle: 'Keluar dari akun dokter',
           titleColor: Color(0xFFEF4444),
         ),
       ],
@@ -428,7 +435,7 @@ class _DoctorPatientTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$treatmentDay • Adherence $adherence',
+                  '$treatmentDay • Kepatuhan $adherence',
                   style: const TextStyle(fontSize: 10.5, color: kMuted),
                 ),
               ],

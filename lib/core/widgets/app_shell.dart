@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/models/app_mode.dart';
 import '../../features/admin/admin_pages.dart';
-import '../../features/dashboard_compliance/patient_compliance_dashboard_page.dart';
 import '../../features/doctor/doctor_pages.dart';
 import '../../features/notification/notification_center_page.dart';
 import '../../features/patient/patient_chat_page.dart';
@@ -51,33 +50,27 @@ class _AppShellState extends State<AppShell> {
         return [
           _NavSpec(
             icon: Icons.home_rounded,
-            label: 'Home',
-            subtitle: 'Treatment progress and today\'s focus.',
+            label: 'Beranda',
+            subtitle: 'Progres pengobatan dan fokus hari ini.',
             builder: (_) =>
                 PatientHomePage(onOpenNotifications: _openNotifications),
           ),
           _NavSpec(
-            icon: Icons.fact_check_outlined,
-            label: 'Checkup',
-            subtitle: 'Log symptoms and review feedback.',
-            builder: _patientCheckupPage,
-          ),
-          _NavSpec(
             icon: Icons.chat_bubble_outline_rounded,
             label: 'Chatbot',
-            subtitle: 'Talk to your care team quickly.',
+            subtitle: 'Tanya cepat ke tim perawatan.',
             builder: _patientChatPage,
           ),
           _NavSpec(
             icon: Icons.history_rounded,
-            label: 'History',
-            subtitle: 'Track adherence and milestones.',
+            label: 'Riwayat',
+            subtitle: 'Pantau kepatuhan dan pencapaian.',
             builder: _patientHistoryPage,
           ),
           _NavSpec(
             icon: Icons.person_outline_rounded,
-            label: 'Profile',
-            subtitle: 'Account, settings, and privacy.',
+            label: 'Profil',
+            subtitle: 'Akun, pengaturan, dan privasi.',
             builder: _patientProfilePage,
           ),
         ];
@@ -85,32 +78,32 @@ class _AppShellState extends State<AppShell> {
         return [
           _NavSpec(
             icon: Icons.home_rounded,
-            label: 'Home',
-            subtitle: 'Doctor operations overview and urgent alerts.',
+            label: 'Beranda',
+            subtitle: 'Ringkasan operasional dan peringatan mendesak.',
             builder: _doctorDashboardPage,
           ),
           _NavSpec(
             icon: Icons.groups_outlined,
-            label: 'Patients',
-            subtitle: 'Monitor assigned patients and current status.',
+            label: 'Pasien',
+            subtitle: 'Pantau pasien dan status pengobatan.',
             builder: _doctorPatientsPage,
           ),
           _NavSpec(
             icon: Icons.insights_outlined,
-            label: 'Adherence',
-            subtitle: 'Review adherence trends and at-risk patients.',
+            label: 'Kepatuhan',
+            subtitle: 'Tinjau tren kepatuhan dan pasien berisiko.',
             builder: _doctorAdherencePage,
           ),
           _NavSpec(
             icon: Icons.notifications_active_outlined,
-            label: 'Reminder',
-            subtitle: 'Medication reminders and escalation queue.',
+            label: 'Pengingat',
+            subtitle: 'Pengingat obat dan antrian eskalasi.',
             builder: _doctorReminderPage,
           ),
           _NavSpec(
             icon: Icons.person_outline_rounded,
-            label: 'Profile',
-            subtitle: 'Doctor account and contact preferences.',
+            label: 'Profil',
+            subtitle: 'Akun dokter dan preferensi kontak.',
             builder: _doctorProfilePage,
           ),
         ];
@@ -118,20 +111,20 @@ class _AppShellState extends State<AppShell> {
         return [
           _NavSpec(
             icon: Icons.person_add_alt_1_rounded,
-            label: 'Add Patient',
-            subtitle: 'Create patient accounts requested by doctors.',
+            label: 'Tambah Pasien',
+            subtitle: 'Buat akun pasien atas permintaan dokter.',
             builder: _adminPatientPage,
           ),
           _NavSpec(
             icon: Icons.medical_services_outlined,
-            label: 'Add Doctor',
-            subtitle: 'Create doctor accounts for the care team.',
+            label: 'Tambah Dokter',
+            subtitle: 'Buat akun dokter untuk tim perawatan.',
             builder: _adminDoctorPage,
           ),
           _NavSpec(
             icon: Icons.person_outline_rounded,
-            label: 'Profile',
-            subtitle: 'Account and workspace settings.',
+            label: 'Profil',
+            subtitle: 'Akun dan pengaturan workspace.',
             builder: _adminProfilePage,
           ),
         ];
@@ -249,49 +242,50 @@ class _AppTopBar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            InkWell(
-              borderRadius: BorderRadius.circular(999),
-              onTap: onNotificationsTap,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: const Icon(
-                      Icons.notifications_none_rounded,
-                      color: Color(0xFF1F2937),
-                      size: 20,
-                    ),
-                  ),
-                  Positioned(
-                    right: -1,
-                    top: -2,
-                    child: Container(
-                      width: 16,
-                      height: 16,
+            if (mode != AppMode.admin)
+              InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: onNotificationsTap,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.redAccent,
+                        color: const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        '2',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
+                      child: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: Color(0xFF1F2937),
+                        size: 20,
+                      ),
+                    ),
+                    Positioned(
+                      right: -1,
+                      top: -2,
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          '2',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -391,10 +385,6 @@ class _NavSpec {
   final String label;
   final String subtitle;
   final WidgetBuilder builder;
-}
-
-Widget _patientCheckupPage(BuildContext context) {
-  return const PatientComplianceDashboardPage();
 }
 
 Widget _patientChatPage(BuildContext context) {

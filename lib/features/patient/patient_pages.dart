@@ -47,7 +47,7 @@ class PatientHomePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Treatment Progress',
+                      'Fase Intensif • Minggu ke-4 dari 8',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -72,7 +72,7 @@ class PatientHomePage extends StatelessWidget {
                               ),
                               SizedBox(height: 6),
                               Text(
-                                '60% completed • stay consistent',
+                                '14% selesai • tetap konsisten!',
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: Color(0xFFDBEAFE),
@@ -132,9 +132,9 @@ class PatientHomePage extends StatelessWidget {
             SizedBox(width: 12),
             Expanded(
               child: MetricCard(
-                label: 'Next Checkup',
-                value: 'Fri 09:30',
-                icon: Icons.calendar_month_rounded,
+                label: 'Tes Dahak',
+                value: 'Bulan ke-2',
+                icon: Icons.biotech_rounded,
                 tint: Color(0xFFEFF6FF),
                 accent: kPrimary,
               ),
@@ -143,9 +143,9 @@ class PatientHomePage extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         SectionCard(
-          title: 'Medication Reminder',
+          title: 'Pengingat Obat',
           trailing: const StatusPill(
-            text: 'Pending',
+            text: 'Belum',
             bg: Color(0xFFFFF7ED),
             fg: Color(0xFF92400E),
           ),
@@ -154,22 +154,42 @@ class PatientHomePage extends StatelessWidget {
             children: [
               Row(
                 children: const [
-                  TimeBadge(time: '20:00 WIB'),
+                  TimeBadge(time: '07:00 WIB'),
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Rifampicin + Isoniazid • after meal',
+                      'RHZE (Rifampicin, Isoniazid,\nPyrazinamide, Ethambutol)\n• sebelum makan, perut kosong',
                       style: TextStyle(fontSize: 10.5, color: kMuted),
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF7ED),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.info_outline_rounded, size: 14, color: Color(0xFFF97316)),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Urin berwarna merah/oranye setelah minum Rifampicin adalah NORMAL.',
+                        style: TextStyle(fontSize: 9.5, color: Color(0xFF92400E)),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 14),
               Row(
                 children: [
                   Expanded(
                     child: AppActionChip(
-                      label: 'I have taken it',
+                      label: 'Sudah diminum',
                       filled: true,
                       fillColor: Color(0xFF22C55E),
                       fg: Colors.white,
@@ -178,7 +198,7 @@ class PatientHomePage extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: AppActionChip(
-                      label: 'Remind me later',
+                      label: 'Ingatkan nanti',
                       filled: false,
                       fillColor: kSoftBlue,
                       fg: kPrimary,
@@ -192,9 +212,9 @@ class PatientHomePage extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         SectionCard(
-          title: 'Reminder Status',
+          title: 'Status Pengingat',
           trailing: const StatusPill(
-            text: 'Active',
+            text: 'Aktif',
             bg: Color(0xFFDDF7E0),
             fg: Color(0xFF15803D),
           ),
@@ -202,12 +222,12 @@ class PatientHomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Auto reminder sent 5 min ago.',
+                'Pengingat otomatis terkirim 5 menit lalu.',
                 style: TextStyle(fontSize: 10.5, color: kMuted),
               ),
               SizedBox(height: 4),
               Text(
-                'Next reminder in 10 minutes if not confirmed.',
+                'Pengingat berikutnya dalam 10 menit jika belum dikonfirmasi.',
                 style: TextStyle(fontSize: 10.5, color: kMuted),
               ),
             ],
@@ -215,18 +235,8 @@ class PatientHomePage extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         SectionCard(
-          title: 'Daily Checklist',
-          child: Row(
-            children: const [
-              Expanded(
-                child: ChecklistTile(label: 'Take medicine', active: false),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: ChecklistTile(label: 'Log symptoms', active: true),
-              ),
-            ],
-          ),
+          title: 'Checklist Harian',
+          child: const ChecklistTile(label: 'Minum obat pagi', active: false),
         ),
         const SizedBox(height: 16),
         SectionCard(
@@ -235,17 +245,7 @@ class PatientHomePage extends StatelessWidget {
             children: [
               Expanded(
                 child: AppActionChip(
-                  label: 'Ask AI',
-                  filled: false,
-                  fillColor: kSoftBlue,
-                  fg: kPrimary,
-                  onTap: onOpenNotifications,
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: AppActionChip(
-                  label: 'Call doctor',
+                  label: 'Tanya AI',
                   filled: false,
                   fillColor: kSoftBlue,
                   fg: kPrimary,
@@ -254,7 +254,16 @@ class PatientHomePage extends StatelessWidget {
               const SizedBox(width: 10),
               const Expanded(
                 child: AppActionChip(
-                  label: 'Send report',
+                  label: 'Hubungi dokter',
+                  filled: false,
+                  fillColor: kSoftBlue,
+                  fg: kPrimary,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: AppActionChip(
+                  label: 'Kirim laporan',
                   filled: false,
                   fillColor: kSoftBlue,
                   fg: kPrimary,

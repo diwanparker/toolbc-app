@@ -181,7 +181,6 @@ class _ChatIntro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final aiReady = GeminiChatService.isConfigured;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
