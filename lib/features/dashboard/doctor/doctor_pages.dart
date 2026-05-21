@@ -1,10 +1,76 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_theme.dart';
-import '../../core/widgets/ui_components.dart';
+import '../../../app/theme/app_theme.dart';
+import '../../../core/services/supabase_service.dart';
+import '../../../core/widgets/ui_components.dart';
 
-class DoctorDashboardPage extends StatelessWidget {
+class DoctorDashboardPage extends StatefulWidget {
   const DoctorDashboardPage({super.key});
+
+  @override
+  State<DoctorDashboardPage> createState() => _DoctorDashboardPageState();
+}
+
+class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
+  late Future<_DoctorDashboardStats> _statsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _statsFuture = _loadStats();
+  }
+
+  Future<_DoctorDashboardStats> _loadStats() async {
+    final supabase = SupabaseService.client;
+    final user = supabase.auth.currentUser;
+    if (user == null) {
+      return const _DoctorDashboardStats(
+        assignedPatients: 0,
+        urgentAlerts: 0,
+        todayReviews: 0,
+        pendingFollowUp: 0,
+      );
+    }
+
+    final patientsRes = await supabase
+        .from('patients_data')
+        .select('id')
+        .eq('assigned_doctor', user.id);
+    final assignedPatients = (patientsRes as List).length;
+
+    final notificationsRes = await supabase
+        .from('notifications')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+    final urgentAlerts = (notificationsRes as List).length;
+
+    final appointmentsRes = await supabase
+        .from('appointments')
+        .select('id, scheduled_at, status')
+        .eq('doctor_id', user.id);
+
+    final appointments = (appointmentsRes as List).cast<Map<String, dynamic>>();
+    final today = DateTime.now();
+    final todayReviews = appointments.where((row) {
+      final scheduledAt = DateTime.tryParse('${row['scheduled_at']}');
+      if (scheduledAt == null) return false;
+      return scheduledAt.year == today.year &&
+          scheduledAt.month == today.month &&
+          scheduledAt.day == today.day;
+    }).length;
+    final pendingFollowUp = appointments.where((row) {
+      final status = '${row['status']}'.toLowerCase();
+      return status != 'completed';
+    }).length;
+
+    return _DoctorDashboardStats(
+      assignedPatients: assignedPatients,
+      urgentAlerts: urgentAlerts,
+      todayReviews: todayReviews,
+      pendingFollowUp: pendingFollowUp,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,96 +81,128 @@ class DoctorDashboardPage extends StatelessWidget {
           subtitle: 'Review urgent cases and daily clinical workload.',
         ),
         const SizedBox(height: 16),
-        Row(
-          children: const [
-            Expanded(
-              child: MetricCard(
-                label: 'Assigned Patients',
-                value: '48',
-                icon: Icons.groups_rounded,
-                tint: kSurface,
-                accent: kPrimary,
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: MetricCard(
-                label: 'Urgent Alerts',
-                value: '6',
-                icon: Icons.notification_important_outlined,
-                tint: kSurface,
-                accent: Color(0xFFEF4444),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: const [
-            Expanded(
-              child: MetricCard(
-                label: 'Today Reviews',
-                value: '22',
-                icon: Icons.fact_check_outlined,
-                tint: kSurface,
-                accent: Color(0xFF16A34A),
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: MetricCard(
-                label: 'Pending Follow-up',
-                value: '9',
-                icon: Icons.pending_actions_rounded,
-                tint: kSurface,
-                accent: Color(0xFFF97316),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        const SectionCard(
-          background: Color(0xFFFEF2F2),
-          borderColor: Color(0xFFFCA5A5),
-          title: 'Critical Alert',
-          trailing: StatusPill(
-            text: 'Urgent',
-            bg: Color(0xFFEF4444),
-            fg: Colors.white,
-          ),
-          child: Text(
-            '2 patients missed medication for > 24 hours. Immediate follow-up is recommended.',
-            style: TextStyle(fontSize: 10.5, color: kMuted),
-          ),
-        ),
-        const SizedBox(height: 16),
-        const SectionCard(
-          title: 'Today Queue',
-          child: Column(
-            children: [
-              _DoctorQueueTile(
-                name: 'Davina Karambol',
-                status: 'Missed evening dose',
-                severity: 'High',
-              ),
-              SizedBox(height: 10),
-              _DoctorQueueTile(
-                name: 'Nadia Putri',
-                status: 'Mild symptom escalation',
-                severity: 'Medium',
-              ),
-              SizedBox(height: 10),
-              _DoctorQueueTile(
-                name: 'Rizky Mahendra',
-                status: 'Daily report submitted',
-                severity: 'Low',
-              ),
-            ],
-          ),
+        FutureBuilder<_DoctorDashboardStats>(
+          future: _statsFuture,
+          builder: (context, snapshot) {
+            final stats = snapshot.data ?? const _DoctorDashboardStats(
+              assignedPatients: 0,
+              urgentAlerts: 0,
+              todayReviews: 0,
+              pendingFollowUp: 0,
+            );
+
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: MetricCard(
+                        label: 'Assigned Patients',
+                        value: '${stats.assignedPatients}',
+                        icon: Icons.groups_rounded,
+                        tint: kSurface,
+                        accent: kPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: MetricCard(
+                        label: 'Urgent Alerts',
+                        value: '${stats.urgentAlerts}',
+                        icon: Icons.notification_important_outlined,
+                        tint: kSurface,
+                        accent: const Color(0xFFEF4444),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: MetricCard(
+                        label: 'Today Reviews',
+                        value: '${stats.todayReviews}',
+                        icon: Icons.fact_check_outlined,
+                        tint: kSurface,
+                        accent: const Color(0xFF16A34A),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: MetricCard(
+                        label: 'Pending Follow-up',
+                        value: '${stats.pendingFollowUp}',
+                        icon: Icons.pending_actions_rounded,
+                        tint: kSurface,
+                        accent: const Color(0xFFF97316),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SectionCard(
+                  background: const Color(0xFFFEF2F2),
+                  borderColor: const Color(0xFFFCA5A5),
+                  title: 'Critical Alert',
+                  trailing: StatusPill(
+                    text: 'Urgent',
+                    bg: const Color(0xFFEF4444),
+                    fg: Colors.white,
+                  ),
+                  child: Text(
+                    stats.urgentAlerts > 0
+                        ? '${stats.urgentAlerts} unread alerts need review.'
+                        : 'No urgent alerts right now.',
+                    style: const TextStyle(fontSize: 10.5, color: kMuted),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const SectionCard(
+                  title: 'Today Queue',
+                  child: Column(
+                    children: [
+                      _DoctorQueueTile(
+                        name: 'Davina Karambol',
+                        status: 'Missed evening dose',
+                        severity: 'High',
+                      ),
+                      SizedBox(height: 10),
+                      _DoctorQueueTile(
+                        name: 'Nadia Putri',
+                        status: 'Mild symptom escalation',
+                        severity: 'Medium',
+                      ),
+                      SizedBox(height: 10),
+                      _DoctorQueueTile(
+                        name: 'Rizky Mahendra',
+                        status: 'Daily report submitted',
+                        severity: 'Low',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ],
     );
   }
+}
+
+class _DoctorDashboardStats {
+  const _DoctorDashboardStats({
+    required this.assignedPatients,
+    required this.urgentAlerts,
+    required this.todayReviews,
+    required this.pendingFollowUp,
+  });
+
+  final int assignedPatients;
+  final int urgentAlerts;
+  final int todayReviews;
+  final int pendingFollowUp;
 }
 
 class DoctorPatientsPage extends StatelessWidget {

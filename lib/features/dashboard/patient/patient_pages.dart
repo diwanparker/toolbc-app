@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_theme.dart';
-import '../../core/widgets/ui_components.dart';
+import '../../../app/theme/app_theme.dart';
+import '../../../core/widgets/ui_components.dart';
 
 class PatientHomePage extends StatelessWidget {
   const PatientHomePage({super.key, required this.onOpenNotifications});
