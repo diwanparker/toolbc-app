@@ -115,10 +115,46 @@ class DoctorPatientsPage extends StatelessWidget {
     return AppPage(
       children: const [
         PageHeader(
-          title: 'Pasien Saya',
-          subtitle: 'Pantau pasien dan status pengobatan saat ini.',
+          title: 'Pasien & Eskalasi',
+          subtitle: 'Pantau status pengobatan dan antrian eskalasi pasien.',
         ),
         SizedBox(height: 16),
+        SectionCard(
+          background: Color(0xFFFFF7ED),
+          borderColor: Color(0xFFFDBA74),
+          title: 'Antrian Eskalasi',
+          trailing: StatusPill(
+            text: '3 Aktif',
+            bg: Color(0xFFF97316),
+            fg: Colors.white,
+          ),
+          child: Text(
+            '3 peringatan atau pengingat menunggu konfirmasi dokter.',
+            style: TextStyle(fontSize: 10.5, color: kMuted),
+          ),
+        ),
+        SizedBox(height: 12),
+        _ReminderQueueTile(
+          name: 'Davina Karambol',
+          message: 'Melewatkan obat pagi > 2 jam',
+          status: 'Escalated',
+        ),
+        SizedBox(height: 10),
+        _ReminderQueueTile(
+          name: 'Nadia Putri',
+          message: 'Menunggu konfirmasi setelah pengingat',
+          status: 'Pending',
+        ),
+        SizedBox(height: 16),
+        Text(
+          'Daftar Pasien',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: kText,
+          ),
+        ),
+        SizedBox(height: 12),
         _DoctorPatientTile(
           name: 'Davina Karambol',
           treatmentDay: 'Hari ke-24 (Intensif)',
@@ -220,54 +256,6 @@ class DoctorAdherencePage extends StatelessWidget {
   }
 }
 
-class DoctorReminderPage extends StatelessWidget {
-  const DoctorReminderPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return AppPage(
-      children: const [
-        PageHeader(
-          title: 'Pengingat',
-          subtitle: 'Pengingat minum obat dan antrian eskalasi.',
-        ),
-        SizedBox(height: 16),
-        SectionCard(
-          background: Color(0xFFFFF7ED),
-          borderColor: Color(0xFFFDBA74),
-          title: 'Antrian Eskalasi',
-          trailing: StatusPill(
-            text: '3 Aktif',
-            bg: Color(0xFFF97316),
-            fg: Colors.white,
-          ),
-          child: Text(
-            '3 pengingat menunggu konfirmasi dokter.',
-            style: TextStyle(fontSize: 10.5, color: kMuted),
-          ),
-        ),
-        SizedBox(height: 12),
-        _ReminderQueueTile(
-          name: 'Davina Karambol',
-          message: 'Melewatkan obat pagi > 2 jam',
-          status: 'Escalated',
-        ),
-        SizedBox(height: 10),
-        _ReminderQueueTile(
-          name: 'Nadia Putri',
-          message: 'Menunggu konfirmasi setelah pengingat',
-          status: 'Pending',
-        ),
-        SizedBox(height: 10),
-        _ReminderQueueTile(
-          name: 'Rizky Mahendra',
-          message: 'Pengingat diselesaikan oleh pasien',
-          status: 'Resolved',
-        ),
-      ],
-    );
-  }
-}
 
 class DoctorProfilePage extends StatelessWidget {
   const DoctorProfilePage({super.key});
