@@ -115,7 +115,7 @@ class DoctorPatientsPage extends StatelessWidget {
     return AppPage(
       children: const [
         PageHeader(
-          title: 'Pasien & Eskalasi',
+          title: 'Pengingat',
           subtitle: 'Pantau status pengobatan dan antrian eskalasi pasien.',
         ),
         SizedBox(height: 16),

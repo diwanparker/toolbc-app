@@ -85,9 +85,9 @@ class _AppShellState extends State<AppShell> {
             builder: _doctorDashboardPage,
           ),
           _NavSpec(
-            icon: Icons.groups_outlined,
-            label: 'Pasien',
-            subtitle: 'Pantau pasien dan status pengobatan.',
+            icon: Icons.notifications_active_outlined,
+            label: 'Pengingat',
+            subtitle: 'Pantau status pengobatan dan antrian eskalasi pasien.',
             builder: _doctorPatientsPage,
           ),
           _NavSpec(
