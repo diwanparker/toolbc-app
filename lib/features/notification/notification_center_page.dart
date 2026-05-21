@@ -7,27 +7,27 @@ const List<_NotificationEntry> _allNotifications = [
   _NotificationEntry(
     type: _NotificationType.reminder,
     icon: Icons.check_circle_rounded,
-    title: 'Morning dose completed',
-    subtitle: 'Today - 08:04 WIB',
-    status: 'Done',
+    title: 'Obat pagi sudah diminum',
+    subtitle: 'Hari ini - 07:04 WIB',
+    status: 'Selesai',
     statusBg: Color(0xFFDDFEE3),
     statusFg: Color(0xFF15803D),
   ),
   _NotificationEntry(
     type: _NotificationType.reminder,
     icon: Icons.notifications_active_rounded,
-    title: 'Evening dose reminder',
-    subtitle: 'Today - 19:55 WIB',
-    status: 'Pending',
+    title: 'Pengingat dosis pagi',
+    subtitle: 'Hari ini - 06:55 WIB',
+    status: 'Menunggu',
     statusBg: Color(0xFFFFF3C7),
     statusFg: Color(0xFF92400E),
   ),
   _NotificationEntry(
     type: _NotificationType.alert,
     icon: Icons.info_rounded,
-    title: 'Symptom log submitted',
-    subtitle: 'Yesterday - low risk feedback',
-    status: 'Read',
+    title: 'Jadwal tes dahak bulan ke-2',
+    subtitle: 'Minggu depan - Evaluasi fase intensif',
+    status: 'Info',
     statusBg: Color(0xFFDDFEE3),
     statusFg: Color(0xFF15803D),
   ),
@@ -53,7 +53,7 @@ class _NotificationCenterPageState extends State<NotificationCenterPage> {
         backgroundColor: Colors.white.withValues(alpha: 0.85),
         elevation: 0,
         title: const Text(
-          'Notifications',
+          'Notifikasi',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
@@ -63,28 +63,28 @@ class _NotificationCenterPageState extends State<NotificationCenterPage> {
           const SectionCard(
             background: Color(0xFFFFF7ED),
             borderColor: Color(0xFFFDBA74),
-            title: 'Evening medicine pending',
+            title: 'Obat pagi belum diminum',
             trailing: StatusPill(
-              text: 'Confirm',
+              text: 'Konfirmasi',
               bg: Color(0xFFF97316),
               fg: Colors.white,
             ),
             child: Text(
-              'Reminder sent 5 minutes ago.',
+              'Pengingat dikirim 5 menit yang lalu.',
               style: TextStyle(fontSize: 10.5, color: kMuted),
             ),
           ),
           const SizedBox(height: 16),
           SegmentedButton<_NotificationFilter>(
             segments: const [
-              ButtonSegment(value: _NotificationFilter.all, label: Text('All')),
+              ButtonSegment(value: _NotificationFilter.all, label: Text('Semua')),
               ButtonSegment(
                 value: _NotificationFilter.reminders,
-                label: Text('Reminders'),
+                label: Text('Pengingat'),
               ),
               ButtonSegment(
                 value: _NotificationFilter.alerts,
-                label: Text('Alerts'),
+                label: Text('Peringatan'),
               ),
             ],
             selected: {_filter},
@@ -107,17 +107,17 @@ class _NotificationCenterPageState extends State<NotificationCenterPage> {
           SectionCard(
             background: const Color(0xFFF8FAFC),
             borderColor: const Color(0xFFE2E8F0),
-            title: 'Reminder Summary',
+            title: 'Ringkasan Pengingat',
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Auto reminders: 6 sent this week.',
+                  'Pengingat otomatis: 6 terkirim minggu ini.',
                   style: TextStyle(fontSize: 10, color: kMuted),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Missed reminders: 1 resolved after follow-up.',
+                  'Pengingat terlewat: 1 diselesaikan setelah tindak lanjut.',
                   style: TextStyle(fontSize: 10, color: kMuted),
                 ),
               ],
