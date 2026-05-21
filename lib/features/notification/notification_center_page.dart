@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_theme.dart';
+import '../../core/models/app_mode.dart';
 import '../../core/widgets/ui_components.dart';
 
-const List<_NotificationEntry> _allNotifications = [
+const List<_NotificationEntry> _patientNotifications = [
   _NotificationEntry(
     type: _NotificationType.reminder,
     icon: Icons.check_circle_rounded,
@@ -33,8 +34,31 @@ const List<_NotificationEntry> _allNotifications = [
   ),
 ];
 
+const List<_NotificationEntry> _doctorNotifications = [
+  _NotificationEntry(
+    type: _NotificationType.alert,
+    icon: Icons.warning_rounded,
+    title: 'Eskalasi: Pasien Davina',
+    subtitle: 'Melewatkan dosis pagi > 2 jam',
+    status: 'Tindak Lanjut',
+    statusBg: Color(0xFFFEE2E2),
+    statusFg: Color(0xFFB91C1C),
+  ),
+  _NotificationEntry(
+    type: _NotificationType.reminder,
+    icon: Icons.info_rounded,
+    title: 'Jadwal Tes Dahak',
+    subtitle: 'Pasien Nadia (Bulan ke-2) minggu depan',
+    status: 'Info',
+    statusBg: Color(0xFFE0F2FE),
+    statusFg: Color(0xFF0369A1),
+  ),
+];
+
 class NotificationCenterPage extends StatefulWidget {
-  const NotificationCenterPage({super.key});
+  const NotificationCenterPage({super.key, required this.mode});
+
+  final AppMode mode;
 
   @override
   State<NotificationCenterPage> createState() => _NotificationCenterPageState();
@@ -42,6 +66,15 @@ class NotificationCenterPage extends StatefulWidget {
 
 class _NotificationCenterPageState extends State<NotificationCenterPage> {
   _NotificationFilter _filter = _NotificationFilter.all;
+  late final List<_NotificationEntry> _allNotifications;
+
+  @override
+  void initState() {
+    super.initState();
+    _allNotifications = widget.mode == AppMode.doctor
+        ? _doctorNotifications
+        : _patientNotifications;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,20 +93,36 @@ class _NotificationCenterPageState extends State<NotificationCenterPage> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const SectionCard(
-            background: Color(0xFFFFF7ED),
-            borderColor: Color(0xFFFDBA74),
-            title: 'Obat pagi belum diminum',
-            trailing: StatusPill(
-              text: 'Konfirmasi',
-              bg: Color(0xFFF97316),
-              fg: Colors.white,
+          if (widget.mode == AppMode.doctor)
+            const SectionCard(
+              background: Color(0xFFFEF2F2),
+              borderColor: Color(0xFFFCA5A5),
+              title: 'Peringatan Kritis: Pasien Davina',
+              trailing: StatusPill(
+                text: 'Mendesak',
+                bg: Color(0xFFEF4444),
+                fg: Colors.white,
+              ),
+              child: Text(
+                'Melewatkan dosis pagi > 2 jam. Tindak lanjut segera direkomendasikan.',
+                style: TextStyle(fontSize: 10.5, color: kMuted),
+              ),
+            )
+          else
+            const SectionCard(
+              background: Color(0xFFFFF7ED),
+              borderColor: Color(0xFFFDBA74),
+              title: 'Obat pagi belum diminum',
+              trailing: StatusPill(
+                text: 'Konfirmasi',
+                bg: Color(0xFFF97316),
+                fg: Colors.white,
+              ),
+              child: Text(
+                'Pengingat dikirim 5 menit yang lalu.',
+                style: TextStyle(fontSize: 10.5, color: kMuted),
+              ),
             ),
-            child: Text(
-              'Pengingat dikirim 5 menit yang lalu.',
-              style: TextStyle(fontSize: 10.5, color: kMuted),
-            ),
-          ),
           const SizedBox(height: 16),
           SegmentedButton<_NotificationFilter>(
             segments: const [
@@ -102,27 +151,48 @@ class _NotificationCenterPageState extends State<NotificationCenterPage> {
               statusBg: item.statusBg,
               statusFg: item.statusFg,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
           ],
-          SectionCard(
-            background: const Color(0xFFF8FAFC),
-            borderColor: const Color(0xFFE2E8F0),
-            title: 'Ringkasan Pengingat',
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Pengingat otomatis: 6 terkirim minggu ini.',
-                  style: TextStyle(fontSize: 10, color: kMuted),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Pengingat terlewat: 1 diselesaikan setelah tindak lanjut.',
-                  style: TextStyle(fontSize: 10, color: kMuted),
-                ),
-              ],
+          if (widget.mode == AppMode.doctor)
+            const SectionCard(
+              background: Color(0xFFF8FAFC),
+              borderColor: Color(0xFFE2E8F0),
+              title: 'Ringkasan Eskalasi',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Peringatan aktif: 3 butuh konfirmasi.',
+                    style: TextStyle(fontSize: 10, color: kMuted),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Peringatan diselesaikan: 5 minggu ini.',
+                    style: TextStyle(fontSize: 10, color: kMuted),
+                  ),
+                ],
+              ),
+            )
+          else
+            const SectionCard(
+              background: Color(0xFFF8FAFC),
+              borderColor: Color(0xFFE2E8F0),
+              title: 'Ringkasan Pengingat',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pengingat otomatis: 6 terkirim minggu ini.',
+                    style: TextStyle(fontSize: 10, color: kMuted),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Pengingat terlewat: 1 diselesaikan setelah tindak lanjut.',
+                    style: TextStyle(fontSize: 10, color: kMuted),
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

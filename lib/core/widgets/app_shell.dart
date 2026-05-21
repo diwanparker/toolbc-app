@@ -40,7 +40,9 @@ class _AppShellState extends State<AppShell> {
 
   void _openNotifications() {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const NotificationCenterPage()),
+      MaterialPageRoute<void>(
+        builder: (_) => NotificationCenterPage(mode: _mode),
+      ),
     );
   }
 
@@ -94,12 +96,7 @@ class _AppShellState extends State<AppShell> {
             subtitle: 'Tinjau tren kepatuhan dan pasien berisiko.',
             builder: _doctorAdherencePage,
           ),
-          _NavSpec(
-            icon: Icons.notifications_active_outlined,
-            label: 'Pengingat',
-            subtitle: 'Pengingat obat dan antrian eskalasi.',
-            builder: _doctorReminderPage,
-          ),
+
           _NavSpec(
             icon: Icons.person_outline_rounded,
             label: 'Profil',
@@ -242,7 +239,7 @@ class _AppTopBar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            if (mode != AppMode.admin)
+            if (mode == AppMode.patient)
               InkWell(
                 borderRadius: BorderRadius.circular(999),
                 onTap: onNotificationsTap,
@@ -411,9 +408,6 @@ Widget _doctorAdherencePage(BuildContext context) {
   return const DoctorAdherencePage();
 }
 
-Widget _doctorReminderPage(BuildContext context) {
-  return const DoctorReminderPage();
-}
 
 Widget _doctorProfilePage(BuildContext context) {
   return const DoctorProfilePage();
