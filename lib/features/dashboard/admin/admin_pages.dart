@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../app/theme/app_theme.dart';
-import '../../core/services/supabase_service.dart';
-import '../../core/widgets/ui_components.dart';
+import '../../../app/theme/app_theme.dart';
+import '../../../core/services/supabase_service.dart';
+import '../../../core/widgets/ui_components.dart';
 
 enum AdminAccountTarget { patient, doctor }
 

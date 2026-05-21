@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_theme.dart';
-import '../../core/models/app_mode.dart';
-import '../../core/services/gemini_chat_service.dart';
-import '../../core/widgets/ui_components.dart';
+import '../../../app/theme/app_theme.dart';
+import '../../../core/models/app_mode.dart';
+import '../../../core/services/gemini_chat_service.dart';
+import '../../../core/widgets/ui_components.dart';
 
 const List<_QuickPrompt> _quickPrompts = [
   _QuickPrompt(
