@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_theme.dart';
 import '../../core/models/app_mode.dart';
-import '../../features/admin/admin_pages.dart';
-import '../../features/doctor/doctor_pages.dart';
+import '../../features/dashboard/admin/admin_pages.dart';
+import '../../features/dashboard/doctor/doctor_pages.dart';
 import '../../features/notification/notification_center_page.dart';
-import '../../features/patient/patient_chat_page.dart';
-import '../../features/patient/patient_pages.dart';
+import '../../features/dashboard/patient/patient_chat_page.dart';
+import '../../features/dashboard/patient/patient_pages.dart';
 import '../../features/profile/profile_pages.dart';
 import '../../features/status_progres_pasien/patient_progress_page.dart';
 

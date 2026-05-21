@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_theme.dart';
-import '../../core/widgets/ui_components.dart';
+import '../../../../app/theme/app_theme.dart';
+import '../../../../core/widgets/ui_components.dart';
 
 class PatientComplianceDashboardPage extends StatelessWidget {
   const PatientComplianceDashboardPage({super.key});
