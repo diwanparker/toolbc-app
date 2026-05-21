@@ -405,6 +405,24 @@ class ChatBubble extends StatelessWidget {
   final String text;
   final bool incoming;
 
+  List<TextSpan> _parseMarkdown(String input) {
+    final parts = input.split('**');
+    final spans = <TextSpan>[];
+    for (int i = 0; i < parts.length; i++) {
+      if (i % 2 == 1) {
+        // Teks di antara ** dan **
+        spans.add(TextSpan(
+          text: parts[i],
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ));
+      } else {
+        // Teks biasa
+        spans.add(TextSpan(text: parts[i]));
+      }
+    }
+    return spans;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -416,11 +434,11 @@ class ChatBubble extends StatelessWidget {
           color: incoming ? kSoftBlue : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Text(
-          text,
+        child: Text.rich(
+          TextSpan(children: _parseMarkdown(text)),
           style: const TextStyle(
             fontSize: 10.5,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
             color: kText,
           ),
         ),
