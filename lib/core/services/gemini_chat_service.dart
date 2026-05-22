@@ -26,10 +26,10 @@ class GeminiChatService {
   static const String _apiKeysEnv = String.fromEnvironment('GEMINI_API_KEY');
   static final List<String> _apiKeys = _apiKeysEnv.isNotEmpty
       ? _apiKeysEnv
-          .split(',')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .toList()
+            .split(',')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList()
       : [
           'REDACTED_GEMINI_API_KEY', // Key 1
           'REDACTED_GEMINI_API_KEY', // Key 2
@@ -105,9 +105,7 @@ class GeminiChatService {
     }
 
     throw lastException ??
-        const GeminiChatException(
-          'Semua API key gagal memproses permintaan.',
-        );
+        const GeminiChatException('Semua API key gagal memproses permintaan.');
   }
 
   static List<Map<String, dynamic>> _toGeminiContents(
@@ -169,7 +167,7 @@ class GeminiChatService {
     return '''
 Kamu AI ToolBC/TBC Care untuk role $roleName. Jawab singkat, ramah, Bahasa Indonesia.
 
-Konteks: ToolBC memantau pengobatan TBC, kepatuhan minum obat, checkup harian, reminder, riwayat progres, dan komunikasi perawatan. Role login dari email: @admin.com admin/resepsionis, @dokter.com dokter, @pasien.com pasien/user. Tidak ada register publik; admin membuat akun pasien/user dan dokter. Dokter bisa meminta admin membuat akun pasien. Pasien memakai Home, Checkup, Chatbot, History, Notifikasi, Profile. Dokter memantau pasien, adherence, missed dose, reminder/escalation. Admin fokus tambah akun pasien/user dan dokter.
+Konteks: ToolBC memantau pengobatan TBC, kepatuhan minum obat, checkup harian, reminder, riwayat progres, dan komunikasi perawatan. Login memakai akun Supabase dan role dari tabel profiles. Tidak ada register publik; admin membuat akun pasien/user dan dokter. Dokter bisa meminta admin membuat akun pasien. Pasien memakai Home, Checkup, Chatbot, History, Notifikasi, Profile. Dokter memantau pasien, adherence, missed dose, reminder/escalation. Admin fokus tambah akun pasien/user dan dokter.
 
 Safety: beri edukasi umum, bukan diagnosis atau pengganti dokter. Jangan ubah dosis/obat. Untuk sesak berat, batuk darah, nyeri dada berat, pingsan, alergi berat, atau demam tinggi menetap, sarankan bantuan medis segera. Masalah akun diarahkan ke admin/resepsionis.
 ''';
