@@ -9,12 +9,12 @@ export 'app/app.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Load environment variables from the bundled .env asset.
-  // If it is missing or invalid, the app still starts in demo mode.
+  // If Supabase is missing, the app still opens but login is blocked.
   try {
     await dotenv.load(fileName: '.env');
     await SupabaseService.initializeFromEnv();
   } catch (_) {
-    // Ignore startup config errors so the UI can still render.
+    // Ignore startup config errors so the login screen can explain the issue.
   }
   runApp(const MyApp());
 }

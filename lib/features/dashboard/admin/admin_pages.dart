@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../app/theme/app_theme.dart';
 import '../../../core/models/doctor_model.dart';
+import '../../../core/services/admin_account_service.dart';
 import '../../../core/services/doctor_service.dart';
-import '../../../core/services/supabase_service.dart';
 import '../../../core/widgets/ui_components.dart';
 
 enum AdminAccountTarget { patient, doctor }
@@ -93,32 +92,16 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
 
     setState(() => _submitting = true);
     try {
-      final Map<String, dynamic> metadata = {
-        'full_name': fullName,
-        'role': widget.target.name,
-        'created_by': 'admin',
-      };
+      await AdminAccountService.createAccount(
+        fullName: fullName,
+        email: email,
+        password: password,
+        role: widget.target.name,
+        specialty: _isPatient ? null : _noteController.text.trim(),
+        assignedDoctorId: _isPatient ? _selectedDoctor!.id : null,
+      );
 
-      if (_isPatient) {
-        // Attach assigned doctor info
-        if (_selectedDoctor != null) {
-          metadata['assigned_doctor_id'] = _selectedDoctor!.id;
-          metadata['assigned_doctor_name'] = _selectedDoctor!.fullName;
-          metadata['assigned_doctor_specialty'] = _selectedDoctor!.specialty;
-        }
-      } else {
-        // Doctor account — store specialty
-        final specialty = _noteController.text.trim();
-        if (specialty.isNotEmpty) metadata['specialty'] = specialty;
-      }
-
-      if (SupabaseService.isConfigured) {
-        await SupabaseService.signUp(
-          email: email,
-          password: password,
-          data: metadata,
-        );
-      }
+      // Doctor account — store specialty
 
       if (!mounted) return;
 
@@ -127,13 +110,10 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
           : '';
 
       setState(() {
-        _resultMessage = SupabaseService.isConfigured
-            ? 'Akun $_roleLabel berhasil dibuat dan dikirim ke Supabase.$doctorInfo'
-            : 'Mode demo: data akun $_roleLabel sudah divalidasi.$doctorInfo\nSambungkan Supabase untuk menyimpan akun sungguhan.';
+        _resultMessage =
+            'Akun $_roleLabel berhasil dibuat di Supabase.$doctorInfo';
         _clearFields();
       });
-    } on AuthException catch (e) {
-      if (mounted) _showSnack('Gagal membuat akun: ${e.message}');
     } catch (e) {
       if (mounted) _showSnack('Gagal membuat akun: $e');
     } finally {
@@ -351,11 +331,7 @@ class _DoctorSelector extends StatelessWidget {
                 onTap: onRefresh,
                 child: const Padding(
                   padding: EdgeInsets.all(4),
-                  child: Icon(
-                    Icons.refresh_rounded,
-                    color: kMuted,
-                    size: 18,
-                  ),
+                  child: Icon(Icons.refresh_rounded, color: kMuted, size: 18),
                 ),
               ),
           ],
@@ -401,8 +377,11 @@ class _DoctorSelector extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.warning_amber_rounded,
-                    color: Color(0xFFEF4444), size: 18),
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: Color(0xFFEF4444),
+                  size: 18,
+                ),
                 const SizedBox(width: 10),
                 const Expanded(
                   child: Text(
@@ -435,15 +414,15 @@ class _DoctorSelector extends StatelessWidget {
                 onTap: () => onSelected(isSelected ? null : doc),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? kSoftBlue : const Color(0xFFF9FAFB),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: isSelected
-                          ? kPrimary
-                          : const Color(0xFFE5E7EB),
+                      color: isSelected ? kPrimary : const Color(0xFFE5E7EB),
                       width: isSelected ? 1.8 : 1,
                     ),
                     boxShadow: isSelected
@@ -518,8 +497,11 @@ class _DoctorSelector extends StatelessWidget {
                           ),
                         ),
                         child: isSelected
-                            ? const Icon(Icons.check,
-                                color: Colors.white, size: 14)
+                            ? const Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 14,
+                              )
                             : null,
                       ),
                     ],
@@ -542,8 +524,11 @@ class _DoctorSelector extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.check_circle_rounded,
-                    color: Color(0xFF22C55E), size: 16),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF22C55E),
+                  size: 16,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
