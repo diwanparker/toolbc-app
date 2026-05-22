@@ -38,13 +38,19 @@ android {
 
     signingConfigs {
         create("release") {
-            val storeFilePath = keystoreProperties["storeFile"] as String?
-            if (!storeFilePath.isNullOrBlank()) {
-                storeFile = file(storeFilePath)
+            val isReleaseTask = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
+            if (isReleaseTask && !keystorePropertiesFile.exists()) {
+                throw GradleException(
+                    "Missing key.properties. Release builds must be signed with a production keystore."
+                )
             }
-            storePassword = keystoreProperties["storePassword"] as String?
-            keyAlias = keystoreProperties["keyAlias"] as String?
-            keyPassword = keystoreProperties["keyPassword"] as String?
+
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
         }
     }
 
