@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../app/theme/app_theme.dart';
-import '../../core/models/app_mode.dart';
 import '../../core/services/supabase_service.dart';
 import '../../core/widgets/app_shell.dart';
-
-enum _DomainRole { patient, doctor, admin, invalid }
 
 class AuthLoginPage extends StatefulWidget {
   const AuthLoginPage({super.key});
@@ -29,9 +26,9 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
   }
 
   Future<void> _openDashboard() async {
-    final role = _resolveRole(_emailController.text);
-    if (role == _DomainRole.invalid) {
-      _showSnack('Gunakan akun @admin.com, @dokter.com, atau @pasien.com.');
+    final email = _emailController.text.trim().toLowerCase();
+    if (email.isEmpty) {
+      _showSnack('Email wajib diisi.');
       return;
     }
 
@@ -41,27 +38,35 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
       return;
     }
 
-    if (SupabaseService.isConfigured) {
-      try {
-        await SupabaseService.signIn(
-          email: _emailController.text.trim(),
-          password: password,
-        );
-      } on AuthException catch (error) {
-        if (mounted) _showSnack('Login gagal: ${error.message}');
-        return;
-      } catch (error) {
-        if (mounted) _showSnack('Login gagal: $error');
-        return;
-      }
+    if (!SupabaseService.isReady) {
+      _showSnack(
+        'Supabase belum dikonfigurasi. Isi SUPABASE_URL dan SUPABASE_ANON_KEY.',
+      );
+      return;
     }
 
-    if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(
-        builder: (_) => AppShell(initialMode: _toAppMode(role)),
-      ),
-    );
+    try {
+      await SupabaseService.signIn(email, password);
+      final profile = await SupabaseService.fetchCurrentProfile();
+      if (profile == null) {
+        await SupabaseService.signOut();
+        if (mounted) {
+          _showSnack('Profil akun belum dibuat di database.');
+        }
+        return;
+      }
+
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => AppShell(initialMode: profile.role.appMode),
+        ),
+      );
+    } on AuthException catch (error) {
+      if (mounted) _showSnack('Login gagal: ${error.message}');
+    } catch (error) {
+      if (mounted) _showSnack('Login gagal: $error');
+    }
   }
 
   void _openForgotPassword() {
@@ -74,27 +79,6 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  _DomainRole _resolveRole(String email) {
-    final value = email.trim().toLowerCase();
-    if (value.endsWith('@admin.com')) return _DomainRole.admin;
-    if (value.endsWith('@dokter.com')) return _DomainRole.doctor;
-    if (value.endsWith('@pasien.com')) return _DomainRole.patient;
-    return _DomainRole.invalid;
-  }
-
-  AppMode _toAppMode(_DomainRole role) {
-    switch (role) {
-      case _DomainRole.patient:
-        return AppMode.patient;
-      case _DomainRole.doctor:
-        return AppMode.doctor;
-      case _DomainRole.admin:
-        return AppMode.admin;
-      case _DomainRole.invalid:
-        return AppMode.patient;
-    }
   }
 
   @override

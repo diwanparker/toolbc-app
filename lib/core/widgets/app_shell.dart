@@ -243,44 +243,18 @@ class _AppTopBar extends StatelessWidget {
               InkWell(
                 borderRadius: BorderRadius.circular(999),
                 onTap: onNotificationsTap,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: const Icon(
-                        Icons.notifications_none_rounded,
-                        color: Color(0xFF1F2937),
-                        size: 20,
-                      ),
-                    ),
-                    Positioned(
-                      right: -1,
-                      top: -2,
-                      child: Container(
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          '2',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: Color(0xFF1F2937),
+                    size: 20,
+                  ),
                 ),
               ),
           ],
@@ -407,7 +381,6 @@ Widget _doctorPatientsPage(BuildContext context) {
 Widget _doctorAdherencePage(BuildContext context) {
   return const DoctorAdherencePage();
 }
-
 
 Widget _doctorProfilePage(BuildContext context) {
   return const DoctorProfilePage();
