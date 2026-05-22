@@ -1,0 +1,44 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  analyze-test-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Block known secret patterns
+        run: |
+          set -euo pipefail
+          if grep -R --line-number --exclude-dir=.git --exclude='*.lock' -E 'AIza[0-9A-Za-z_-]{35}' .; then
+            echo "Google/Gemini-style API key pattern found. Remove secrets from source."
+            exit 1
+          fi
+          if grep -R --line-number --exclude-dir=.git --exclude='*.lock' -E 'service_role|SUPABASE_SERVICE_ROLE_KEY' lib android ios web macos linux windows; then
+            echo "Service role key reference found in client directories. Keep it server-side only."
+            exit 1
+          fi
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.41.7"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build Android debug artifact
+        run: flutter build apk --debug

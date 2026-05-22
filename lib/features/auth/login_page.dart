@@ -46,7 +46,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
     }
 
     try {
-      await SupabaseService.signIn(email: email, password: password);
+      await SupabaseService.signIn(email, password);
       final profile = await SupabaseService.fetchCurrentProfile();
       if (profile == null) {
         await SupabaseService.signOut();

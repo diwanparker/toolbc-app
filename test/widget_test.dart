@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_tbc/main.dart';
+import 'package:flutter_tbc/app/app.dart';
 
 void main() {
   testWidgets('login is blocked when Supabase is not configured', (
