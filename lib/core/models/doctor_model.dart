@@ -16,10 +16,12 @@ class DoctorModel {
   factory DoctorModel.fromSupabaseUser(Map<String, dynamic> json) {
     return DoctorModel(
       id: json['id'] as String? ?? '',
-      fullName: json['full_name'] as String? ??
+      fullName:
+          json['full_name'] as String? ??
           json['user_metadata']?['full_name'] as String? ??
           'Unknown Doctor',
-      specialty: json['specialty'] as String? ??
+      specialty:
+          json['specialty'] as String? ??
           json['user_metadata']?['specialty'] as String? ??
           '-',
       email: json['email'] as String?,
@@ -27,7 +29,7 @@ class DoctorModel {
   }
 
   /// Display text for dropdown / selection UI.
-  String get displayLabel => '$fullName • $specialty';
+  String get displayLabel => '$fullName - $specialty';
 
   @override
   bool operator ==(Object other) =>
