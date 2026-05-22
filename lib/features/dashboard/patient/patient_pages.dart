@@ -1,286 +1,263 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_theme.dart';
+import '../../../core/models/patient_data.dart';
+import '../../../core/services/patient_service.dart';
 import '../../../core/widgets/ui_components.dart';
 
-class PatientHomePage extends StatelessWidget {
+class PatientHomePage extends StatefulWidget {
   const PatientHomePage({super.key, required this.onOpenNotifications});
 
   final VoidCallback onOpenNotifications;
 
   @override
+  State<PatientHomePage> createState() => _PatientHomePageState();
+}
+
+class _PatientHomePageState extends State<PatientHomePage> {
+  late final Future<PatientDashboardData?> _dashboardFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _dashboardFuture = PatientService.fetchCurrentPatientDashboard();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AppPage(
-      children: [
-        const PageHeader(
-          title: 'Good morning, Davina',
-          subtitle: 'You are doing well. Keep your treatment on track.',
-        ),
-        const SizedBox(height: 18),
-        Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [kPrimary, kPrimaryDark]),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x331D4ED8),
-                blurRadius: 24,
-                offset: Offset(0, 14),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                right: -18,
-                top: -18,
-                child: _orb(108, Colors.white.withValues(alpha: 0.11)),
-              ),
-              Positioned(
-                right: 10,
-                bottom: -24,
-                child: _orb(88, Colors.white.withValues(alpha: 0.06)),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Fase Intensif • Minggu ke-4 dari 8',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFFDBEAFE),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Day 24',
-                                style: TextStyle(
-                                  fontSize: 30,
-                                  height: 1.05,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                '14% selesai • tetap konsisten!',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xFFDBEAFE),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          width: 96,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.14),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.local_fire_department_rounded,
-                                color: Colors.white,
-                                size: 28,
-                              ),
-                              SizedBox(height: 6),
-                              Text(
-                                'Streak 7 days',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+    return FutureBuilder<PatientDashboardData?>(
+      future: _dashboardFuture,
+      builder: (context, snapshot) {
+        final data = snapshot.data;
+        final profile = data?.profile;
+        final patient = data?.patient;
+        final firstName = profile?.displayName.split(' ').first ?? 'Pasien';
+
+        return AppPage(
+          children: [
+            PageHeader(
+              title: 'Halo, $firstName',
+              subtitle: patient == null
+                  ? 'Data pengobatan kamu belum diatur oleh admin.'
+                  : 'Tetap konsisten mengikuti rencana pengobatan.',
+            ),
+            const SizedBox(height: 18),
+            _TreatmentSummaryCard(patient: patient),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: MetricCard(
+                    label: 'Adherence',
+                    value: patient?.adherenceLabel ?? '0%',
+                    icon: Icons.check_circle_outline_rounded,
+                    tint: const Color(0xFFD4F7DD),
+                    accent: const Color(0xFF16A34A),
+                  ),
                 ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: MetricCard(
+                    label: 'Hari Pengobatan',
+                    value: '${patient?.treatmentDay ?? 0}',
+                    icon: Icons.timeline_rounded,
+                    tint: const Color(0xFFEFF6FF),
+                    accent: kPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SectionCard(
+              title: 'Pengingat Obat',
+              trailing: StatusPill(
+                text: patient == null ? 'Belum aktif' : 'Aktif',
+                bg: patient == null
+                    ? const Color(0xFFE2E8F0)
+                    : const Color(0xFFDDF7E0),
+                fg: patient == null
+                    ? const Color(0xFF475569)
+                    : const Color(0xFF15803D),
               ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: const [
-            Expanded(
-              child: MetricCard(
-                label: 'Adherence',
-                value: '86%',
-                icon: Icons.check_circle_outline_rounded,
-                tint: Color(0xFFD4F7DD),
-                accent: Color(0xFF16A34A),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    patient == null
+                        ? 'Admin atau dokter perlu melengkapi data rencana pengobatan terlebih dahulu.'
+                        : 'Ikuti jadwal obat yang sudah ditentukan oleh dokter penanggung jawab.',
+                    style: const TextStyle(fontSize: 10.5, color: kMuted),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: AppActionChip(
+                          label: 'Sudah diminum',
+                          filled: true,
+                          fillColor: Color(0xFF22C55E),
+                          fg: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: AppActionChip(
+                          label: 'Ingatkan nanti',
+                          filled: false,
+                          fillColor: kSoftBlue,
+                          fg: kPrimary,
+                          onTap: widget.onOpenNotifications,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(height: 16),
+            SectionCard(
+              title: 'Checklist Harian',
+              child: ChecklistTile(
+                label: patient == null
+                    ? 'Data checklist belum tersedia'
+                    : 'Minum obat sesuai jadwal',
+                active: false,
+              ),
+            ),
+            const SizedBox(height: 16),
+            SectionCard(
+              title: 'Quick Support',
+              child: Row(
+                children: const [
+                  Expanded(
+                    child: AppActionChip(
+                      label: 'Tanya AI',
+                      filled: false,
+                      fillColor: kSoftBlue,
+                      fg: kPrimary,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: AppActionChip(
+                      label: 'Hubungi dokter',
+                      filled: false,
+                      fillColor: kSoftBlue,
+                      fg: kPrimary,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: AppActionChip(
+                      label: 'Kirim laporan',
+                      filled: false,
+                      fillColor: kSoftBlue,
+                      fg: kPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _TreatmentSummaryCard extends StatelessWidget {
+  const _TreatmentSummaryCard({required this.patient});
+
+  final PatientSummary? patient;
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = ((patient?.treatmentDay ?? 0) / 180).clamp(0.0, 1.0);
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(colors: [kPrimary, kPrimaryDark]),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x331D4ED8),
+            blurRadius: 24,
+            offset: Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Row(
+          children: [
             Expanded(
-              child: MetricCard(
-                label: 'Tes Dahak',
-                value: 'Bulan ke-2',
-                icon: Icons.biotech_rounded,
-                tint: Color(0xFFEFF6FF),
-                accent: kPrimary,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    patient?.treatmentLabel ?? 'Rencana pengobatan belum ada',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFDBEAFE),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    patient == null
+                        ? 'Menunggu data'
+                        : 'Day ${patient!.treatmentDay}',
+                    style: const TextStyle(
+                      fontSize: 30,
+                      height: 1.05,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    patient == null
+                        ? 'Hubungi admin bila data belum muncul.'
+                        : '${(progress * 100).round()}% estimasi selesai.',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFFDBEAFE),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: 96,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.medication_liquid_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    patient?.riskLabel ?? 'Belum aktif',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        SectionCard(
-          title: 'Pengingat Obat',
-          trailing: const StatusPill(
-            text: 'Belum',
-            bg: Color(0xFFFFF7ED),
-            fg: Color(0xFF92400E),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: const [
-                  TimeBadge(time: '07:00 WIB'),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'RHZE (Rifampicin, Isoniazid,\nPyrazinamide, Ethambutol)\n• sebelum makan, perut kosong',
-                      style: TextStyle(fontSize: 10.5, color: kMuted),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF7ED),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.info_outline_rounded, size: 14, color: Color(0xFFF97316)),
-                    SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        'Urin berwarna merah/oranye setelah minum Rifampicin adalah NORMAL.',
-                        style: TextStyle(fontSize: 9.5, color: Color(0xFF92400E)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: AppActionChip(
-                      label: 'Sudah diminum',
-                      filled: true,
-                      fillColor: Color(0xFF22C55E),
-                      fg: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: AppActionChip(
-                      label: 'Ingatkan nanti',
-                      filled: false,
-                      fillColor: kSoftBlue,
-                      fg: kPrimary,
-                      onTap: onOpenNotifications,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        SectionCard(
-          title: 'Status Pengingat',
-          trailing: const StatusPill(
-            text: 'Aktif',
-            bg: Color(0xFFDDF7E0),
-            fg: Color(0xFF15803D),
-          ),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Pengingat otomatis terkirim 5 menit lalu.',
-                style: TextStyle(fontSize: 10.5, color: kMuted),
-              ),
-              SizedBox(height: 4),
-              Text(
-                'Pengingat berikutnya dalam 10 menit jika belum dikonfirmasi.',
-                style: TextStyle(fontSize: 10.5, color: kMuted),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        SectionCard(
-          title: 'Checklist Harian',
-          child: const ChecklistTile(label: 'Minum obat pagi', active: false),
-        ),
-        const SizedBox(height: 16),
-        SectionCard(
-          title: 'Quick Support',
-          child: Row(
-            children: [
-              Expanded(
-                child: AppActionChip(
-                  label: 'Tanya AI',
-                  filled: false,
-                  fillColor: kSoftBlue,
-                  fg: kPrimary,
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: AppActionChip(
-                  label: 'Hubungi dokter',
-                  filled: false,
-                  fillColor: kSoftBlue,
-                  fg: kPrimary,
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: AppActionChip(
-                  label: 'Kirim laporan',
-                  filled: false,
-                  fillColor: kSoftBlue,
-                  fg: kPrimary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _orb(double size, Color color) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
     );
   }
 }
