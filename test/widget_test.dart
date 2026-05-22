@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tbc/main.dart';
 
 void main() {
-  testWidgets('login routes to dashboard when Supabase is not configured', (
+  testWidgets('login is blocked when Supabase is not configured', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const MyApp());
@@ -24,9 +24,9 @@ void main() {
     final loginButton = find.byKey(const ValueKey('auth_login_button'));
     await tester.ensureVisible(loginButton);
     await tester.tap(loginButton);
-    await tester.pumpAndSettle();
+    await tester.pump();
 
-    expect(find.text('Welcome\nback!'), findsNothing);
-    expect(find.text('Beranda'), findsWidgets);
+    expect(find.text('Welcome\nback!'), findsOneWidget);
+    expect(find.text('Beranda'), findsNothing);
   });
 }
