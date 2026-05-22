@@ -4,7 +4,7 @@ ToolBC adalah aplikasi Flutter untuk monitoring pengobatan TBC dengan tiga role 
 
 ## Fitur Utama
 
-- Login berbasis role dari domain email: `@admin.com`, `@dokter.com`, dan `@pasien.com`.
+- Login memakai Supabase Auth dan role dari tabel `profiles`.
 - Admin membuat akun pasien/user dan dokter dari dashboard internal.
 - Dokter memantau pasien, adherence, reminder, dan tindak lanjut kasus.
 - Pasien melihat progress pengobatan, checkup harian, riwayat, notifikasi, dan chatbot AI.
@@ -29,14 +29,14 @@ Tooling yang dipakai di repo ini:
 Langkah lokal:
 
 ```bash
-flutter pub get
-flutter run
+fvm flutter pub get
+fvm flutter run
 ```
 
-Jika ingin mengaktifkan login Supabase, jalankan dengan `dart-define`:
+Login membutuhkan Supabase. Isi `.env` atau jalankan dengan `dart-define`:
 
 ```bash
-flutter run \
+fvm flutter run \
   --dart-define=SUPABASE_URL=your_supabase_url \
   --dart-define=SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
@@ -44,7 +44,7 @@ flutter run \
 Jika ingin mengaktifkan chatbot Gemini:
 
 ```bash
-flutter run \
+fvm flutter run \
   --dart-define=GEMINI_API_KEY=your_gemini_api_key
 ```
 
@@ -53,13 +53,15 @@ flutter run \
 Perintah yang biasa dipakai untuk validasi:
 
 ```bash
-flutter analyze
-flutter test
-flutter build apk --debug
+fvm flutter analyze
+fvm flutter test
+fvm flutter build apk --debug
 ```
 
 ## Catatan Role
 
 - Tidak ada register publik.
+- Role aktif berasal dari `public.profiles.role`, bukan dari suffix email.
 - Dokter dapat meminta admin/resepsionis membuat akun pasien.
 - Admin fokus pada manajemen akun pasien/user dan dokter.
+- Backend Supabase ada di `supabase/migrations/001_init.sql` dan Edge Function `supabase/functions/create-account`.
