@@ -159,6 +159,54 @@ class MetricCard extends StatelessWidget {
   }
 }
 
+class EmptyStateCard extends StatelessWidget {
+  const EmptyStateCard({
+    super.key,
+    required this.title,
+    required this.message,
+    this.icon = Icons.info_outline_rounded,
+  });
+
+  final String title;
+  final String message;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionCard(
+      background: const Color(0xFFF8FAFC),
+      borderColor: const Color(0xFFE2E8F0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: kMuted, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: kText,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message,
+                  style: const TextStyle(fontSize: 10.5, color: kMuted),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class StatusPill extends StatelessWidget {
   const StatusPill({
     super.key,
@@ -411,10 +459,12 @@ class ChatBubble extends StatelessWidget {
     for (int i = 0; i < parts.length; i++) {
       if (i % 2 == 1) {
         // Teks di antara ** dan **
-        spans.add(TextSpan(
-          text: parts[i],
-          style: const TextStyle(fontWeight: FontWeight.w800),
-        ));
+        spans.add(
+          TextSpan(
+            text: parts[i],
+            style: const TextStyle(fontWeight: FontWeight.w800),
+          ),
+        );
       } else {
         // Teks biasa
         spans.add(TextSpan(text: parts[i]));
@@ -604,41 +654,41 @@ class ProfileMenuTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: kBorder),
         ),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F3FE),
-              borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3F3FE),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: titleColor, size: 20),
             ),
-            child: Icon(icon, color: titleColor, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
-                    color: titleColor,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: titleColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  subtitle,
-                  style: const TextStyle(fontSize: 9.5, color: kMuted),
-                ),
-              ],
+                  const SizedBox(height: 3),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 9.5, color: kMuted),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
-        ],
-      ),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
+          ],
+        ),
       ),
     );
   }
@@ -710,7 +760,10 @@ Future<void> showLanguageDialog(BuildContext context) async {
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text('Change Language / Ganti Bahasa', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Change Language / Ganti Bahasa',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -720,7 +773,9 @@ Future<void> showLanguageDialog(BuildContext context) async {
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Bahasa diubah ke Indonesia (Mock)')),
+                  const SnackBar(
+                    content: Text('Bahasa diubah ke Indonesia (Mock)'),
+                  ),
                 );
               },
             ),
@@ -730,7 +785,9 @@ Future<void> showLanguageDialog(BuildContext context) async {
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Language changed to English (Mock)')),
+                  const SnackBar(
+                    content: Text('Language changed to English (Mock)'),
+                  ),
                 );
               },
             ),
