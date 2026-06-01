@@ -5,17 +5,26 @@ import 'supabase_service.dart';
 class DoctorService {
   DoctorService._();
 
+  static const Duration _cacheTtl = Duration(seconds: 60);
+
   /// Cached doctor list to avoid repeated API calls within one session.
   static List<DoctorModel>? _cachedDoctors;
+  static DateTime? _cachedAt;
 
   /// Fetches all registered doctors.
   static Future<List<DoctorModel>> fetchDoctors({
     bool forceRefresh = false,
   }) async {
-    if (_cachedDoctors != null && !forceRefresh) return _cachedDoctors!;
+    if (!forceRefresh &&
+        _cachedDoctors != null &&
+        _cachedAt != null &&
+        DateTime.now().difference(_cachedAt!) <= _cacheTtl) {
+      return _cachedDoctors!;
+    }
 
     if (!SupabaseService.isReady) {
       _cachedDoctors = const [];
+      _cachedAt = DateTime.now();
       return _cachedDoctors!;
     }
 
@@ -29,10 +38,14 @@ class DoctorService {
     _cachedDoctors = data
         .map((row) => DoctorModel.fromSupabaseUser(row as Map<String, dynamic>))
         .toList(growable: false);
+    _cachedAt = DateTime.now();
 
     return _cachedDoctors!;
   }
 
   /// Clears the cached doctor list so the next [fetchDoctors] will re-query.
-  static void clearCache() => _cachedDoctors = null;
+  static void clearCache() {
+    _cachedDoctors = null;
+    _cachedAt = null;
+  }
 }

@@ -46,8 +46,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
     }
 
     try {
-      await SupabaseService.signIn(email, password);
-      final profile = await SupabaseService.fetchCurrentProfile();
+      final profile = await SupabaseService.signIn(email, password);
       if (profile == null) {
         await SupabaseService.signOut();
         if (mounted) {

@@ -22,11 +22,14 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
   }
 
   Future<_ProgressData> _loadData() async {
-    final dashboardFuture = PatientService.fetchCurrentPatientDashboard();
-    final logsFuture = PatientService.fetchCurrentMedicationLogs();
-    final dashboard = await dashboardFuture;
-    final logs = await logsFuture;
-    return _ProgressData(dashboard: dashboard, logs: logs);
+    final results = await Future.wait([
+      PatientService.fetchCurrentPatientDashboard(),
+      PatientService.fetchCurrentMedicationLogs(),
+    ]);
+    return _ProgressData(
+      dashboard: results[0] as PatientDashboardData?,
+      logs: results[1] as List<MedicationLogEntry>,
+    );
   }
 
   @override
