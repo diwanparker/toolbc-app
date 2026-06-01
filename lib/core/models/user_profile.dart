@@ -54,8 +54,8 @@ class UserProfile {
   String get initials {
     final source = displayName.trim();
     if (source.isEmpty) return 'T';
-    final words = source.split(RegExp(r'\s+'));
-    if (words.length == 1) return words.first[0].toUpperCase();
+    final words = source.split(' ').where((w) => w.isNotEmpty).toList();
+    if (words.length <= 1) return words.first[0].toUpperCase();
     return '${words.first[0]}${words.last[0]}'.toUpperCase();
   }
 
