@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -9,34 +8,36 @@ import '../models/user_profile.dart';
 class SupabaseService {
   SupabaseService._();
 
-  static const String _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-  static const String _supabaseAnonKey = String.fromEnvironment(
-    'SUPABASE_ANON_KEY',
-  );
+  static const String _rawUrl = String.fromEnvironment('SUPABASE_URL');
+  static const String _rawAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+
+  // Cache trimmed values — the const strings never change.
+  static final String _supabaseUrl = _rawUrl.trim();
+  static final String _supabaseAnonKey = _rawAnonKey.trim();
 
   static final http.Client _httpClient = http.Client();
 
   static bool get isConfigured =>
-      _supabaseUrl.trim().isNotEmpty && _supabaseAnonKey.trim().isNotEmpty;
+      _supabaseUrl.isNotEmpty && _supabaseAnonKey.isNotEmpty;
 
   static bool get isReady => isConfigured && Supabase.instance.isInitialized;
 
   static String get supabaseUrl {
-    if (_supabaseUrl.trim().isEmpty) {
+    if (_supabaseUrl.isEmpty) {
       throw StateError(
         'SUPABASE_URL belum dikonfigurasi. Gunakan --dart-define saat build.',
       );
     }
-    return _supabaseUrl.trim();
+    return _supabaseUrl;
   }
 
   static String get anonKey {
-    if (_supabaseAnonKey.trim().isEmpty) {
+    if (_supabaseAnonKey.isEmpty) {
       throw StateError(
         'SUPABASE_ANON_KEY belum dikonfigurasi. Gunakan --dart-define saat build.',
       );
     }
-    return _supabaseAnonKey.trim();
+    return _supabaseAnonKey;
   }
 
   static SupabaseClient get client {

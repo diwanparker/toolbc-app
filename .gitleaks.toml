@@ -8,6 +8,6 @@ tags = ["key", "google", "gemini"]
 
 [[rules]]
 id = "supabase-service-role"
-description = "Supabase service role key or label"
-regex = '''(?i)(SUPABASE_SERVICE_ROLE_KEY|service_role)'''
+description = "Supabase service role key value"
+regex = '''(?i)(SUPABASE_SERVICE_ROLE_KEY|service_role)\s*[:=]\s*["']?(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)'''
 tags = ["key", "supabase"]

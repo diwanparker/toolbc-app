@@ -31,22 +31,23 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
 
     final patientsFuture = PatientService.fetchAssignedPatients();
     final notificationsFuture = PatientService.fetchCurrentNotifications();
-    final appointmentsFuture = SupabaseService.client
-        .from('appointments')
-        .select('id, scheduled_at, status')
-        .eq('doctor_id', SupabaseService.currentUser!.id);
 
-    final results = await Future.wait([
-      patientsFuture,
-      notificationsFuture,
-      appointmentsFuture,
-    ]);
+    // appointments table may not exist yet — gracefully handle.
+    List<Map<String, dynamic>> appointments = const [];
+    try {
+      final rows = await SupabaseService.client
+          .from('appointments')
+          .select('id, scheduled_at, status')
+          .eq('doctor_id', SupabaseService.currentUser!.id);
+      appointments = (rows as List<dynamic>)
+          .cast<Map<String, dynamic>>()
+          .toList(growable: false);
+    } catch (_) {
+      // Table may not exist or be inaccessible — safe to ignore.
+    }
 
-    final patients = results[0] as List<PatientSummary>;
-    final notifications = results[1] as List<NotificationEntryData>;
-    final appointments = (results[2] as List<dynamic>)
-        .cast<Map<String, dynamic>>()
-        .toList(growable: false);
+    final patients = await patientsFuture;
+    final notifications = await notificationsFuture;
 
     return _DoctorDashboardData.fromSupabase(
       patients: patients,

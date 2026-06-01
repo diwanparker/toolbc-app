@@ -54,3 +54,8 @@ supabase/.env
 
 # FVM
 .fvm/
+
+# Generated patch/export artifacts
+mnt/
+toolbc_release_hardening_patch/
+toolbc_release_hardening_patch.zip
