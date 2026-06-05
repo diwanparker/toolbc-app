@@ -1,0 +1,28 @@
+# Normalize line endings across environments
+* text=auto
+
+# Force LF for source files
+*.dart text eol=lf
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.kt text eol=lf
+*.kts text eol=lf
+*.sh text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+
+# Keep platform files as-is
+android/** text
+ios/** text
+windows/** text
+macos/** text
+linux/** text
