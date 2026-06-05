@@ -40,8 +40,9 @@ android {
         create("release") {
             val isReleaseTask = gradle.startParameter.taskNames.any { it.contains("Release", ignoreCase = true) }
             if (isReleaseTask && !keystorePropertiesFile.exists()) {
-                throw GradleException(
-                    "Missing key.properties. Release builds must be signed with a production keystore."
+                logger.warn(
+                    "Missing key.properties. Release builds will use debug signing for local testing only. " +
+                    "Provide a production keystore in android/key.properties before publishing."
                 )
             }
 

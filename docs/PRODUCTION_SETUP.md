@@ -10,7 +10,7 @@ flutter build appbundle --release \
   --dart-define=SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 ```
 
-Do not bundle `.env` into Flutter assets. Do not pass `GEMINI_API_KEY` to Flutter.
+Do not bundle `.env` into Flutter assets. Do not pass `OPENAI_API_KEY`, `GEMINI_API_KEY_1`, or `GEMINI_API_KEY_2` to Flutter.
 
 ## Android signing
 
@@ -24,6 +24,8 @@ keytool -genkey -v -keystore android/release-key.jks \
 
 Copy `android/key.properties.example` to `android/key.properties` and fill passwords. Both files containing key material/passwords must stay out of Git.
 
+> For local testing, the project can fallback to debug signing if `android/key.properties` is missing. For actual Play Store deployment, you still must provide a real release keystore and signing configuration.
+
 ## Supabase
 
 Run migrations:
@@ -35,8 +37,12 @@ supabase db push
 Set Edge Function secrets:
 
 ```bash
-supabase secrets set GEMINI_API_KEY="YOUR_NEW_GEMINI_KEY"
-supabase secrets set GEMINI_MODEL="gemini-1.5-flash"
+supabase secrets set GEMINI_API_KEY_1="YOUR_PRIMARY_GEMINI_API_KEY"
+supabase secrets set GEMINI_API_KEY_2="YOUR_BACKUP_GEMINI_API_KEY"
+supabase secrets set GEMINI_MODEL="gemini-2.5-flash"
+supabase secrets set AI_PROVIDER="openai"
+supabase secrets set OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
+supabase secrets set OPENAI_MODEL="gpt-5-mini"
 ```
 
 Deploy functions:

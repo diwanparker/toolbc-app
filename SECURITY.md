@@ -4,7 +4,9 @@ ToolBC handles health-related user data. Treat every patient profile, checkup en
 
 ## Secret handling
 
-Never commit API keys, service role keys, keystores, passwords, or `.env` files. Client applications may contain Supabase URL and anon key, but they must not contain Gemini API keys or Supabase service role keys.
+Never commit API keys, service role keys, keystores, passwords, or `.env` files. Client applications may contain Supabase URL and anon key, but they must not contain OpenAI/Gemini API keys or Supabase service role keys.
+
+Store AI keys only in backend user-secrets, hosting secrets, or Supabase Edge Function secrets. For Gemini failover, use `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, or `GEMINI_API_KEYS` in server-side environments.
 
 Server-side secrets must be stored in Supabase Edge Function secrets or another controlled backend secret manager.
 

@@ -12,7 +12,7 @@ flutter run \
   --dart-define=SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 ```
 
-The client must not contain Gemini API keys or Supabase service role keys. AI calls go through the `gemini-chat` Supabase Edge Function.
+The client must not contain OpenAI/Gemini API keys or Supabase service role keys. AI calls go through the `gemini-chat` Supabase Edge Function.
 
 ## Account model
 
@@ -47,8 +47,12 @@ Configure `android/key.properties` from `android/key.properties.example` before 
 
 ```bash
 supabase db push
-supabase secrets set GEMINI_API_KEY="YOUR_NEW_GEMINI_KEY"
-supabase secrets set GEMINI_MODEL="gemini-1.5-flash"
+supabase secrets set AI_PROVIDER="openai"
+supabase secrets set OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
+supabase secrets set OPENAI_MODEL="gpt-5-mini"
+supabase secrets set GEMINI_API_KEY_1="YOUR_PRIMARY_GEMINI_API_KEY"
+supabase secrets set GEMINI_API_KEY_2="YOUR_BACKUP_GEMINI_API_KEY"
+supabase secrets set GEMINI_MODEL="gemini-2.5-flash"
 supabase functions deploy gemini-chat
 supabase functions deploy create-account
 ```

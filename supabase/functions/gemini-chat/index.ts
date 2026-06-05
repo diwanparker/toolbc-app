@@ -6,6 +6,11 @@ type ChatTurn = {
   fromUser?: unknown;
 };
 
+type ChatMessage = {
+  text: string;
+  fromUser: boolean;
+};
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -24,8 +29,6 @@ serve(async (req: Request) => {
   try {
     const supabaseUrl = requireEnv("SUPABASE_URL");
     const supabaseAnonKey = requireEnv("SUPABASE_ANON_KEY");
-    const geminiApiKey = requireEnv("GEMINI_API_KEY");
-    const geminiModel = Deno.env.get("GEMINI_MODEL") ?? "gemini-1.5-flash";
 
     const authHeader = req.headers.get("Authorization") ?? "";
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -58,39 +61,7 @@ serve(async (req: Request) => {
     const mode = ["patient", "doctor", "admin"].includes(requestedMode)
       ? requestedMode
       : profile.role;
-
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiApiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: systemPrompt(mode) }],
-          },
-          contents: history.map((turn) => ({
-            role: turn.fromUser ? "user" : "model",
-            parts: [{ text: turn.text }],
-          })),
-          generationConfig: {
-            temperature: 0.45,
-            topP: 0.9,
-            maxOutputTokens: 360,
-          },
-        }),
-      },
-    );
-
-    const geminiJson = await geminiResponse.json().catch(() => ({}));
-    if (!geminiResponse.ok) {
-      console.error("Gemini API error", geminiResponse.status, geminiJson);
-      return json({ error: "Layanan AI bermasalah. Coba lagi sebentar lagi." }, 502);
-    }
-
-    const text = extractText(geminiJson);
-    if (!text) {
-      return json({ error: "AI tidak mengirim jawaban." }, 502);
-    }
+    const text = await generateAiReply(mode, history);
 
     return json({ text });
   } catch (error) {
@@ -99,7 +70,159 @@ serve(async (req: Request) => {
   }
 });
 
-function normalizeHistory(input: unknown): Array<{ text: string; fromUser: boolean }> {
+async function generateAiReply(mode: string, history: ChatMessage[]): Promise<string> {
+  const provider = preferredProvider();
+  const providers = provider === "openai" ? ["openai", "gemini"] : ["gemini", "openai"];
+
+  for (const item of providers) {
+    try {
+      if (item === "openai" && hasOpenAiKey()) {
+        return await generateOpenAiReply(mode, history);
+      }
+
+      if (item === "gemini" && geminiApiKeys().length > 0) {
+        return await generateGeminiReply(mode, history);
+      }
+    } catch (error) {
+      console.error(`${item} provider failed`, error);
+    }
+  }
+
+  throw new Error("No AI provider is configured");
+}
+
+async function generateOpenAiReply(mode: string, history: ChatMessage[]): Promise<string> {
+  const apiKey = requireEnv("OPENAI_API_KEY");
+  const model = Deno.env.get("OPENAI_MODEL") ?? "gpt-5-mini";
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      instructions: systemPrompt(mode),
+      input: history.map((turn) => ({
+        role: turn.fromUser ? "user" : "assistant",
+        content: turn.text,
+      })),
+      max_output_tokens: 360,
+    }),
+  });
+
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(`OpenAI API error ${response.status}: ${JSON.stringify(body)}`);
+  }
+
+  const text = extractOpenAiText(body);
+  if (!text) {
+    throw new Error("OpenAI response did not include text");
+  }
+
+  return text;
+}
+
+async function generateGeminiReply(mode: string, history: ChatMessage[]): Promise<string> {
+  const apiKeys = geminiApiKeys();
+  if (apiKeys.length === 0) {
+    throw new Error("Gemini API key is not configured");
+  }
+
+  const errors: string[] = [];
+  for (const [index, apiKey] of apiKeys.entries()) {
+    try {
+      return await generateGeminiReplyWithKey(apiKey, mode, history);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      errors.push(`key ${index + 1}: ${message}`);
+      console.error(`Gemini provider failed for configured key ${index + 1}`, message);
+    }
+  }
+
+  throw new Error(`Gemini failed for ${apiKeys.length} configured key(s): ${errors.join(" | ")}`);
+}
+
+async function generateGeminiReplyWithKey(
+  apiKey: string,
+  mode: string,
+  history: ChatMessage[],
+): Promise<string> {
+  const model = Deno.env.get("GEMINI_MODEL") ?? "gemini-2.5-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": apiKey,
+    },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [{ text: systemPrompt(mode) }],
+      },
+      contents: history.map((turn) => ({
+        role: turn.fromUser ? "user" : "model",
+        parts: [{ text: turn.text }],
+      })),
+      generationConfig: {
+        temperature: 0.45,
+        topP: 0.9,
+        maxOutputTokens: 360,
+      },
+    }),
+  });
+
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(`Gemini API error ${response.status}: ${JSON.stringify(body)}`);
+  }
+
+  const text = extractGeminiText(body);
+  if (!text) {
+    throw new Error("Gemini response did not include text");
+  }
+
+  return text;
+}
+
+function preferredProvider(): string {
+  const configured = Deno.env.get("AI_PROVIDER")?.trim().toLowerCase();
+  if (configured === "gemini" || configured === "openai") {
+    return configured;
+  }
+
+  return hasOpenAiKey() ? "openai" : "gemini";
+}
+
+function hasOpenAiKey(): boolean {
+  return !!Deno.env.get("OPENAI_API_KEY")?.trim();
+}
+
+function geminiApiKeys(): string[] {
+  const keys = [
+    ...splitEnvList("GEMINI_API_KEYS"),
+    Deno.env.get("GEMINI_API_KEY_1"),
+    Deno.env.get("GEMINI_API_KEY_2"),
+    Deno.env.get("GEMINI_API_KEY_3"),
+    Deno.env.get("GEMINI_API_KEY"),
+  ]
+    .map((key) => key?.trim() ?? "")
+    .filter((key) => key.length > 0);
+
+  return [...new Set(keys)];
+}
+
+function splitEnvList(name: string): string[] {
+  return (Deno.env.get(name) ?? "")
+    .split(",")
+    .map((key) => key.trim())
+    .filter((key) => key.length > 0);
+}
+
+function normalizeHistory(input: unknown): ChatMessage[] {
   if (!Array.isArray(input)) return [];
 
   return input
@@ -111,7 +234,28 @@ function normalizeHistory(input: unknown): Array<{ text: string; fromUser: boole
     .filter((item) => item.text.length > 0);
 }
 
-function extractText(body: Record<string, unknown>): string | null {
+function extractOpenAiText(body: Record<string, unknown>): string | null {
+  if (typeof body.output_text === "string" && body.output_text.trim().length > 0) {
+    return body.output_text.trim();
+  }
+
+  const output = body.output;
+  if (!Array.isArray(output)) return null;
+
+  const chunks = output.flatMap((item) => {
+    const content = (item as Record<string, unknown>).content;
+    if (!Array.isArray(content)) return [];
+
+    return content
+      .map((part) => (part as Record<string, unknown>).text)
+      .filter((text): text is string => typeof text === "string" && text.trim().length > 0);
+  });
+
+  const text = chunks.join("\n").trim();
+  return text.length > 0 ? text : null;
+}
+
+function extractGeminiText(body: Record<string, unknown>): string | null {
   const candidates = body.candidates;
   if (!Array.isArray(candidates) || candidates.length === 0) return null;
 

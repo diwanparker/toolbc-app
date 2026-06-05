@@ -2,8 +2,9 @@
 
 ## Critical security
 
-- [ ] Gemini keys that were committed previously are revoked/rotated.
-- [ ] No Google/Gemini API key pattern exists in source.
+- [ ] OpenAI/Gemini keys that were shared or committed previously are revoked/rotated.
+- [ ] No OpenAI, Google, or Gemini API key pattern exists in source.
+- [ ] Supabase Edge Function secrets include `OPENAI_API_KEY`, `GEMINI_API_KEY_1`, and `GEMINI_API_KEY_2`.
 - [ ] No Supabase service role key exists in client directories.
 - [ ] `.env` is not bundled as a Flutter asset.
 - [ ] Edge Functions hold server-side secrets.
