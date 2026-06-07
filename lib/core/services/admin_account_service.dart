@@ -1,7 +1,5 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-
+import 'api_service.dart';
 import 'doctor_service.dart';
-import 'supabase_service.dart';
 
 class AdminAccountService {
   AdminAccountService._();
@@ -14,40 +12,42 @@ class AdminAccountService {
     String? specialty,
     String? assignedDoctorId,
   }) async {
-    if (!SupabaseService.isReady) {
-      throw StateError('Supabase belum dikonfigurasi.');
+    if (!ApiService.isAuthenticated) {
+      throw StateError('Anda harus login sebagai admin.');
+    }
+
+    // Role enum string validation based on .NET backend (Patient, Doctor, Admin)
+    final roleValue = role.trim().toLowerCase() == 'doctor' ? 'Doctor' 
+                    : role.trim().toLowerCase() == 'admin' ? 'Admin' 
+                    : 'Patient';
+
+    final body = {
+      'fullName': fullName,
+      'email': email,
+      'password': password,
+      'role': roleValue,
+    };
+
+    if (specialty != null && specialty.isNotEmpty) {
+      body['note'] = specialty;
+    }
+    
+    if (assignedDoctorId != null && assignedDoctorId.isNotEmpty) {
+      body['assignedDoctorId'] = assignedDoctorId;
     }
 
     try {
-      await SupabaseService.client.functions.invoke(
-        'create-account',
-        body: {
-          'full_name': fullName,
-          'email': email,
-          'password': password,
-          'role': role,
-          if (specialty != null && specialty.isNotEmpty) 'specialty': specialty,
-          if (assignedDoctorId != null && assignedDoctorId.isNotEmpty)
-            'assigned_doctor_id': assignedDoctorId,
-        },
-      );
+      await ApiService.post('/admin/users', body: body);
       DoctorService.clearCache();
-    } on FunctionException catch (error) {
+    } catch (error) {
       throw StateError(_functionMessage(error));
     }
   }
 
-  static String _functionMessage(FunctionException error) {
-    final details = error.details;
-    if (details is Map && details['error'] != null) {
-      return '${details['error']}';
+  static String _functionMessage(Object error) {
+    if (error is StateError) {
+      return error.message;
     }
-    if (details is Map && details['message'] != null) {
-      return '${details['message']}';
-    }
-    if (details is String && details.trim().isNotEmpty) {
-      return details;
-    }
-    return error.reasonPhrase ?? 'Gagal membuat akun.';
+    return error.toString();
   }
 }

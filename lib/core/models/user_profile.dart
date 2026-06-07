@@ -37,11 +37,11 @@ class UserProfile {
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
       id: json['id'] as String? ?? '',
-      fullName: json['full_name'] as String? ?? '',
+      fullName: json['fullName'] as String? ?? json['full_name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       role: _parseRole(json['role']),
       specialty: json['specialty'] as String?,
-      assignedDoctorId: json['assigned_doctor_id'] as String?,
+      assignedDoctorId: json['assignedDoctorId'] as String? ?? json['assigned_doctor_id'] as String?,
     );
   }
 

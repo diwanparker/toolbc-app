@@ -1,5 +1,6 @@
 import '../models/patient_data.dart';
-import 'supabase_service.dart';
+import 'api_service.dart';
+import 'auth_service.dart';
 
 class PatientService {
   PatientService._();
@@ -14,7 +15,7 @@ class PatientService {
   static _CacheEntry<List<NotificationEntryData>>? _notificationsCache;
 
   static void _resetIfUserChanged() {
-    final currentUserId = SupabaseService.currentUser?.id;
+    final currentUserId = AuthService.currentUser?.id;
     if (_lastUserId == currentUserId) return;
     _lastUserId = currentUserId;
     _assignedPatientsCache = null;
@@ -34,9 +35,9 @@ class PatientService {
     bool forceRefresh = false,
   }) async {
     _resetIfUserChanged();
-    if (!SupabaseService.isReady) return const [];
+    if (!ApiService.isAuthenticated) return const [];
 
-    final activeDoctorId = doctorId ?? SupabaseService.currentUser?.id;
+    final activeDoctorId = doctorId ?? AuthService.currentUser?.id;
     if (activeDoctorId == null) return const [];
 
     if (!forceRefresh &&
@@ -46,46 +47,25 @@ class PatientService {
       return _assignedPatientsCache!.value;
     }
 
-    final rows = await SupabaseService.client
-        .from('patients_data')
-        .select(
-          'id, patient_id, assigned_doctor, treatment_phase, treatment_day, adherence_percent, risk_status',
-        )
-        .eq('assigned_doctor', activeDoctorId)
-        .order('risk_status')
-        .order('treatment_day', ascending: false);
-
-    final data = (rows as List<dynamic>).cast<Map<String, dynamic>>().toList(
-      growable: false,
-    );
-    if (data.isEmpty) return const [];
-
-    final profileIds = data
-        .map((row) => row['patient_id'] as String?)
-        .whereType<String>()
-        .toSet()
-        .toList(growable: false);
-    final profiles = await _fetchProfilesByIds(profileIds);
-
-    final result = data
-        .map(
-          (row) => PatientSummary.fromRows(
-            data: row,
-            profile: profiles[row['patient_id']],
-          ),
-        )
-        .toList(growable: false);
-
-    _assignedPatientsCache = _CacheEntry(result, DateTime.now());
-    _assignedPatientsDoctorId = activeDoctorId;
-    return result;
+    try {
+      final response = await ApiService.get('/doctors/me/patients');
+      if (response is List) {
+        final result = response
+            .map((json) => PatientSummary.fromJson(json as Map<String, dynamic>))
+            .toList(growable: false);
+        _assignedPatientsCache = _CacheEntry(result, DateTime.now());
+        _assignedPatientsDoctorId = activeDoctorId;
+        return result;
+      }
+    } catch (_) {}
+    return const [];
   }
 
   static Future<PatientDashboardData?> fetchCurrentPatientDashboard({
     bool forceRefresh = false,
   }) async {
     _resetIfUserChanged();
-    if (!SupabaseService.isReady) return null;
+    if (!ApiService.isAuthenticated) return null;
 
     if (!forceRefresh &&
         _currentDashboardCache != null &&
@@ -93,37 +73,31 @@ class PatientService {
       return _currentDashboardCache!.value;
     }
 
-    final profile = await SupabaseService.fetchCurrentProfile();
+    final profile = AuthService.currentUser;
     if (profile == null) return null;
 
-    final data = await SupabaseService.client
-        .from('patients_data')
-        .select(
-          'id, patient_id, assigned_doctor, treatment_phase, treatment_day, adherence_percent, risk_status',
-        )
-        .eq('patient_id', profile.id)
-        .maybeSingle();
-
-    final patient = data == null
-        ? null
-        : PatientSummary.fromRows(
-            data: data,
-            profile: {'full_name': profile.fullName, 'email': profile.email},
-          );
-
-    final result = PatientDashboardData(profile: profile, patient: patient);
-    _currentDashboardCache = _CacheEntry(result, DateTime.now());
-    return result;
+    try {
+      final response = await ApiService.get('/patients/me/dashboard');
+      if (response is Map<String, dynamic>) {
+        final result = PatientDashboardData(
+          profile: profile,
+          treatment: response['treatment'] != null ? TreatmentSummary.fromJson(response['treatment']) : null,
+          doctorName: response['doctorName'],
+          medicalRecordNumber: response['medicalRecordNumber'],
+        );
+        _currentDashboardCache = _CacheEntry(result, DateTime.now());
+        return result;
+      }
+    } catch (_) {}
+    
+    return PatientDashboardData(profile: profile);
   }
 
   static Future<List<MedicationLogEntry>> fetchCurrentMedicationLogs({
     bool forceRefresh = false,
   }) async {
     _resetIfUserChanged();
-    if (!SupabaseService.isReady) return const [];
-
-    final userId = SupabaseService.currentUser?.id;
-    if (userId == null) return const [];
+    if (!ApiService.isAuthenticated) return const [];
 
     if (!forceRefresh &&
         _medicationLogsCache != null &&
@@ -131,29 +105,24 @@ class PatientService {
       return _medicationLogsCache!.value;
     }
 
-    final rows = await SupabaseService.client
-        .from('medication_logs')
-        .select('title, status, created_at')
-        .eq('patient_id', userId)
-        .order('created_at', ascending: false)
-        .limit(20);
-
-    final result = (rows as List<dynamic>)
-        .map((row) => MedicationLogEntry.fromJson(row as Map<String, dynamic>))
-        .toList(growable: false);
-
-    _medicationLogsCache = _CacheEntry(result, DateTime.now());
-    return result;
+    try {
+      final response = await ApiService.get('/patients/me/history');
+      if (response is List) {
+        final result = response
+            .map((json) => MedicationLogEntry.fromJson(json as Map<String, dynamic>))
+            .toList(growable: false);
+        _medicationLogsCache = _CacheEntry(result, DateTime.now());
+        return result;
+      }
+    } catch (_) {}
+    return const [];
   }
 
   static Future<List<NotificationEntryData>> fetchCurrentNotifications({
     bool forceRefresh = false,
   }) async {
     _resetIfUserChanged();
-    if (!SupabaseService.isReady) return const [];
-
-    final userId = SupabaseService.currentUser?.id;
-    if (userId == null) return const [];
+    if (!ApiService.isAuthenticated) return const [];
 
     if (!forceRefresh &&
         _notificationsCache != null &&
@@ -161,37 +130,17 @@ class PatientService {
       return _notificationsCache!.value;
     }
 
-    final rows = await SupabaseService.client
-        .from('notifications')
-        .select('type, title, body, status, severity, is_read, created_at')
-        .eq('user_id', userId)
-        .order('created_at', ascending: false)
-        .limit(50);
-
-    final result = (rows as List<dynamic>)
-        .map(
-          (row) => NotificationEntryData.fromJson(row as Map<String, dynamic>),
-        )
-        .toList(growable: false);
-
-    _notificationsCache = _CacheEntry(result, DateTime.now());
-    return result;
-  }
-
-  static Future<Map<String, Map<String, dynamic>>> _fetchProfilesByIds(
-    List<String> ids,
-  ) async {
-    if (ids.isEmpty) return const {};
-
-    final rows = await SupabaseService.client
-        .from('profiles')
-        .select('id, full_name, email')
-        .inFilter('id', ids);
-
-    return {
-      for (final row in (rows as List<dynamic>).cast<Map<String, dynamic>>())
-        row['id'] as String: row,
-    };
+    try {
+      final response = await ApiService.get('/notifications');
+      if (response is List) {
+        final result = response
+            .map((json) => NotificationEntryData.fromJson(json as Map<String, dynamic>))
+            .toList(growable: false);
+        _notificationsCache = _CacheEntry(result, DateTime.now());
+        return result;
+      }
+    } catch (_) {}
+    return const [];
   }
 }
 

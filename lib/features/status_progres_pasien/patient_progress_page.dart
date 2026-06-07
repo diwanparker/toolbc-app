@@ -38,7 +38,7 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
       future: _progressFuture,
       builder: (context, snapshot) {
         final dashboard = snapshot.data?.dashboard;
-        final patient = dashboard?.patient;
+        final treatment = dashboard?.treatment;
         final logs = snapshot.data?.logs ?? const <MedicationLogEntry>[];
 
         return AppPage(
@@ -48,14 +48,14 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
               subtitle: 'Pantau timeline pengobatan dan kepatuhan.',
             ),
             const SizedBox(height: 16),
-            _ProgressHero(patient: patient),
+            _ProgressHero(treatment: treatment),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: MetricCard(
                     label: 'Hari pengobatan',
-                    value: '${patient?.treatmentDay ?? 0}',
+                    value: '${treatment?.treatmentDay ?? 0}',
                     icon: Icons.timeline_rounded,
                     tint: kSurface,
                     accent: kPrimary,
@@ -65,7 +65,7 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
                 Expanded(
                   child: MetricCard(
                     label: 'Kepatuhan',
-                    value: patient?.adherenceLabel ?? '0%',
+                    value: treatment != null ? '${treatment.adherencePercent}%' : '0%',
                     icon: Icons.check_circle_outline_rounded,
                     tint: kSurface,
                     accent: const Color(0xFF22C55E),
@@ -115,9 +115,9 @@ class _ProgressData {
 }
 
 class _ProgressHero extends StatelessWidget {
-  const _ProgressHero({required this.patient});
+  const _ProgressHero({required this.treatment});
 
-  final PatientSummary? patient;
+  final TreatmentSummary? treatment;
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +145,7 @@ class _ProgressHero extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  patient?.adherenceLabel ?? '0%',
+                  treatment != null ? '${treatment!.adherencePercent}%' : '0%',
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
@@ -154,7 +154,7 @@ class _ProgressHero extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  patient?.treatmentLabel ?? 'Data pengobatan belum tersedia.',
+                  treatment == null ? 'Data pengobatan belum tersedia.' : (treatment!.treatmentDay <= 0 ? 'Hari pengobatan belum diatur' : 'Hari ke-${treatment!.treatmentDay}'),
                   style: const TextStyle(
                     fontSize: 11,
                     color: Color(0xFFDDFEE3),
