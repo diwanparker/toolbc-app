@@ -1,6 +1,5 @@
 import '../models/app_mode.dart';
-import 'supabase_service.dart';
-
+import 'api_service.dart';
 class GeminiChatTurn {
   const GeminiChatTurn({required this.text, required this.fromUser});
 
@@ -18,44 +17,47 @@ class GeminiChatException implements Exception {
 }
 
 class GeminiChatService {
-  static const Duration _timeout = Duration(seconds: 30);
   static const int _maxHistoryTurns = 8;
 
-  /// The AI key is intentionally server-side only.
-  /// Client readiness means Supabase is initialized and a user session exists.
-  static bool get isConfigured => SupabaseService.isReady;
+  static bool get isConfigured => ApiService.isAuthenticated;
 
   static Future<String> generateReply({
     required List<GeminiChatTurn> history,
     AppMode mode = AppMode.patient,
   }) async {
-    if (!SupabaseService.isReady) {
+    if (!ApiService.isAuthenticated) {
       throw const GeminiChatException(
-        'Chatbot belum aktif. Hubungi admin untuk mengaktifkan AI.',
+        'Sesi telah habis. Silakan login ulang.',
       );
     }
 
     try {
-      final body = await SupabaseService.invokeFunction(
-        'gemini-chat',
+      final roleString = mode.name.toLowerCase() == 'doctor' ? 'Doctor'
+                       : mode.name.toLowerCase() == 'admin' ? 'Admin'
+                       : 'Patient';
+
+      final response = await ApiService.post(
+        '/chat/reply',
         body: <String, dynamic>{
-          'mode': mode.name,
+          'mode': roleString,
           'history': _toPayloadHistory(history),
         },
-        timeout: _timeout,
       );
 
-      final text = body['text'];
-      if (text is String && text.trim().isNotEmpty) {
-        return text.trim();
+      if (response != null && response['reply'] != null) {
+        final text = response['reply'];
+        if (text is String && text.trim().isNotEmpty) {
+          return text.trim();
+        }
       }
 
       throw const GeminiChatException(
         'AI tidak mengirim jawaban. Coba tanya ulang dengan kalimat yang lebih jelas.',
       );
-    } on GeminiChatException {
-      rethrow;
     } catch (error) {
+      if (error is StateError) {
+        throw GeminiChatException(error.message);
+      }
       throw GeminiChatException('Layanan AI gagal: $error');
     }
   }

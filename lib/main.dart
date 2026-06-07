@@ -3,29 +3,16 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:window_size/window_size.dart';
 
 import 'app/app.dart';
-import 'core/services/supabase_service.dart';
+import 'core/services/api_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _configureDesktopWindow();
 
-  if (SupabaseService.isConfigured) {
-    try {
-      await Supabase.initialize(
-        url: SupabaseService.supabaseUrl,
-        anonKey: SupabaseService.anonKey,
-        authOptions: const FlutterAuthClientOptions(
-          authFlowType: AuthFlowType.pkce,
-        ),
-      );
-    } on Object {
-      // The login page renders a controlled offline/unconfigured state.
-    }
-  }
+  await ApiService.init();
 
   runApp(const MyApp());
 }

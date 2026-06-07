@@ -4,8 +4,9 @@ import '../../../app/theme/app_theme.dart';
 import '../../../core/models/patient_data.dart';
 import '../../../core/models/user_profile.dart';
 import '../../../core/services/patient_service.dart';
-import '../../../core/services/supabase_service.dart';
 import '../../../core/widgets/ui_components.dart';
+import '../../../core/services/api_service.dart';
+import '../../../core/services/auth_service.dart';
 import '../../auth/login_page.dart';
 
 class DoctorDashboardPage extends StatefulWidget {
@@ -25,35 +26,23 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
   }
 
   Future<_DoctorDashboardData> _loadData() async {
-    if (!SupabaseService.isReady || SupabaseService.currentUser == null) {
+    if (!ApiService.isAuthenticated) {
       return const _DoctorDashboardData.empty();
     }
 
-    final patientsFuture = PatientService.fetchAssignedPatients();
-    final notificationsFuture = PatientService.fetchCurrentNotifications();
-
-    // appointments table may not exist yet — gracefully handle.
-    List<Map<String, dynamic>> appointments = const [];
     try {
-      final rows = await SupabaseService.client
-          .from('appointments')
-          .select('id, scheduled_at, status')
-          .eq('doctor_id', SupabaseService.currentUser!.id);
-      appointments = (rows as List<dynamic>)
-          .cast<Map<String, dynamic>>()
-          .toList(growable: false);
-    } catch (_) {
-      // Table may not exist or be inaccessible — safe to ignore.
-    }
-
-    final patients = await patientsFuture;
-    final notifications = await notificationsFuture;
-
-    return _DoctorDashboardData.fromSupabase(
-      patients: patients,
-      notifications: notifications,
-      appointments: appointments,
-    );
+      final response = await ApiService.get('/doctors/me/dashboard');
+      if (response != null && response is Map<String, dynamic>) {
+        final patients = await PatientService.fetchAssignedPatients();
+        final notifications = await PatientService.fetchCurrentNotifications();
+        return _DoctorDashboardData.fromSupabase(
+          patients: patients,
+          notifications: notifications,
+          appointments: (response['appointments'] as List?)?.cast<Map<String, dynamic>>() ?? <Map<String, dynamic>>[],
+        );
+      }
+    } catch (_) {}
+    return const _DoctorDashboardData.empty();
   }
 
   @override
@@ -136,7 +125,7 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
   }
 
   Future<_DoctorPatientsData> _loadData() async {
-    if (!SupabaseService.isReady) return const _DoctorPatientsData.empty();
+    if (!ApiService.isAuthenticated) return const _DoctorPatientsData.empty();
 
     final patientsFuture = PatientService.fetchAssignedPatients();
     final notificationsFuture = PatientService.fetchCurrentNotifications();
@@ -331,11 +320,11 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   @override
   void initState() {
     super.initState();
-    _profileFuture = SupabaseService.fetchCurrentProfile();
+    _profileFuture = Future.value(AuthService.currentUser);
   }
 
   Future<void> _logout(BuildContext context) async {
-    await SupabaseService.signOut();
+    await AuthService.signOut();
     if (!context.mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (_) => const AuthLoginPage()),

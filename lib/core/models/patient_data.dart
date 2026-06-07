@@ -3,46 +3,37 @@ import 'user_profile.dart';
 class PatientSummary {
   const PatientSummary({
     required this.id,
-    required this.patientId,
     required this.fullName,
-    required this.email,
-    required this.assignedDoctorId,
-    required this.treatmentPhase,
+    required this.medicalRecordNumber,
     required this.treatmentDay,
     required this.adherencePercent,
     required this.riskStatus,
+    required this.badge,
   });
 
   final String id;
-  final String patientId;
   final String fullName;
-  final String email;
-  final String assignedDoctorId;
-  final String treatmentPhase;
+  final String medicalRecordNumber;
   final int treatmentDay;
   final int adherencePercent;
   final String riskStatus;
+  final String badge;
 
-  factory PatientSummary.fromRows({
-    required Map<String, dynamic> data,
-    required Map<String, dynamic>? profile,
-  }) {
+  factory PatientSummary.fromJson(Map<String, dynamic> json) {
     return PatientSummary(
-      id: data['id'] as String? ?? '',
-      patientId: data['patient_id'] as String? ?? '',
-      fullName: profile?['full_name'] as String? ?? 'Pasien tanpa nama',
-      email: profile?['email'] as String? ?? '',
-      assignedDoctorId: data['assigned_doctor'] as String? ?? '',
-      treatmentPhase: data['treatment_phase'] as String? ?? 'Belum diatur',
-      treatmentDay: _asInt(data['treatment_day']),
-      adherencePercent: _asInt(data['adherence_percent']),
-      riskStatus: data['risk_status'] as String? ?? 'new',
+      id: json['patientProfileId']?.toString() ?? '',
+      fullName: json['fullName']?.toString() ?? 'Pasien tanpa nama',
+      medicalRecordNumber: json['medicalRecordNumber']?.toString() ?? '',
+      treatmentDay: _asInt(json['treatmentDay']),
+      adherencePercent: _asInt(json['adherencePercent']),
+      riskStatus: _parseRisk(json['currentRisk']),
+      badge: json['badge']?.toString() ?? '',
     );
   }
 
   String get treatmentLabel {
     if (treatmentDay <= 0) return 'Hari pengobatan belum diatur';
-    return 'Hari ke-$treatmentDay (${_phaseLabel(treatmentPhase)})';
+    return 'Hari ke-$treatmentDay';
   }
 
   String get adherenceLabel => '$adherencePercent%';
@@ -50,12 +41,9 @@ class PatientSummary {
   String get riskLabel {
     switch (riskStatus.toLowerCase()) {
       case 'high':
-      case 'critical':
         return 'Risiko tinggi';
       case 'moderate':
-      case 'medium':
         return 'Risiko sedang';
-      case 'stable':
       case 'low':
         return 'Stabil';
       default:
@@ -63,15 +51,13 @@ class PatientSummary {
     }
   }
 
-  static String _phaseLabel(String value) {
-    switch (value.toLowerCase()) {
-      case 'intensive':
-        return 'Intensif';
-      case 'continuation':
-        return 'Lanjutan';
-      default:
-        return value;
-    }
+  static String _parseRisk(dynamic risk) {
+    if (risk == null) return 'low';
+    final val = risk.toString().toLowerCase();
+    if (val == '1' || val == 'low') return 'low';
+    if (val == '2' || val == 'moderate') return 'moderate';
+    if (val == '3' || val == 'high') return 'high';
+    return 'low';
   }
 
   static int _asInt(dynamic value) {
@@ -81,11 +67,56 @@ class PatientSummary {
   }
 }
 
+class TreatmentSummary {
+  const TreatmentSummary({
+    required this.treatmentDay,
+    required this.totalDays,
+    required this.completionPercent,
+    required this.adherencePercent,
+    required this.streakDays,
+    required this.medicineSummary,
+    required this.nextDoseLabel,
+  });
+
+  final int treatmentDay;
+  final int totalDays;
+  final int completionPercent;
+  final int adherencePercent;
+  final int streakDays;
+  final String medicineSummary;
+  final String nextDoseLabel;
+
+  factory TreatmentSummary.fromJson(Map<String, dynamic> json) {
+    return TreatmentSummary(
+      treatmentDay: _asInt(json['treatmentDay']),
+      totalDays: _asInt(json['totalDays']),
+      completionPercent: _asInt(json['completionPercent']),
+      adherencePercent: _asInt(json['adherencePercent']),
+      streakDays: _asInt(json['streakDays']),
+      medicineSummary: json['medicineSummary']?.toString() ?? '',
+      nextDoseLabel: json['nextDoseLabel']?.toString() ?? '',
+    );
+  }
+  
+  static int _asInt(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.round();
+    return int.tryParse('$value') ?? 0;
+  }
+}
+
 class PatientDashboardData {
-  const PatientDashboardData({required this.profile, this.patient});
+  const PatientDashboardData({
+    required this.profile, 
+    this.treatment,
+    this.doctorName,
+    this.medicalRecordNumber,
+  });
 
   final UserProfile profile;
-  final PatientSummary? patient;
+  final TreatmentSummary? treatment;
+  final String? doctorName;
+  final String? medicalRecordNumber;
 }
 
 class MedicationLogEntry {
@@ -102,8 +133,8 @@ class MedicationLogEntry {
   factory MedicationLogEntry.fromJson(Map<String, dynamic> json) {
     return MedicationLogEntry(
       title: json['title'] as String? ?? 'Catatan pengobatan',
-      status: json['status'] as String? ?? 'info',
-      createdAt: DateTime.tryParse('${json['created_at']}'),
+      status: json['type'] as String? ?? 'info',
+      createdAt: DateTime.tryParse('${json['createdAt']}'),
     );
   }
 }
@@ -129,13 +160,13 @@ class NotificationEntryData {
 
   factory NotificationEntryData.fromJson(Map<String, dynamic> json) {
     return NotificationEntryData(
-      type: json['type'] as String? ?? 'reminder',
+      type: json['type']?.toString().toLowerCase() ?? 'reminder',
       title: json['title'] as String? ?? 'Notifikasi',
-      body: json['body'] as String? ?? '',
-      status: json['status'] as String? ?? 'Info',
-      severity: json['severity'] as String? ?? 'normal',
-      isRead: json['is_read'] as bool? ?? false,
-      createdAt: DateTime.tryParse('${json['created_at']}'),
+      body: json['message'] as String? ?? '',
+      status: 'Info',
+      severity: 'normal',
+      isRead: json['isRead'] as bool? ?? false,
+      createdAt: DateTime.tryParse('${json['createdAt']}'),
     );
   }
 }

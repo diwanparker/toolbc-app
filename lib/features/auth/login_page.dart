@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 import '../../app/theme/app_theme.dart';
-import '../../core/services/supabase_service.dart';
+import '../../core/services/auth_service.dart';
 import '../../core/widgets/app_shell.dart';
 
 class AuthLoginPage extends StatefulWidget {
@@ -38,7 +38,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
       return;
     }
 
-    if (!SupabaseService.isReady) {
+    if (!AuthService.isConfigured) {
       _showSnack(
         'Supabase belum dikonfigurasi. Isi SUPABASE_URL dan SUPABASE_ANON_KEY.',
       );
@@ -46,9 +46,9 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
     }
 
     try {
-      final profile = await SupabaseService.signIn(email, password);
+      final profile = await AuthService.signIn(email, password);
       if (profile == null) {
-        await SupabaseService.signOut();
+        await AuthService.signOut();
         if (mounted) {
           _showSnack('Profil akun belum dibuat di database.');
         }
@@ -61,7 +61,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
           builder: (_) => AppShell(initialMode: profile.role.appMode),
         ),
       );
-    } on AuthException catch (error) {
+    } on StateError catch (error) {
       if (mounted) _showSnack('Login gagal: ${error.message}');
     } catch (error) {
       if (mounted) _showSnack('Login gagal: $error');

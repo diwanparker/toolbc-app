@@ -1,5 +1,5 @@
 import '../models/doctor_model.dart';
-import 'supabase_service.dart';
+import 'api_service.dart';
 
 /// Service for fetching and managing doctor data.
 class DoctorService {
@@ -22,23 +22,27 @@ class DoctorService {
       return _cachedDoctors!;
     }
 
-    if (!SupabaseService.isReady) {
+    if (!ApiService.isAuthenticated) {
       _cachedDoctors = const [];
       _cachedAt = DateTime.now();
       return _cachedDoctors!;
     }
 
-    final response = await SupabaseService.client
-        .from('profiles')
-        .select('id, full_name, specialty, email')
-        .eq('role', 'doctor')
-        .order('full_name');
-
-    final data = response as List<dynamic>;
-    _cachedDoctors = data
-        .map((row) => DoctorModel.fromSupabaseUser(row as Map<String, dynamic>))
-        .toList(growable: false);
-    _cachedAt = DateTime.now();
+    try {
+      final response = await ApiService.get('/admin/doctors');
+      if (response is List) {
+        _cachedDoctors = response
+            .map((row) => DoctorModel.fromSupabaseUser(row as Map<String, dynamic>))
+            .toList(growable: false);
+        _cachedAt = DateTime.now();
+      } else {
+        _cachedDoctors = const [];
+        _cachedAt = DateTime.now();
+      }
+    } catch (_) {
+      _cachedDoctors = const [];
+      _cachedAt = DateTime.now();
+    }
 
     return _cachedDoctors!;
   }

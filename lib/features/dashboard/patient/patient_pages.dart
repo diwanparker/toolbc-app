@@ -30,26 +30,26 @@ class _PatientHomePageState extends State<PatientHomePage> {
       builder: (context, snapshot) {
         final data = snapshot.data;
         final profile = data?.profile;
-        final patient = data?.patient;
+        final treatment = data?.treatment;
         final firstName = profile?.displayName.split(' ').first ?? 'Pasien';
 
         return AppPage(
           children: [
             PageHeader(
               title: 'Halo, $firstName',
-              subtitle: patient == null
+              subtitle: treatment == null
                   ? 'Data pengobatan kamu belum diatur oleh admin.'
                   : 'Tetap konsisten mengikuti rencana pengobatan.',
             ),
             const SizedBox(height: 18),
-            _TreatmentSummaryCard(patient: patient),
+            _TreatmentSummaryCard(treatment: treatment),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: MetricCard(
                     label: 'Adherence',
-                    value: patient?.adherenceLabel ?? '0%',
+                    value: treatment != null ? '${treatment.adherencePercent}%' : '0%',
                     icon: Icons.check_circle_outline_rounded,
                     tint: const Color(0xFFD4F7DD),
                     accent: const Color(0xFF16A34A),
@@ -59,7 +59,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
                 Expanded(
                   child: MetricCard(
                     label: 'Hari Pengobatan',
-                    value: '${patient?.treatmentDay ?? 0}',
+                    value: '${treatment?.treatmentDay ?? 0}',
                     icon: Icons.timeline_rounded,
                     tint: const Color(0xFFEFF6FF),
                     accent: kPrimary,
@@ -71,11 +71,11 @@ class _PatientHomePageState extends State<PatientHomePage> {
             SectionCard(
               title: 'Pengingat Obat',
               trailing: StatusPill(
-                text: patient == null ? 'Belum aktif' : 'Aktif',
-                bg: patient == null
+                text: treatment == null ? 'Belum aktif' : 'Aktif',
+                bg: treatment == null
                     ? const Color(0xFFE2E8F0)
                     : const Color(0xFFDDF7E0),
-                fg: patient == null
+                fg: treatment == null
                     ? const Color(0xFF475569)
                     : const Color(0xFF15803D),
               ),
@@ -83,7 +83,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    patient == null
+                    treatment == null
                         ? 'Admin atau dokter perlu melengkapi data rencana pengobatan terlebih dahulu.'
                         : 'Ikuti jadwal obat yang sudah ditentukan oleh dokter penanggung jawab.',
                     style: const TextStyle(fontSize: 10.5, color: kMuted),
@@ -118,7 +118,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
             SectionCard(
               title: 'Checklist Harian',
               child: ChecklistTile(
-                label: patient == null
+                label: treatment == null
                     ? 'Data checklist belum tersedia'
                     : 'Minum obat sesuai jadwal',
                 active: false,
@@ -166,14 +166,12 @@ class _PatientHomePageState extends State<PatientHomePage> {
 }
 
 class _TreatmentSummaryCard extends StatelessWidget {
-  const _TreatmentSummaryCard({required this.patient});
+  const _TreatmentSummaryCard({required this.treatment});
 
-  final PatientSummary? patient;
+  final TreatmentSummary? treatment;
 
   @override
   Widget build(BuildContext context) {
-    final progress = ((patient?.treatmentDay ?? 0) / 180).clamp(0.0, 1.0);
-
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(colors: [kPrimary, kPrimaryDark]),
@@ -195,7 +193,7 @@ class _TreatmentSummaryCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    patient?.treatmentLabel ?? 'Rencana pengobatan belum ada',
+                    treatment == null ? 'Rencana pengobatan belum ada' : (treatment!.treatmentDay <= 0 ? 'Hari pengobatan belum diatur' : 'Hari ke-${treatment!.treatmentDay}'),
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -204,9 +202,9 @@ class _TreatmentSummaryCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    patient == null
+                    treatment == null
                         ? 'Menunggu data'
-                        : 'Day ${patient!.treatmentDay}',
+                        : 'Day ${treatment!.treatmentDay}',
                     style: const TextStyle(
                       fontSize: 30,
                       height: 1.05,
@@ -216,9 +214,9 @@ class _TreatmentSummaryCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    patient == null
+                    treatment == null
                         ? 'Hubungi admin bila data belum muncul.'
-                        : '${(progress * 100).round()}% estimasi selesai.',
+                        : '${treatment!.completionPercent}% estimasi selesai.',
                     style: const TextStyle(
                       fontSize: 11,
                       color: Color(0xFFDBEAFE),
@@ -244,7 +242,7 @@ class _TreatmentSummaryCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    patient?.riskLabel ?? 'Belum aktif',
+                    treatment == null ? 'Belum aktif' : 'Dalam Perawatan',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 12.5,

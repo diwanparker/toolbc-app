@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_theme.dart';
 import '../../core/models/user_profile.dart';
-import '../../core/services/supabase_service.dart';
+import '../../core/services/auth_service.dart';
 import '../../core/widgets/ui_components.dart';
 import '../auth/login_page.dart';
 
@@ -19,7 +19,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
   @override
   void initState() {
     super.initState();
-    _profileFuture = SupabaseService.fetchCurrentProfile();
+    _profileFuture = Future.value(AuthService.currentUser);
   }
 
   @override
@@ -89,7 +89,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
   @override
   void initState() {
     super.initState();
-    _profileFuture = SupabaseService.fetchCurrentProfile();
+    _profileFuture = Future.value(AuthService.currentUser);
   }
 
   @override
@@ -194,7 +194,7 @@ class _IdentityCard extends StatelessWidget {
 }
 
 Future<void> _logout(BuildContext context) async {
-  await SupabaseService.signOut();
+  await AuthService.signOut();
   if (!context.mounted) return;
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute<void>(builder: (_) => const AuthLoginPage()),
