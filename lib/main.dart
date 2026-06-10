@@ -7,12 +7,14 @@ import 'package:window_size/window_size.dart';
 
 import 'app/app.dart';
 import 'core/services/api_service.dart';
+import 'core/services/auth_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _configureDesktopWindow();
 
   await ApiService.init();
+  await AuthService.loadSavedProfile();
 
   runApp(const MyApp());
 }

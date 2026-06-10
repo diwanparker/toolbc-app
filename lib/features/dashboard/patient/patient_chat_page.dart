@@ -38,14 +38,14 @@ class PatientChatPage extends StatefulWidget {
 class _PatientChatPageState extends State<PatientChatPage> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
-  final List<_PatientChatMessage> _messages = const [
+  final List<_PatientChatMessage> _messages = [
     _PatientChatMessage(
       text:
           'Halo, aku AI ToolBC. Aku bisa bantu jelaskan fitur aplikasi, alur akun, reminder obat, checkup gejala, dan kapan perlu menghubungi dokter.',
       fromUser: false,
       includeInPrompt: false,
     ),
-  ].toList();
+  ];
 
   bool _sending = false;
 

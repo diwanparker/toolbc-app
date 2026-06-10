@@ -48,7 +48,7 @@ class ApiService {
     final response = await _client.get(
       Uri.parse('$baseUrl$endpoint'),
       headers: _headers,
-    );
+    ).timeout(const Duration(seconds: 15));
     return _handleResponse(response);
   }
 
@@ -57,7 +57,7 @@ class ApiService {
       Uri.parse('$baseUrl$endpoint'),
       headers: _headers,
       body: body != null ? jsonEncode(body) : null,
-    );
+    ).timeout(const Duration(seconds: 15));
     return _handleResponse(response);
   }
 
@@ -66,7 +66,7 @@ class ApiService {
       Uri.parse('$baseUrl$endpoint'),
       headers: _headers,
       body: body != null ? jsonEncode(body) : null,
-    );
+    ).timeout(const Duration(seconds: 15));
     return _handleResponse(response);
   }
 

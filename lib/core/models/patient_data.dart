@@ -1,5 +1,12 @@
 import 'user_profile.dart';
 
+/// Shared helper to safely parse an integer from dynamic API values.
+int _asInt(dynamic value) {
+  if (value is int) return value;
+  if (value is num) return value.round();
+  return int.tryParse('$value') ?? 0;
+}
+
 class PatientSummary {
   const PatientSummary({
     required this.id,
@@ -59,12 +66,6 @@ class PatientSummary {
     if (val == '3' || val == 'high') return 'high';
     return 'low';
   }
-
-  static int _asInt(dynamic value) {
-    if (value is int) return value;
-    if (value is num) return value.round();
-    return int.tryParse('$value') ?? 0;
-  }
 }
 
 class TreatmentSummary {
@@ -96,12 +97,6 @@ class TreatmentSummary {
       medicineSummary: json['medicineSummary']?.toString() ?? '',
       nextDoseLabel: json['nextDoseLabel']?.toString() ?? '',
     );
-  }
-  
-  static int _asInt(dynamic value) {
-    if (value is int) return value;
-    if (value is num) return value.round();
-    return int.tryParse('$value') ?? 0;
   }
 }
 
@@ -163,8 +158,8 @@ class NotificationEntryData {
       type: json['type']?.toString().toLowerCase() ?? 'reminder',
       title: json['title'] as String? ?? 'Notifikasi',
       body: json['message'] as String? ?? '',
-      status: 'Info',
-      severity: 'normal',
+      status: json['status']?.toString() ?? 'Info',
+      severity: json['severity']?.toString() ?? 'normal',
       isRead: json['isRead'] as bool? ?? false,
       createdAt: DateTime.tryParse('${json['createdAt']}'),
     );

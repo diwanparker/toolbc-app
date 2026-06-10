@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../models/patient_data.dart';
 import 'api_service.dart';
 import 'auth_service.dart';
@@ -57,7 +59,9 @@ class PatientService {
         _assignedPatientsDoctorId = activeDoctorId;
         return result;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Error fetching assigned patients: $e');
+    }
     return const [];
   }
 
@@ -88,7 +92,9 @@ class PatientService {
         _currentDashboardCache = _CacheEntry(result, DateTime.now());
         return result;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Error fetching patient dashboard: $e');
+    }
     
     return PatientDashboardData(profile: profile);
   }
@@ -114,7 +120,9 @@ class PatientService {
         _medicationLogsCache = _CacheEntry(result, DateTime.now());
         return result;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Error fetching medication logs: $e');
+    }
     return const [];
   }
 
@@ -139,8 +147,39 @@ class PatientService {
         _notificationsCache = _CacheEntry(result, DateTime.now());
         return result;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Error fetching notifications: $e');
+    }
     return const [];
+  }
+
+  /// Confirms a medication dose with the given status.
+  static Future<Map<String, dynamic>> confirmMedicationDose({
+    required String doseLogId,
+    required String status,
+    String? notes,
+  }) async {
+    final body = <String, dynamic>{
+      'doseLogId': doseLogId,
+      'status': status,
+    };
+    if (notes != null && notes.isNotEmpty) body['notes'] = notes;
+    return await ApiService.post('/patients/me/medication-logs', body: body);
+  }
+
+  /// Submits a symptom checkup report.
+  static Future<Map<String, dynamic>> submitSymptomCheckup({
+    required bool persistentCough,
+    required bool feverOrChills,
+    required bool nightSweats,
+    required bool weightLoss,
+  }) async {
+    return await ApiService.post('/patients/me/symptom-logs', body: {
+      'persistentCough': persistentCough,
+      'feverOrChills': feverOrChills,
+      'nightSweats': nightSweats,
+      'weightLoss': weightLoss,
+    });
   }
 }
 

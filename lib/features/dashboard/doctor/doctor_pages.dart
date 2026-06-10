@@ -41,7 +41,9 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
           appointments: (response['appointments'] as List?)?.cast<Map<String, dynamic>>() ?? <Map<String, dynamic>>[],
         );
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Error loading doctor dashboard: $e');
+    }
     return const _DoctorDashboardData.empty();
   }
 
@@ -116,7 +118,7 @@ class DoctorPatientsPage extends StatefulWidget {
 }
 
 class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
-  late final Future<_DoctorPatientsData> _patientsFuture;
+  late Future<_DoctorPatientsData> _patientsFuture;
 
   @override
   void initState() {
@@ -128,15 +130,48 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
     if (!ApiService.isAuthenticated) return const _DoctorPatientsData.empty();
 
     final patientsFuture = PatientService.fetchAssignedPatients();
-    final notificationsFuture = PatientService.fetchCurrentNotifications();
-    final results = await Future.wait([patientsFuture, notificationsFuture]);
-    final patients = results[0] as List<PatientSummary>;
-    final notifications = results[1] as List<NotificationEntryData>;
+
+    // Fetch reminders from API instead of using notifications
+    List<NotificationEntryData> reminders = const [];
+    try {
+      final response = await ApiService.get('/doctors/me/reminders');
+      if (response is List) {
+        reminders = response
+            .map((json) => NotificationEntryData.fromJson(json as Map<String, dynamic>))
+            .toList(growable: false);
+      }
+    } catch (e) {
+      debugPrint('Error fetching doctor reminders: $e');
+      // Fallback to notifications
+      reminders = await PatientService.fetchCurrentNotifications();
+    }
+
+    final patients = await patientsFuture;
 
     return _DoctorPatientsData(
       patients: patients,
-      notifications: notifications,
+      notifications: reminders,
     );
+  }
+
+  Future<void> _updateReminderStatus(String reminderId, String status) async {
+    try {
+      await ApiService.patch('/reminders/$reminderId/status?status=$status');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Pengingat diperbarui: $status')),
+      );
+      // Refresh data
+      setState(() {
+        _patientsFuture = _loadData();
+      });
+    } catch (e) {
+      debugPrint('Error updating reminder status: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memperbarui pengingat: $e')),
+      );
+    }
   }
 
   @override
@@ -178,7 +213,10 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
             ),
             const SizedBox(height: 12),
             for (final item in data.notifications.take(3)) ...[
-              _ReminderQueueTile(item: item),
+              _ReminderQueueTile(
+                item: item,
+                onUpdateStatus: _updateReminderStatus,
+              ),
               const SizedBox(height: 10),
             ],
             Row(
@@ -234,27 +272,50 @@ class DoctorAdherencePage extends StatefulWidget {
 }
 
 class _DoctorAdherencePageState extends State<DoctorAdherencePage> {
-  late final Future<List<PatientSummary>> _patientsFuture;
+  late final Future<_AdherenceData> _adherenceFuture;
 
   @override
   void initState() {
     super.initState();
-    _patientsFuture = PatientService.fetchAssignedPatients();
+    _adherenceFuture = _loadAdherence();
+  }
+
+  Future<_AdherenceData> _loadAdherence() async {
+    if (!ApiService.isAuthenticated) {
+      return const _AdherenceData(patients: [], apiAverage: null);
+    }
+
+    final patients = await PatientService.fetchAssignedPatients();
+
+    // Try fetching adherence data from API
+    int? apiAverage;
+    try {
+      final response = await ApiService.get('/doctors/me/adherence');
+      if (response is Map<String, dynamic>) {
+        apiAverage = (response['averageAdherence'] as num?)?.round();
+      }
+    } catch (e) {
+      debugPrint('Error fetching adherence data: $e');
+    }
+
+    return _AdherenceData(patients: patients, apiAverage: apiAverage);
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<PatientSummary>>(
-      future: _patientsFuture,
+    return FutureBuilder<_AdherenceData>(
+      future: _adherenceFuture,
       builder: (context, snapshot) {
-        final patients = snapshot.data ?? const <PatientSummary>[];
+        final data = snapshot.data;
+        final patients = data?.patients ?? const <PatientSummary>[];
         final buckets = _RiskBuckets.fromPatients(patients);
-        final average = patients.isEmpty
-            ? 0
-            : patients
-                      .map((patient) => patient.adherencePercent)
-                      .reduce((a, b) => a + b) ~/
-                  patients.length;
+        final average = data?.apiAverage ??
+            (patients.isEmpty
+                ? 0
+                : patients
+                          .map((patient) => patient.adherencePercent)
+                          .reduce((a, b) => a + b) ~/
+                      patients.length);
 
         return AppPage(
           children: [
@@ -267,7 +328,7 @@ class _DoctorAdherencePageState extends State<DoctorAdherencePage> {
               title: 'Weekly adherence trend',
               child: patients.isEmpty
                   ? const Text(
-                      'Belum ada data kepatuhan dari Supabase.',
+                      'Belum ada data kepatuhan.',
                       style: TextStyle(fontSize: 10.5, color: kMuted),
                     )
                   : Text(
@@ -569,6 +630,13 @@ class _DoctorPatientsData {
   final List<NotificationEntryData> notifications;
 }
 
+class _AdherenceData {
+  const _AdherenceData({required this.patients, required this.apiAverage});
+
+  final List<PatientSummary> patients;
+  final int? apiAverage;
+}
+
 class _DoctorMetricGrid extends StatelessWidget {
   const _DoctorMetricGrid({required this.data});
 
@@ -756,55 +824,62 @@ class _DoctorPatientTile extends StatelessWidget {
 }
 
 class _ReminderQueueTile extends StatelessWidget {
-  const _ReminderQueueTile({required this.item});
+  const _ReminderQueueTile({required this.item, this.onUpdateStatus});
 
   final NotificationEntryData item;
+  final void Function(String reminderId, String status)? onUpdateStatus;
 
   @override
   Widget build(BuildContext context) {
     final color = _riskColor(item.severity);
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: kSurface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: kBorder),
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.notifications_active_outlined,
-            color: kPrimary,
-            size: 18,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: kText,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  item.body,
-                  style: const TextStyle(fontSize: 10.5, color: kMuted),
-                ),
-              ],
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onUpdateStatus != null && !item.isRead
+          ? () => onUpdateStatus!(item.title, 'Reviewed')
+          : null,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: kSurface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: kBorder),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.notifications_active_outlined,
+              color: kPrimary,
+              size: 18,
             ),
-          ),
-          StatusPill(
-            text: item.status,
-            bg: color.withValues(alpha: 0.14),
-            fg: color,
-          ),
-        ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: kText,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.body,
+                    style: const TextStyle(fontSize: 10.5, color: kMuted),
+                  ),
+                ],
+              ),
+            ),
+            StatusPill(
+              text: item.status,
+              bg: color.withValues(alpha: 0.14),
+              fg: color,
+            ),
+          ],
+        ),
       ),
     );
   }

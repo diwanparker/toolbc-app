@@ -4,6 +4,7 @@ import '../../../app/theme/app_theme.dart';
 import '../../../core/models/patient_data.dart';
 import '../../../core/services/patient_service.dart';
 import '../../../core/widgets/ui_components.dart';
+import 'symptom_checkup_page.dart';
 
 class PatientHomePage extends StatefulWidget {
   const PatientHomePage({super.key, required this.onOpenNotifications});
@@ -15,12 +16,49 @@ class PatientHomePage extends StatefulWidget {
 }
 
 class _PatientHomePageState extends State<PatientHomePage> {
-  late final Future<PatientDashboardData?> _dashboardFuture;
+  late Future<PatientDashboardData?> _dashboardFuture;
+  bool _confirmingDose = false;
 
   @override
   void initState() {
     super.initState();
     _dashboardFuture = PatientService.fetchCurrentPatientDashboard();
+  }
+
+  Future<void> _confirmDose() async {
+    if (_confirmingDose) return;
+    setState(() => _confirmingDose = true);
+
+    try {
+      await PatientService.confirmMedicationDose(
+        doseLogId: 'today',
+        status: 'Taken',
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Obat berhasil dikonfirmasi! ✅')),
+      );
+      // Refresh dashboard data
+      setState(() {
+        _dashboardFuture =
+            PatientService.fetchCurrentPatientDashboard(forceRefresh: true);
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal mengonfirmasi obat: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _confirmingDose = false);
+    }
+  }
+
+  void _openSymptomCheckup() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const SymptomCheckupPage(),
+      ),
+    );
   }
 
   @override
@@ -91,13 +129,22 @@ class _PatientHomePageState extends State<PatientHomePage> {
                   const SizedBox(height: 14),
                   Row(
                     children: [
-                      const Expanded(
-                        child: AppActionChip(
-                          label: 'Sudah diminum',
-                          filled: true,
-                          fillColor: Color(0xFF22C55E),
-                          fg: Colors.white,
-                        ),
+                      Expanded(
+                        child: _confirmingDose
+                            ? const Center(
+                                child: SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(strokeWidth: 2.4),
+                                ),
+                              )
+                            : AppActionChip(
+                                label: 'Sudah diminum',
+                                filled: true,
+                                fillColor: const Color(0xFF22C55E),
+                                fg: Colors.white,
+                                onTap: _confirmDose,
+                              ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -128,17 +175,18 @@ class _PatientHomePageState extends State<PatientHomePage> {
             SectionCard(
               title: 'Quick Support',
               child: Row(
-                children: const [
+                children: [
                   Expanded(
                     child: AppActionChip(
-                      label: 'Tanya AI',
+                      label: 'Checkup Gejala',
                       filled: false,
                       fillColor: kSoftBlue,
                       fg: kPrimary,
+                      onTap: _openSymptomCheckup,
                     ),
                   ),
-                  SizedBox(width: 10),
-                  Expanded(
+                  const SizedBox(width: 10),
+                  const Expanded(
                     child: AppActionChip(
                       label: 'Hubungi dokter',
                       filled: false,
@@ -146,8 +194,8 @@ class _PatientHomePageState extends State<PatientHomePage> {
                       fg: kPrimary,
                     ),
                   ),
-                  SizedBox(width: 10),
-                  Expanded(
+                  const SizedBox(width: 10),
+                  const Expanded(
                     child: AppActionChip(
                       label: 'Kirim laporan',
                       filled: false,

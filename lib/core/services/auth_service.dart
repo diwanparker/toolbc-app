@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'api_service.dart';
 import '../models/user_profile.dart';
 
@@ -11,12 +12,21 @@ class AuthService {
 
   static bool get isConfigured => true; // Always true for API
 
+  /// Returns true if both token and profile are available.
+  static bool isLoggedIn() =>
+      ApiService.isAuthenticated && _currentUserProfile != null;
+
   static Future<void> loadSavedProfile() async {
+    final token = ApiService.prefs.getString('jwt_token');
+    if (token == null) return;
+
     final saved = ApiService.prefs.getString('user_profile');
     if (saved != null) {
       try {
         _currentUserProfile = UserProfile.fromJson(jsonDecode(saved));
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('Error loading saved profile: $e');
+      }
     }
   }
 

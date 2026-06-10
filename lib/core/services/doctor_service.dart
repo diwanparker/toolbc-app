@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../models/doctor_model.dart';
 import 'api_service.dart';
 
@@ -32,14 +33,15 @@ class DoctorService {
       final response = await ApiService.get('/admin/doctors');
       if (response is List) {
         _cachedDoctors = response
-            .map((row) => DoctorModel.fromSupabaseUser(row as Map<String, dynamic>))
+            .map((row) => DoctorModel.fromJson(row as Map<String, dynamic>))
             .toList(growable: false);
         _cachedAt = DateTime.now();
       } else {
         _cachedDoctors = const [];
         _cachedAt = DateTime.now();
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Error fetching doctors: $e');
       _cachedDoctors = const [];
       _cachedAt = DateTime.now();
     }

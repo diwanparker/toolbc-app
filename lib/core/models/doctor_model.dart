@@ -12,8 +12,8 @@ class DoctorModel {
   final String specialty;
   final String? email;
 
-  /// Construct from Supabase user metadata.
-  factory DoctorModel.fromSupabaseUser(Map<String, dynamic> json) {
+  /// Construct from JSON response.
+  factory DoctorModel.fromJson(Map<String, dynamic> json) {
     return DoctorModel(
       id: json['id'] as String? ?? '',
       fullName:
