@@ -90,6 +90,384 @@ class PageHeader extends StatelessWidget {
   }
 }
 
+/// Signature 4-Colored Dots Indicator (AI & Smart Assistant Badge from reference)
+class FourDotIndicator extends StatelessWidget {
+  const FourDotIndicator({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _ColorDot(color: Color(0xFF00A3FF)),
+          SizedBox(width: 3),
+          _ColorDot(color: Color(0xFFF59E0B)),
+          SizedBox(width: 3),
+          _ColorDot(color: Color(0xFF10B981)),
+          SizedBox(width: 3),
+          _ColorDot(color: Color(0xFF8B5CF6)),
+        ],
+      ),
+    );
+  }
+}
+
+class _ColorDot extends StatelessWidget {
+  const _ColorDot({required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 4.5,
+      height: 4.5,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+}
+
+/// Circular Quick Action Button (from reference service row)
+class CircularQuickAction extends StatelessWidget {
+  const CircularQuickAction({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.bg,
+    required this.fg,
+    this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color bg;
+  final Color fg;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: bg,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Icon(icon, color: fg, size: 22),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: kTextSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Horizontal Goal Card (from reference 'Goals' carousel)
+class HorizontalGoalCard extends StatelessWidget {
+  const HorizontalGoalCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.icon,
+    required this.iconBg,
+    required this.iconFg,
+    this.trendText,
+    this.isPositiveTrend = true,
+    this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final String value;
+  final IconData icon;
+  final Color iconBg;
+  final Color iconFg;
+  final String? trendText;
+  final bool isPositiveTrend;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: 158,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: kSurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: kBorder),
+          boxShadow: kCardShadow,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: iconBg,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Icon(icon, color: iconFg, size: 18),
+                  ),
+                ),
+                if (trendText != null)
+                  Icon(
+                    isPositiveTrend ? Icons.trending_up_rounded : Icons.trending_flat_rounded,
+                    color: isPositiveTrend ? kSuccess : kMuted,
+                    size: 18,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w500,
+                    color: kMuted,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
+                    color: kText,
+                  ),
+                ),
+                if (subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: isPositiveTrend ? kSuccess : kTextSecondary,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Activity Item Tile (from reference 'Received Activity' feed)
+class ActivityItemTile extends StatelessWidget {
+  const ActivityItemTile({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.iconBg,
+    required this.iconFg,
+    this.trailingTitle,
+    this.trailingSubtitle,
+    this.trailingWidget,
+    this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color iconBg;
+  final Color iconFg;
+  final String? trailingTitle;
+  final String? trailingSubtitle;
+  final Widget? trailingWidget;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: kSurface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: kBorder),
+          boxShadow: kCardShadow,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: iconBg,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Icon(icon, color: iconFg, size: 22),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                      color: kText,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      color: kMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (trailingWidget != null)
+              trailingWidget!
+            else if (trailingTitle != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    trailingTitle!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: kText,
+                    ),
+                  ),
+                  if (trailingSubtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      trailingSubtitle!,
+                      style: const TextStyle(
+                        fontSize: 10.5,
+                        color: kMuted,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Clean Search Bar (from reference screen 4)
+class CleanSearchBar extends StatelessWidget {
+  const CleanSearchBar({
+    super.key,
+    this.hint = 'Cari nama atau no. RM...',
+    this.controller,
+    this.onChanged,
+    this.trailing,
+  });
+
+  final String hint;
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: kSearchBg,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Row(
+        children: [
+          const Icon(Icons.search_rounded, color: kMuted, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              onChanged: onChanged,
+              style: const TextStyle(fontSize: 13.5, color: kText),
+              decoration: InputDecoration(
+                hintText: hint,
+                hintStyle: const TextStyle(fontSize: 13, color: kMuted),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+                isDense: true,
+              ),
+            ),
+          ),
+          ?trailing,
+        ],
+      ),
+    );
+  }
+}
+
 /// Elevated Card Container with multi-layer shadow and refined border
 class SectionCard extends StatelessWidget {
   const SectionCard({

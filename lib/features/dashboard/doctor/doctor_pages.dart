@@ -198,7 +198,135 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
               title: 'Pengingat & Pasien',
               subtitle: 'Pantau kepatuhan pasien dan selesaikan antrian eskalasi.',
             ),
-            const SizedBox(height: 16),
+            // Top Search Bar (Reference Screen 4)
+            CleanSearchBar(
+              hint: 'Cari nama atau no. RM pasien...',
+              trailing: IconButton(
+                icon: const Icon(Icons.tune_rounded, color: kMuted, size: 20),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const DoctorAllPatientsPage(),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Horizontal Recent Patients Avatars (Reference Screen 4 'Recent Contacts')
+            if (data.patients.isNotEmpty) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Pasien Terpantau',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: kText,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const DoctorAllPatientsPage(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Lihat Semua',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: kPrimary),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 86,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  children: [
+                    // 'Add' Button (First item in reference image)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 14),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 52,
+                            height: 52,
+                            decoration: const BoxDecoration(
+                              color: kPastelCyan,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.person_add_alt_1_rounded, color: kPrimary, size: 22),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Tambah',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: kTextSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    for (final patient in data.patients.take(6)) ...[
+                      InkWell(
+                        onTap: () => _showPatientDetail(context, patient),
+                        borderRadius: BorderRadius.circular(16),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 14),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 52,
+                                height: 52,
+                                decoration: BoxDecoration(
+                                  color: patient.phase.toLowerCase() == 'intensif' ? kPastelAmber : kPastelGreen,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: patient.phase.toLowerCase() == 'intensif' ? kBorderAmber : kBorderGreen,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    patient.fullName.isNotEmpty ? patient.fullName[0].toUpperCase() : 'P',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: patient.phase.toLowerCase() == 'intensif' ? kWarning : kSuccess,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              SizedBox(
+                                width: 56,
+                                child: Text(
+                                  patient.fullName.split(' ').first,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: kText),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+            ],
+
             SectionCard(
               background: unread > 0 ? kSoftAmber : const Color(0xFFF8FAFC),
               borderColor: unread > 0 ? kBorderAmber : kBorder,
