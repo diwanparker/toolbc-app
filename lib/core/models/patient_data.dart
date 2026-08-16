@@ -92,6 +92,8 @@ class TreatmentSummary {
   final String medicineSummary;
   final String nextDoseLabel;
 
+  int get streak => streakDays;
+
   factory TreatmentSummary.fromJson(Map<String, dynamic> json) {
     return TreatmentSummary(
       treatmentDay: _asInt(json['treatmentDay']),

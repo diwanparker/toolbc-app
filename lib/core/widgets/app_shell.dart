@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_theme.dart';
 import '../../core/models/app_mode.dart';
+import '../../core/widgets/ui_components.dart';
 import '../../features/dashboard/admin/admin_pages.dart';
 import '../../features/dashboard/doctor/doctor_pages.dart';
 import '../../features/notification/notification_center_page.dart';
@@ -46,32 +47,42 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
+  void _openAIChat() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const Scaffold(
+          body: SafeArea(child: PatientChatPage()),
+        ),
+      ),
+    );
+  }
+
   List<_NavSpec> _navSpecsFor(AppMode mode) {
     switch (mode) {
       case AppMode.patient:
         return [
           _NavSpec(
-            icon: Icons.grid_view_rounded,
-            label: 'Beranda',
+            icon: Icons.home_rounded,
+            label: 'Home',
             subtitle: 'Progres pengobatan dan fokus hari ini.',
             builder: (_) =>
                 PatientHomePage(onOpenNotifications: _openNotifications),
           ),
           _NavSpec(
-            icon: Icons.chat_bubble_outline_rounded,
-            label: 'Asisten AI',
-            subtitle: 'Tanya edukasi medis dan obat TBC.',
-            builder: _patientChatPage,
-          ),
-          _NavSpec(
-            icon: Icons.timeline_rounded,
-            label: 'Riwayat',
-            subtitle: 'Pantau kepatuhan dan log pengobatan.',
+            icon: Icons.history_rounded,
+            label: 'History',
+            subtitle: 'Catatan log obat dan checkup mandiri.',
             builder: _patientHistoryPage,
           ),
           _NavSpec(
+            icon: Icons.insights_rounded,
+            label: 'Statistics',
+            subtitle: 'Analitik kepatuhan dan performa terapi.',
+            builder: _patientProgressPage,
+          ),
+          _NavSpec(
             icon: Icons.person_outline_rounded,
-            label: 'Profil',
+            label: 'Profile',
             subtitle: 'Akun, kontak dokter, dan pengaturan.',
             builder: _patientProfilePage,
           ),
@@ -80,25 +91,25 @@ class _AppShellState extends State<AppShell> {
         return [
           _NavSpec(
             icon: Icons.dashboard_rounded,
-            label: 'Dasbor',
+            label: 'Home',
             subtitle: 'Ringkasan operasional dan peringatan klinis.',
             builder: _doctorDashboardPage,
           ),
           _NavSpec(
-            icon: Icons.notifications_active_outlined,
-            label: 'Antrian',
+            icon: Icons.people_alt_outlined,
+            label: 'Patients',
             subtitle: 'Pantau status pengobatan dan eskalasi pasien.',
             builder: _doctorPatientsPage,
           ),
           _NavSpec(
             icon: Icons.insights_rounded,
-            label: 'Kepatuhan',
+            label: 'Adherence',
             subtitle: 'Analitik kepatuhan dan pasien berisiko.',
             builder: _doctorAdherencePage,
           ),
           _NavSpec(
             icon: Icons.person_outline_rounded,
-            label: 'Profil',
+            label: 'Profile',
             subtitle: 'Akun dokter dan preferensi klinik.',
             builder: _doctorProfilePage,
           ),
@@ -136,29 +147,43 @@ class _AppShellState extends State<AppShell> {
       backgroundColor: kBackground,
       body: SafeArea(
         bottom: false,
-        child: Column(
+        child: Stack(
           children: [
-            _AppTopBar(
-              title: current.label,
-              subtitle: current.subtitle,
-              mode: _mode,
-              onNotificationsTap: _openNotifications,
-            ),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                child: KeyedSubtree(
-                  key: ValueKey(current.label),
-                  child: current.builder(context),
-                ),
+            Positioned.fill(
+              child: Column(
+                children: [
+                  _AppTopBar(
+                    title: current.label,
+                    subtitle: current.subtitle,
+                    mode: _mode,
+                    onNotificationsTap: _openNotifications,
+                  ),
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      child: KeyedSubtree(
+                        key: ValueKey(current.label),
+                        child: current.builder(context),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 76), // Space for floating bottom nav
+                ],
               ),
             ),
-            _AppBottomNav(
-              items: _navSpecs,
-              selectedIndex: selectedIndex,
-              onTap: _setIndex,
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 16,
+              child: _FloatingBottomNav(
+                items: _navSpecs,
+                selectedIndex: selectedIndex,
+                onTap: _setIndex,
+                onCenterTap: _openAIChat,
+                showCenterAI: _mode == AppMode.patient,
+              ),
             ),
           ],
         ),
@@ -183,22 +208,15 @@ class _AppTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (roleText, roleBg, roleFg) = switch (mode) {
-      AppMode.patient => ('Pasien', kSoftBlue, kPrimary),
-      AppMode.doctor => ('Dokter', kSoftGreen, kSuccess),
-      AppMode.admin => ('Admin', kSoftAmber, kWarning),
+      AppMode.patient => ('Pasien', kPastelCyan, kPrimary),
+      AppMode.doctor => ('Dokter', kPastelGreen, kSuccess),
+      AppMode.admin => ('Admin', kPastelAmber, kWarning),
     };
 
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(bottom: BorderSide(color: kBorder)),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x080F172A),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
@@ -207,8 +225,7 @@ class _AppTopBar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: roleBg,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: roleFg.withValues(alpha: 0.3)),
+              borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
               roleText,
@@ -252,19 +269,18 @@ class _AppTopBar extends StatelessWidget {
           if (mode == AppMode.patient) ...[
             const SizedBox(width: 8),
             InkWell(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(999),
               onTap: onNotificationsTap,
               child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: kBorder),
+                width: 38,
+                height: 38,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFC),
+                  shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.notifications_outlined,
-                  color: kTextSecondary,
+                  Icons.notifications_none_rounded,
+                  color: kText,
                   size: 20,
                 ),
               ),
@@ -276,77 +292,87 @@ class _AppTopBar extends StatelessWidget {
   }
 }
 
-class _AppBottomNav extends StatelessWidget {
-  const _AppBottomNav({
+class _FloatingBottomNav extends StatelessWidget {
+  const _FloatingBottomNav({
     required this.items,
     required this.selectedIndex,
     required this.onTap,
+    required this.onCenterTap,
+    this.showCenterAI = true,
   });
 
   final List<_NavSpec> items;
   final int selectedIndex;
   final ValueChanged<int> onTap;
+  final VoidCallback onCenterTap;
+  final bool showCenterAI;
 
   @override
   Widget build(BuildContext context) {
+    final has4Items = items.length == 4;
+
     return Container(
-      decoration: const BoxDecoration(
+      height: 64,
+      decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: kBorder)),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x0A0F172A),
-            blurRadius: 16,
-            offset: Offset(0, -4),
-          ),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: kFloatingShadow,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          if (has4Items && showCenterAI) ...[
+            _buildNavItem(0),
+            _buildNavItem(1),
+            // Signature Center 4-dot AI Button
+            InkWell(
+              onTap: onCenterTap,
+              borderRadius: BorderRadius.circular(999),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                child: const FourDotIndicator(),
+              ),
+            ),
+            _buildNavItem(2),
+            _buildNavItem(3),
+          ] else ...[
+            for (int i = 0; i < items.length; i++) _buildNavItem(i),
+          ],
         ],
       ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
-          child: Row(
-            children: List.generate(items.length, (index) {
-              final item = items[index];
-              final selected = index == selectedIndex;
-              return Expanded(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(14),
-                  onTap: () => onTap(index),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeOutCubic,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      color: selected ? kSoftBlue : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          item.icon,
-                          color: selected ? kPrimary : const Color(0xFF94A3B8),
-                          size: 22,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          item.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                            color: selected ? kPrimary : const Color(0xFF64748B),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
+    );
+  }
+
+  Widget _buildNavItem(int index) {
+    final item = items[index];
+    final selected = index == selectedIndex;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: () => onTap(index),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              item.icon,
+              color: selected ? kPrimary : const Color(0xFF94A3B8),
+              size: 22,
+            ),
+            const SizedBox(height: 3),
+            Text(
+              item.label,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? kPrimary : const Color(0xFF94A3B8),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -367,11 +393,11 @@ class _NavSpec {
   final WidgetBuilder builder;
 }
 
-Widget _patientChatPage(BuildContext context) {
-  return const PatientChatPage();
+Widget _patientHistoryPage(BuildContext context) {
+  return const PatientProgressPage();
 }
 
-Widget _patientHistoryPage(BuildContext context) {
+Widget _patientProgressPage(BuildContext context) {
   return const PatientProgressPage();
 }
 
