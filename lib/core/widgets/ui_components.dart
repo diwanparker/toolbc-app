@@ -2,57 +2,95 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_theme.dart';
 
-const EdgeInsets _pagePadding = EdgeInsets.fromLTRB(20, 20, 20, 24);
-
+/// Standard page wrapper with consistent padding, scroll physics, and pull-to-refresh
 class AppPage extends StatelessWidget {
   const AppPage({
     super.key,
     required this.children,
-    this.padding = _pagePadding,
-    this.crossAxisAlignment = CrossAxisAlignment.start,
+    this.padding = const EdgeInsets.fromLTRB(20, 20, 20, 32),
+    this.onRefresh,
   });
 
   final List<Widget> children;
-  final EdgeInsets padding;
-  final CrossAxisAlignment crossAxisAlignment;
+  final EdgeInsetsGeometry padding;
+  final Future<void> Function()? onRefresh;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    final scrollable = ListView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
       padding: padding,
-      child: Column(crossAxisAlignment: crossAxisAlignment, children: children),
+      children: children,
     );
+
+    if (onRefresh != null) {
+      return RefreshIndicator(
+        color: kPrimary,
+        backgroundColor: Colors.white,
+        onRefresh: onRefresh!,
+        child: scrollable,
+      );
+    }
+
+    return scrollable;
   }
 }
 
+/// Modern clean header with primary title and informative subtitle
 class PageHeader extends StatelessWidget {
-  const PageHeader({super.key, required this.title, this.subtitle});
+  const PageHeader({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+  });
 
   final String title;
   final String? subtitle;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: kText,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.6,
+                  color: kText,
+                ),
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  subtitle!,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    height: 1.4,
+                    color: kMuted,
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
-        if (subtitle != null) ...[
-          const SizedBox(height: 6),
-          Text(subtitle!, style: const TextStyle(fontSize: 12, color: kMuted)),
-        ],
+        ?trailing,
       ],
     );
   }
 }
 
+/// Elevated Card Container with multi-layer shadow and refined border
 class SectionCard extends StatelessWidget {
   const SectionCard({
     super.key,
@@ -60,7 +98,9 @@ class SectionCard extends StatelessWidget {
     this.trailing,
     this.child,
     this.background = kSurface,
-    this.borderColor = const Color(0xFFEEF2F7),
+    this.borderColor = kBorder,
+    this.padding = const EdgeInsets.all(18),
+    this.onTap,
   });
 
   final String? title;
@@ -68,36 +108,33 @@ class SectionCard extends StatelessWidget {
   final Widget? child;
   final Color background;
   final Color borderColor;
+  final EdgeInsetsGeometry padding;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final cardContent = Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: padding,
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: borderColor),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor, width: 1),
+        boxShadow: kCardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (title != null)
+          if (title != null) ...[
             Row(
               children: [
                 Expanded(
                   child: Text(
                     title!,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 15,
                       fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
                       color: kText,
                     ),
                   ),
@@ -105,14 +142,26 @@ class SectionCard extends StatelessWidget {
                 ?trailing,
               ],
             ),
-          if (title != null && child != null) const SizedBox(height: 12),
+            if (child != null) const SizedBox(height: 14),
+          ],
           ?child,
         ],
       ),
     );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: cardContent,
+      );
+    }
+
+    return cardContent;
   }
 }
 
+/// Metric Highlight Card with colored icon badge and bold numeric value
 class MetricCard extends StatelessWidget {
   const MetricCard({
     super.key,
@@ -121,6 +170,7 @@ class MetricCard extends StatelessWidget {
     required this.icon,
     required this.tint,
     required this.accent,
+    this.subtitle,
   });
 
   final String label;
@@ -128,96 +178,81 @@ class MetricCard extends StatelessWidget {
   final IconData icon;
   final Color tint;
   final Color accent;
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: tint,
-        borderRadius: BorderRadius.circular(18),
+        color: kSurface,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: kBorder),
+        boxShadow: kCardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: accent, size: 22),
-          const SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: tint,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: accent, size: 20),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
           Text(
             value,
             style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
               color: accent,
             ),
           ),
           const SizedBox(height: 2),
-          Text(label, style: const TextStyle(fontSize: 10.5, color: kMuted)),
-        ],
-      ),
-    );
-  }
-}
-
-class EmptyStateCard extends StatelessWidget {
-  const EmptyStateCard({
-    super.key,
-    required this.title,
-    required this.message,
-    this.icon = Icons.info_outline_rounded,
-  });
-
-  final String title;
-  final String message;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return SectionCard(
-      background: const Color(0xFFF8FAFC),
-      borderColor: const Color(0xFFE2E8F0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: kMuted, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w800,
-                    color: kText,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  message,
-                  style: const TextStyle(fontSize: 10.5, color: kMuted),
-                ),
-              ],
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: kTextSecondary,
             ),
           ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              subtitle!,
+              style: const TextStyle(fontSize: 10.5, color: kMuted),
+            ),
+          ],
         ],
       ),
     );
   }
 }
 
+/// Modern capsule badge / status indicator
 class StatusPill extends StatelessWidget {
   const StatusPill({
     super.key,
     required this.text,
     required this.bg,
     required this.fg,
+    this.icon,
   });
 
   final String text;
   final Color bg;
   final Color fg;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -227,114 +262,20 @@ class StatusPill extends StatelessWidget {
         color: bg,
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: fg),
-      ),
-    );
-  }
-}
-
-class TimeBadge extends StatelessWidget {
-  const TimeBadge({super.key, required this.time});
-
-  final String time;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: kSoftBlue,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Text(
-        time,
-        style: const TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
-          color: kPrimary,
-        ),
-      ),
-    );
-  }
-}
-
-class AppActionChip extends StatelessWidget {
-  const AppActionChip({
-    super.key,
-    required this.label,
-    required this.filled,
-    required this.fillColor,
-    required this.fg,
-    this.onTap,
-  });
-
-  final String label;
-  final bool filled;
-  final Color fillColor;
-  final Color fg;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 46),
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: fillColor,
-          borderRadius: BorderRadius.circular(12),
-          border: filled ? null : Border.all(color: const Color(0x332563EB)),
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 10.5,
-            fontWeight: FontWeight.w700,
-            color: fg,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ChecklistTile extends StatelessWidget {
-  const ChecklistTile({super.key, required this.label, required this.active});
-
-  final String label;
-  final bool active;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: active ? kSoftBlue : Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: active ? const Color(0xFFBFDBFE) : kBorder),
-      ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            active ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
-            color: active ? kPrimary : kMuted,
-            size: 18,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: kText,
-              ),
+          if (icon != null) ...[
+            Icon(icon, size: 12, color: fg),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+              color: fg,
             ),
           ),
         ],
@@ -343,6 +284,7 @@ class ChecklistTile extends StatelessWidget {
   }
 }
 
+/// Interactive Symptom Selection Card
 class SymptomTile extends StatelessWidget {
   const SymptomTile({
     super.key,
@@ -351,6 +293,7 @@ class SymptomTile extends StatelessWidget {
     required this.tint,
     required this.selected,
     required this.onToggle,
+    this.description,
   });
 
   final String label;
@@ -358,59 +301,73 @@ class SymptomTile extends StatelessWidget {
   final Color tint;
   final bool selected;
   final VoidCallback onToggle;
+  final String? description;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onToggle,
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(14),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: selected ? kSoftBlue : kSurface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? kPrimary : const Color(0xFFEEF2F7),
+            color: selected ? kPrimary : kBorder,
+            width: selected ? 1.8 : 1.0,
           ),
+          boxShadow: selected ? kButtonShadow : kCardShadow,
         ),
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: tint,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: selected ? kPrimary : const Color(0xFF334155),
-                size: 22,
-              ),
+              child: Icon(icon, color: selected ? kPrimary : kText, size: 22),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 12.8,
-                  fontWeight: FontWeight.w700,
-                  color: kText,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                      color: selected ? kPrimary : kText,
+                    ),
+                  ),
+                  if (description != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      description!,
+                      style: const TextStyle(fontSize: 11, color: kMuted),
+                    ),
+                  ],
+                ],
               ),
             ),
-            Container(
-              width: 22,
-              height: 22,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: 24,
+              height: 24,
               decoration: BoxDecoration(
-                color: selected ? kPrimary : Colors.white,
-                borderRadius: BorderRadius.circular(999),
+                color: selected ? kPrimary : Colors.transparent,
+                shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected ? kPrimary : const Color(0xFF6B7280),
+                  color: selected ? kPrimary : const Color(0xFFCBD5E1),
+                  width: 2,
                 ),
               ),
               child: selected
-                  ? const Icon(Icons.check, color: Colors.white, size: 14)
+                  ? const Icon(Icons.check, size: 16, color: Colors.white)
                   : null,
             ),
           ],
@@ -420,76 +377,242 @@ class SymptomTile extends StatelessWidget {
   }
 }
 
+/// Primary Banner Action Button with gradient and tactile feedback
 class PrimaryBannerButton extends StatelessWidget {
-  const PrimaryBannerButton({super.key, required this.label});
+  const PrimaryBannerButton({
+    super.key,
+    required this.label,
+    this.icon,
+    this.gradient,
+    this.enabled = true,
+  });
 
   final String label;
+  final IconData? icon;
+  final Gradient? gradient;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      height: 52,
       decoration: BoxDecoration(
-        color: kPrimary,
+        gradient: enabled
+            ? (gradient ??
+                const LinearGradient(
+                  colors: [kPrimaryGradientStart, kPrimaryGradientEnd],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ))
+            : const LinearGradient(
+                colors: [Color(0xFFCBD5E1), Color(0xFF94A3B8)],
+              ),
         borderRadius: BorderRadius.circular(14),
+        boxShadow: enabled ? kButtonShadow : const [],
       ),
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: Colors.white, size: 19),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14.5,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.2,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
+/// Action Chip Button
+class AppActionChip extends StatelessWidget {
+  const AppActionChip({
+    super.key,
+    required this.label,
+    required this.filled,
+    required this.fillColor,
+    required this.fg,
+    this.icon,
+    this.onTap,
+  });
+
+  final String label;
+  final bool filled;
+  final Color fillColor;
+  final Color fg;
+  final IconData? icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        constraints: const BoxConstraints(minHeight: 40),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: filled ? fillColor : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: filled ? fillColor : const Color(0xFFE2E8F0),
+            width: 1,
+          ),
+          boxShadow: filled ? kButtonShadow : const [],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 15, color: fg),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: fg,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Empty State Illustration & Description Card
+class EmptyStateCard extends StatelessWidget {
+  const EmptyStateCard({
+    super.key,
+    required this.title,
+    required this.message,
+    this.icon = Icons.inbox_outlined,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  final String title;
+  final String message;
+  final IconData icon;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+      decoration: BoxDecoration(
+        color: kSurface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kBorder),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Icon(icon, color: kMuted, size: 26),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 14.5,
+              fontWeight: FontWeight.w700,
+              color: kText,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12, height: 1.45, color: kMuted),
+          ),
+          if (actionLabel != null && onAction != null) ...[
+            const SizedBox(height: 16),
+            OutlinedButton(
+              onPressed: onAction,
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: kPrimary),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                actionLabel!,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: kPrimary,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Chat Bubble with distinctive typography and layout
 class ChatBubble extends StatelessWidget {
-  const ChatBubble({super.key, required this.text, required this.incoming});
+  const ChatBubble({
+    super.key,
+    required this.text,
+    required this.incoming,
+  });
 
   final String text;
   final bool incoming;
-
-  List<TextSpan> _parseMarkdown(String input) {
-    final parts = input.split('**');
-    final spans = <TextSpan>[];
-    for (int i = 0; i < parts.length; i++) {
-      if (i % 2 == 1) {
-        // Teks di antara ** dan **
-        spans.add(
-          TextSpan(
-            text: parts[i],
-            style: const TextStyle(fontWeight: FontWeight.w800),
-          ),
-        );
-      } else {
-        // Teks biasa
-        spans.add(TextSpan(text: parts[i]));
-      }
-    }
-    return spans;
-  }
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: incoming ? Alignment.centerLeft : Alignment.centerRight,
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 280),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        constraints: const BoxConstraints(maxWidth: 300),
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: incoming ? kSoftBlue : const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(16),
+          color: incoming ? kSurface : kPrimary,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(18),
+            topRight: const Radius.circular(18),
+            bottomLeft: Radius.circular(incoming ? 4 : 18),
+            bottomRight: Radius.circular(incoming ? 18 : 4),
+          ),
+          border: incoming ? Border.all(color: kBorder) : null,
+          boxShadow: incoming ? kCardShadow : kButtonShadow,
         ),
-        child: Text.rich(
-          TextSpan(children: _parseMarkdown(text)),
-          style: const TextStyle(
-            fontSize: 10.5,
-            fontWeight: FontWeight.w500,
-            color: kText,
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w400,
+            height: 1.45,
+            color: incoming ? kText : Colors.white,
           ),
         ),
       ),
@@ -497,6 +620,7 @@ class ChatBubble extends StatelessWidget {
   }
 }
 
+/// History Log Card for treatment doses & checkups
 class HistoryLogCard extends StatelessWidget {
   const HistoryLogCard({
     super.key,
@@ -520,20 +644,21 @@ class HistoryLogCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: kSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEEF2F7)),
+        border: Border.all(color: kBorder),
+        boxShadow: kCardShadow,
       ),
       child: Row(
         children: [
           Container(
-            width: 42,
-            height: 42,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
               color: tint,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(leading, color: fg, size: 20),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -541,15 +666,15 @@ class HistoryLogCard extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 11.5,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w700,
                     color: kText,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 9.2, color: kMuted),
+                  style: const TextStyle(fontSize: 11, color: kMuted),
                 ),
               ],
             ),
@@ -560,6 +685,7 @@ class HistoryLogCard extends StatelessWidget {
   }
 }
 
+/// Notification Feed Card
 class NotificationCard extends StatelessWidget {
   const NotificationCard({
     super.key,
@@ -581,65 +707,76 @@ class NotificationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: kSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEEF2F7)),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: kBorder),
+        boxShadow: kCardShadow,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: kSoftBlue,
+              color: statusBg,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: kPrimary, size: 20),
+            child: Icon(icon, color: statusFg, size: 20),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
-                    color: kText,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: kText,
+                        ),
+                      ),
+                    ),
+                    StatusPill(text: status, bg: statusBg, fg: statusFg),
+                  ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 9.5, color: kMuted),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    height: 1.4,
+                    color: kMuted,
+                  ),
                 ),
               ],
             ),
           ),
-          StatusPill(text: status, bg: statusBg, fg: statusFg),
         ],
       ),
     );
   }
 }
 
-class ProfileMenuTile extends StatelessWidget {
-  const ProfileMenuTile({
+/// Checklist item tile
+class ChecklistTile extends StatelessWidget {
+  const ChecklistTile({
     super.key,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    this.titleColor = kText,
+    required this.label,
+    required this.time,
+    required this.checked,
     this.onTap,
   });
 
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color titleColor;
+  final String label;
+  final String time;
+  final bool checked;
   final VoidCallback? onTap;
 
   @override
@@ -648,22 +785,31 @@ class ProfileMenuTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: kSurface,
+          color: checked ? kSoftGreen : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: kBorder),
+          border: Border.all(
+            color: checked ? kBorderGreen : kBorder,
+          ),
         ),
         child: Row(
           children: [
-            Container(
-              width: 42,
-              height: 42,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: 24,
+              height: 24,
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F3FE),
-                borderRadius: BorderRadius.circular(12),
+                color: checked ? kSuccess : Colors.white,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: checked ? kSuccess : const Color(0xFFCBD5E1),
+                  width: 1.5,
+                ),
               ),
-              child: Icon(icon, color: titleColor, size: 20),
+              child: checked
+                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                  : null,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -671,22 +817,20 @@ class ProfileMenuTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    label,
                     style: TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
-                      color: titleColor,
+                      fontSize: 13.5,
+                      fontWeight: checked ? FontWeight.w700 : FontWeight.w600,
+                      color: checked ? const Color(0xFF065F46) : kText,
                     ),
                   ),
-                  const SizedBox(height: 3),
                   Text(
-                    subtitle,
-                    style: const TextStyle(fontSize: 9.5, color: kMuted),
+                    time,
+                    style: const TextStyle(fontSize: 11, color: kMuted),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
           ],
         ),
       ),
@@ -694,6 +838,7 @@ class ProfileMenuTile extends StatelessWidget {
   }
 }
 
+/// High-craft Auth Field
 class AuthField extends StatelessWidget {
   const AuthField({
     super.key,
@@ -717,16 +862,15 @@ class AuthField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56,
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-        borderRadius: BorderRadius.circular(8),
+        color: const Color(0xFFF8FAFC),
+        border: Border.all(color: kBorder),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
           const SizedBox(width: 16),
-          Icon(prefixIcon, color: const Color(0xFF9CA3AF), size: 20),
+          Icon(prefixIcon, color: kMuted, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
@@ -734,17 +878,19 @@ class AuthField extends StatelessWidget {
               controller: controller,
               onChanged: onChanged,
               obscureText: obscureText,
+              style: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w500,
+                color: kText,
+              ),
               decoration: InputDecoration(
                 hintText: hintText,
-                hintStyle: const TextStyle(
-                  color: Color(0xFF9CA3AF),
-                  fontSize: 15,
-                ),
+                hintStyle: const TextStyle(color: kMuted, fontSize: 13),
                 border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              style: const TextStyle(fontSize: 15, color: Color(0xFF111827)),
             ),
           ),
           ?suffixIcon,
@@ -755,44 +901,155 @@ class AuthField extends StatelessWidget {
   }
 }
 
-Future<void> showLanguageDialog(BuildContext context) async {
-  return showDialog(
+/// Account & Profile Row Tile
+class AccountRowTile extends StatelessWidget {
+  const AccountRowTile({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    this.titleColor,
+    this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color? titleColor;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: kSurface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: kBorder),
+          boxShadow: kCardShadow,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: (titleColor == kDanger) ? kSoftRed : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: titleColor ?? kPrimary, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                      color: titleColor ?? kText,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 11, color: kMuted),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: kMuted, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Profile menu tile (alias for AccountRowTile)
+typedef ProfileMenuTile = AccountRowTile;
+
+/// Language Selection Modal Dialog
+Future<void> showLanguageDialog(BuildContext context) {
+  return showDialog<void>(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text(
-          'Change Language / Ganti Bahasa',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Pilih Bahasa / Language', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.language_rounded),
-              title: const Text('Bahasa Indonesia'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Bahasa diubah ke Indonesia (Mock)'),
-                  ),
-                );
-              },
+              leading: const Icon(Icons.check_circle, color: kPrimary),
+              title: const Text('Bahasa Indonesia (ID)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5)),
+              onTap: () => Navigator.pop(context),
             ),
             ListTile(
-              leading: const Icon(Icons.language_rounded),
-              title: const Text('English'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Language changed to English (Mock)'),
-                  ),
-                );
-              },
+              leading: const Icon(Icons.radio_button_unchecked, color: kMuted),
+              title: const Text('English (EN)', style: TextStyle(fontSize: 13.5)),
+              onTap: () => Navigator.pop(context),
             ),
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup', style: TextStyle(color: kPrimary, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+/// Reusable Confirmation Dialog for Logout
+Future<bool?> showConfirmLogoutDialog(BuildContext context) {
+  return showDialog<bool>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.logout_rounded, color: kDanger, size: 22),
+            SizedBox(width: 8),
+            Text(
+              'Konfirmasi Keluar',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: kText,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Apakah Anda yakin ingin keluar dari akun ini?',
+          style: TextStyle(fontSize: 13, color: kTextSecondary),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal', style: TextStyle(color: kMuted, fontWeight: FontWeight.w600)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kDanger,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Keluar', style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
       );
     },
   );

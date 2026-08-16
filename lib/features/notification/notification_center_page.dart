@@ -17,12 +17,20 @@ class NotificationCenterPage extends StatefulWidget {
 
 class _NotificationCenterPageState extends State<NotificationCenterPage> {
   _NotificationFilter _filter = _NotificationFilter.all;
-  late final Future<List<NotificationEntryData>> _notificationsFuture;
+  late Future<List<NotificationEntryData>> _notificationsFuture;
 
   @override
   void initState() {
     super.initState();
     _notificationsFuture = PatientService.fetchCurrentNotifications();
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _notificationsFuture =
+          PatientService.fetchCurrentNotifications(forceRefresh: true);
+    });
+    await _notificationsFuture;
   }
 
   @override
@@ -40,79 +48,95 @@ class _NotificationCenterPageState extends State<NotificationCenterPage> {
           appBar: AppBar(
             backgroundColor: Colors.white.withValues(alpha: 0.85),
             elevation: 0,
+            leading: const BackButton(color: kText),
             title: const Text(
-              'Notifikasi',
-              style: TextStyle(fontWeight: FontWeight.w700),
+              'Pusat Notifikasi 🔔',
+              style: TextStyle(fontWeight: FontWeight.w800, color: kText),
             ),
           ),
-          body: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              SectionCard(
-                background: unread > 0
-                    ? const Color(0xFFFFF7ED)
-                    : const Color(0xFFF8FAFC),
-                borderColor: unread > 0
-                    ? const Color(0xFFFDBA74)
-                    : const Color(0xFFE2E8F0),
-                title: widget.mode == AppMode.doctor
-                    ? 'Ringkasan Eskalasi'
-                    : 'Ringkasan Pengingat',
-                trailing: StatusPill(
-                  text: '$unread Baru',
-                  bg: unread > 0
-                      ? const Color(0xFFF97316)
-                      : const Color(0xFF64748B),
-                  fg: Colors.white,
+          body: RefreshIndicator(
+            color: kPrimary,
+            backgroundColor: Colors.white,
+            onRefresh: _refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(20),
+              children: [
+                SectionCard(
+                  background: unread > 0 ? kSoftAmber : kSurface,
+                  borderColor: unread > 0 ? kBorderAmber : kBorder,
+                  title: widget.mode == AppMode.doctor
+                      ? 'Ringkasan Antrian Dokter'
+                      : 'Ringkasan Pengingat Pasien',
+                  trailing: StatusPill(
+                    text: '$unread Baru',
+                    bg: unread > 0 ? kWarning : const Color(0xFF64748B),
+                    fg: Colors.white,
+                  ),
+                  child: Text(
+                    unread > 0
+                        ? '$unread notifikasi memerlukan perhatian Anda.'
+                        : 'Semua jadwal dan pengingat sudah tertangani dengan baik.',
+                    style: const TextStyle(fontSize: 12, color: kTextSecondary, height: 1.4),
+                  ),
                 ),
-                child: Text(
-                  unread > 0
-                      ? '$unread notifikasi belum dibaca.'
-                      : 'Tidak ada notifikasi aktif saat ini.',
-                  style: const TextStyle(fontSize: 10.5, color: kMuted),
+                const SizedBox(height: 16),
+                SegmentedButton<_NotificationFilter>(
+                  segments: const [
+                    ButtonSegment(
+                      value: _NotificationFilter.all,
+                      label: Text('Semua', style: TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                    ButtonSegment(
+                      value: _NotificationFilter.reminders,
+                      label: Text('Pengingat', style: TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                    ButtonSegment(
+                      value: _NotificationFilter.alerts,
+                      label: Text('Peringatan', style: TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                  ],
+                  selected: {_filter},
+                  onSelectionChanged: (values) =>
+                      setState(() => _filter = values.first),
+                  showSelectedIcon: false,
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return kSoftBlue;
+                      }
+                      return Colors.white;
+                    }),
+                    foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return kPrimary;
+                      }
+                      return kMuted;
+                    }),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              SegmentedButton<_NotificationFilter>(
-                segments: const [
-                  ButtonSegment(
-                    value: _NotificationFilter.all,
-                    label: Text('Semua'),
-                  ),
-                  ButtonSegment(
-                    value: _NotificationFilter.reminders,
-                    label: Text('Pengingat'),
-                  ),
-                  ButtonSegment(
-                    value: _NotificationFilter.alerts,
-                    label: Text('Peringatan'),
-                  ),
-                ],
-                selected: {_filter},
-                onSelectionChanged: (values) =>
-                    setState(() => _filter = values.first),
-                showSelectedIcon: false,
-              ),
-              const SizedBox(height: 16),
-              if (items.isEmpty)
-                const EmptyStateCard(
-                  title: 'Belum ada notifikasi',
-                  message:
-                      'Notifikasi dari Supabase akan muncul sesuai akun yang sedang login.',
-                )
-              else
-                for (final item in items) ...[
-                  NotificationCard(
-                    icon: _iconFor(item),
-                    title: item.title,
-                    subtitle: item.body,
-                    status: item.status,
-                    statusBg: _statusBg(item),
-                    statusFg: _statusFg(item),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-            ],
+                const SizedBox(height: 16),
+                if (items.isEmpty)
+                  const EmptyStateCard(
+                    title: 'Belum ada notifikasi',
+                    message:
+                        'Pengingat minum obat, jadwal kontrol, dan peringatan klinis akan tampil di sini.',
+                    icon: Icons.notifications_none_rounded,
+                  )
+                else
+                  for (final item in items) ...[
+                    NotificationCard(
+                      icon: _iconFor(item),
+                      title: item.title,
+                      subtitle: item.body,
+                      status: item.status,
+                      statusBg: _statusBg(item),
+                      statusFg: _statusFg(item),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+              ],
+            ),
           ),
         );
       },
@@ -154,12 +178,12 @@ Color _statusBg(NotificationEntryData item) {
   switch (item.severity.toLowerCase()) {
     case 'high':
     case 'critical':
-      return const Color(0xFFFEE2E2);
+      return kSoftRed;
     case 'moderate':
     case 'medium':
-      return const Color(0xFFFFF3C7);
+      return kSoftAmber;
     default:
-      return const Color(0xFFE0F2FE);
+      return kSoftBlue;
   }
 }
 
@@ -167,11 +191,11 @@ Color _statusFg(NotificationEntryData item) {
   switch (item.severity.toLowerCase()) {
     case 'high':
     case 'critical':
-      return const Color(0xFFB91C1C);
+      return kDanger;
     case 'moderate':
     case 'medium':
-      return const Color(0xFF92400E);
+      return kWarning;
     default:
-      return const Color(0xFF0369A1);
+      return kPrimary;
   }
 }

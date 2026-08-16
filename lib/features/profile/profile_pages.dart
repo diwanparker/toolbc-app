@@ -31,43 +31,50 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
         return AppPage(
           children: [
             const PageHeader(
-              title: 'Profile',
-              subtitle: 'Patient details, treatment plan, and settings.',
+              title: 'Profil Pasien 👤',
+              subtitle: 'Data identitas, rencana terapi, dan pengaturan akun.',
             ),
             const SizedBox(height: 16),
-            _IdentityCard(profile: profile, fallbackRole: 'Patient'),
+            _IdentityCard(profile: profile, fallbackRole: 'Pasien'),
             const SizedBox(height: 16),
-            const ProfileMenuTile(
-              icon: Icons.medication_outlined,
-              title: 'Treatment Plan',
-              subtitle: 'Medicine schedule and care phase',
-            ),
-            const SizedBox(height: 10),
-            const ProfileMenuTile(
-              icon: Icons.notifications_active_outlined,
-              title: 'Reminder Settings',
-              subtitle: 'Medication and checkup alerts',
-            ),
-            const SizedBox(height: 10),
-            ProfileMenuTile(
-              icon: Icons.language_rounded,
-              title: 'Language',
-              subtitle: 'Change app language (ID/EN)',
-              onTap: () => showLanguageDialog(context),
-            ),
-            const SizedBox(height: 10),
-            const ProfileMenuTile(
-              icon: Icons.security_outlined,
-              title: 'Security',
-              subtitle: 'Password and login control',
-            ),
-            const SizedBox(height: 10),
-            ProfileMenuTile(
-              icon: Icons.logout_rounded,
-              title: 'Logout',
-              subtitle: 'Exit patient account',
-              titleColor: const Color(0xFFEF4444),
-              onTap: () => _logout(context),
+            SectionCard(
+              title: 'Pengaturan Akun & Layanan',
+              child: Column(
+                children: [
+                  const ProfileMenuTile(
+                    icon: Icons.medication_outlined,
+                    title: 'Rencana Pengobatan',
+                    subtitle: 'Jadwal dosis obat OAT dan fase terapi aktif',
+                  ),
+                  const SizedBox(height: 10),
+                  const ProfileMenuTile(
+                    icon: Icons.notifications_active_outlined,
+                    title: 'Pengaturan Pengingat',
+                    subtitle: 'Waktu notifikasi minum obat & jadwal kontrol',
+                  ),
+                  const SizedBox(height: 10),
+                  ProfileMenuTile(
+                    icon: Icons.language_rounded,
+                    title: 'Bahasa / Language',
+                    subtitle: 'Bahasa Indonesia (ID)',
+                    onTap: () => showLanguageDialog(context),
+                  ),
+                  const SizedBox(height: 10),
+                  const ProfileMenuTile(
+                    icon: Icons.security_outlined,
+                    title: 'Keamanan & Privasi',
+                    subtitle: 'Ganti password dan kendali akses data medis',
+                  ),
+                  const SizedBox(height: 10),
+                  ProfileMenuTile(
+                    icon: Icons.logout_rounded,
+                    title: 'Keluar Akun',
+                    subtitle: 'Keluar dari aplikasi ToolBC',
+                    titleColor: kDanger,
+                    onTap: () => _logout(context),
+                  ),
+                ],
+              ),
             ),
           ],
         );
@@ -100,41 +107,45 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
         final profile = snapshot.data;
         return AppPage(
           children: [
-            const PageHeader(title: 'Profile'),
+            const PageHeader(
+              title: 'Profil Administrator 🛡️',
+              subtitle: 'Manajemen hak akses, audit log, dan pengaturan sistem.',
+            ),
             const SizedBox(height: 16),
-            _IdentityCard(profile: profile, fallbackRole: 'Admin'),
+            _IdentityCard(profile: profile, fallbackRole: 'Administrator'),
             const SizedBox(height: 16),
-            const ProfileMenuTile(
-              icon: Icons.person_rounded,
-              title: 'Workspace',
-              subtitle: 'Admin dashboard access',
-            ),
-            const SizedBox(height: 10),
-            const ProfileMenuTile(
-              icon: Icons.settings_outlined,
-              title: 'Preferences',
-              subtitle: 'Theme, alerts, and tools',
-            ),
-            const SizedBox(height: 10),
-            ProfileMenuTile(
-              icon: Icons.language_rounded,
-              title: 'Language',
-              subtitle: 'Change app language (ID/EN)',
-              onTap: () => showLanguageDialog(context),
-            ),
-            const SizedBox(height: 10),
-            const ProfileMenuTile(
-              icon: Icons.lock_outline_rounded,
-              title: 'Security',
-              subtitle: 'Login and session controls',
-            ),
-            const SizedBox(height: 10),
-            ProfileMenuTile(
-              icon: Icons.logout_rounded,
-              title: 'Logout',
-              subtitle: 'Exit admin account',
-              titleColor: const Color(0xFFEF4444),
-              onTap: () => _logout(context),
+            SectionCard(
+              title: 'Manajemen Sistem',
+              child: Column(
+                children: [
+                  const ProfileMenuTile(
+                    icon: Icons.dashboard_customize_outlined,
+                    title: 'Workspace Admin',
+                    subtitle: 'Akses kontrol data master klinik dan pasien',
+                  ),
+                  const SizedBox(height: 10),
+                  ProfileMenuTile(
+                    icon: Icons.language_rounded,
+                    title: 'Bahasa / Language',
+                    subtitle: 'Bahasa Indonesia (ID)',
+                    onTap: () => showLanguageDialog(context),
+                  ),
+                  const SizedBox(height: 10),
+                  const ProfileMenuTile(
+                    icon: Icons.lock_outline_rounded,
+                    title: 'Keamanan Sesi',
+                    subtitle: 'Audit log login dan token sesi',
+                  ),
+                  const SizedBox(height: 10),
+                  ProfileMenuTile(
+                    icon: Icons.logout_rounded,
+                    title: 'Keluar Akun',
+                    subtitle: 'Keluar dari sesi administrator',
+                    titleColor: kDanger,
+                    onTap: () => _logout(context),
+                  ),
+                ],
+              ),
             ),
           ],
         );
@@ -154,19 +165,26 @@ class _IdentityCard extends StatelessWidget {
     final displayName = profile?.displayName ?? 'Pengguna ToolBC';
     final email = profile?.email ?? 'Email belum tersedia';
 
-    return SectionCard(
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: kSurface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kBorder),
+        boxShadow: kCardShadow,
+      ),
       child: Column(
         children: [
-          const SizedBox(height: 4),
           CircleAvatar(
-            radius: 34,
-            backgroundColor: const Color(0xFF93C5FD),
+            radius: 36,
+            backgroundColor: kSoftBlue,
             child: Text(
               profile?.initials ?? 'T',
               style: const TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                color: kPrimary,
               ),
             ),
           ),
@@ -174,18 +192,19 @@ class _IdentityCard extends StatelessWidget {
           Text(
             displayName,
             style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.3,
               color: kText,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(email, style: const TextStyle(fontSize: 11, color: kMuted)),
+          const SizedBox(height: 3),
+          Text(email, style: const TextStyle(fontSize: 12, color: kMuted)),
           const SizedBox(height: 12),
           StatusPill(
-            text: profile == null ? fallbackRole : profile!.role.name,
-            bg: const Color(0xFFDDFEE3),
-            fg: const Color(0xFF15803D),
+            text: profile == null ? fallbackRole : profile!.role.name.toUpperCase(),
+            bg: kSoftGreen,
+            fg: kSuccess,
           ),
         ],
       ),
@@ -194,6 +213,8 @@ class _IdentityCard extends StatelessWidget {
 }
 
 Future<void> _logout(BuildContext context) async {
+  final confirmed = await showConfirmLogoutDialog(context);
+  if (confirmed != true || !context.mounted) return;
   await AuthService.signOut();
   if (!context.mounted) return;
   Navigator.of(context).pushAndRemoveUntil(

@@ -51,7 +51,7 @@ class _AppShellState extends State<AppShell> {
       case AppMode.patient:
         return [
           _NavSpec(
-            icon: Icons.home_rounded,
+            icon: Icons.grid_view_rounded,
             label: 'Beranda',
             subtitle: 'Progres pengobatan dan fokus hari ini.',
             builder: (_) =>
@@ -59,48 +59,47 @@ class _AppShellState extends State<AppShell> {
           ),
           _NavSpec(
             icon: Icons.chat_bubble_outline_rounded,
-            label: 'Chatbot',
-            subtitle: 'Tanya cepat ke tim perawatan.',
+            label: 'Asisten AI',
+            subtitle: 'Tanya edukasi medis dan obat TBC.',
             builder: _patientChatPage,
           ),
           _NavSpec(
-            icon: Icons.history_rounded,
+            icon: Icons.timeline_rounded,
             label: 'Riwayat',
-            subtitle: 'Pantau kepatuhan dan pencapaian.',
+            subtitle: 'Pantau kepatuhan dan log pengobatan.',
             builder: _patientHistoryPage,
           ),
           _NavSpec(
             icon: Icons.person_outline_rounded,
             label: 'Profil',
-            subtitle: 'Akun, pengaturan, dan privasi.',
+            subtitle: 'Akun, kontak dokter, dan pengaturan.',
             builder: _patientProfilePage,
           ),
         ];
       case AppMode.doctor:
         return [
           _NavSpec(
-            icon: Icons.home_rounded,
-            label: 'Beranda',
-            subtitle: 'Ringkasan operasional dan peringatan mendesak.',
+            icon: Icons.dashboard_rounded,
+            label: 'Dasbor',
+            subtitle: 'Ringkasan operasional dan peringatan klinis.',
             builder: _doctorDashboardPage,
           ),
           _NavSpec(
             icon: Icons.notifications_active_outlined,
-            label: 'Pengingat',
-            subtitle: 'Pantau status pengobatan dan antrian eskalasi pasien.',
+            label: 'Antrian',
+            subtitle: 'Pantau status pengobatan dan eskalasi pasien.',
             builder: _doctorPatientsPage,
           ),
           _NavSpec(
-            icon: Icons.insights_outlined,
+            icon: Icons.insights_rounded,
             label: 'Kepatuhan',
-            subtitle: 'Tinjau tren kepatuhan dan pasien berisiko.',
+            subtitle: 'Analitik kepatuhan dan pasien berisiko.',
             builder: _doctorAdherencePage,
           ),
-
           _NavSpec(
             icon: Icons.person_outline_rounded,
             label: 'Profil',
-            subtitle: 'Akun dokter dan preferensi kontak.',
+            subtitle: 'Akun dokter dan preferensi klinik.',
             builder: _doctorProfilePage,
           ),
         ];
@@ -108,20 +107,20 @@ class _AppShellState extends State<AppShell> {
         return [
           _NavSpec(
             icon: Icons.person_add_alt_1_rounded,
-            label: 'Tambah Pasien',
-            subtitle: 'Buat akun pasien atas permintaan dokter.',
+            label: 'Pasien Baru',
+            subtitle: 'Pendaftaran akun pasien dan dokter PJ.',
             builder: _adminPatientPage,
           ),
           _NavSpec(
             icon: Icons.medical_services_outlined,
-            label: 'Tambah Dokter',
-            subtitle: 'Buat akun dokter untuk tim perawatan.',
+            label: 'Dokter Baru',
+            subtitle: 'Pendaftaran akun dokter penanggung jawab.',
             builder: _adminDoctorPage,
           ),
           _NavSpec(
-            icon: Icons.person_outline_rounded,
+            icon: Icons.manage_accounts_outlined,
             label: 'Profil',
-            subtitle: 'Akun dan pengaturan workspace.',
+            subtitle: 'Akun dan manajemen sistem.',
             builder: _adminProfilePage,
           ),
         ];
@@ -134,6 +133,7 @@ class _AppShellState extends State<AppShell> {
     final current = _navSpecs[selectedIndex];
 
     return Scaffold(
+      backgroundColor: kBackground,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -146,7 +146,9 @@ class _AppShellState extends State<AppShell> {
             ),
             Expanded(
               child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 180),
+                duration: const Duration(milliseconds: 200),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
                 child: KeyedSubtree(
                   key: ValueKey(current.label),
                   child: current.builder(context),
@@ -180,85 +182,95 @@ class _AppTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final (roleText, roleBg, roleFg) = switch (mode) {
+      AppMode.patient => ('Pasien', kSoftBlue, kPrimary),
+      AppMode.doctor => ('Dokter', kSoftGreen, kSuccess),
+      AppMode.admin => ('Admin', kSoftAmber, kWarning),
+    };
+
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.84),
-        border: const Border(bottom: BorderSide(color: Color(0x33E2E8F0))),
-        boxShadow: const [
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: kBorder)),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x0D000000),
+            color: Color(0x080F172A),
             blurRadius: 8,
-            offset: Offset(0, 1),
+            offset: Offset(0, 2),
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: mode == AppMode.patient
-                  ? kPrimary
-                  : const Color(0xFFE7E7F3),
-              child: Text(
-                switch (mode) {
-                  AppMode.patient => 'P',
-                  AppMode.doctor => 'D',
-                  AppMode.admin => 'A',
-                },
-                style: TextStyle(
-                  color: mode == AppMode.patient ? Colors.white : kText,
-                  fontWeight: FontWeight.w700,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: roleBg,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: roleFg.withValues(alpha: 0.3)),
+            ),
+            child: Text(
+              roleText,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.2,
+                color: roleFg,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
+                    color: kText,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w400,
+                    color: kMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (mode == AppMode.patient) ...[
+            const SizedBox(width: 8),
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: onNotificationsTap,
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: kBorder),
+                ),
+                child: const Icon(
+                  Icons.notifications_outlined,
+                  color: kTextSecondary,
+                  size: 20,
                 ),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: kText,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11.5, color: kMuted),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            if (mode == AppMode.patient)
-              InkWell(
-                borderRadius: BorderRadius.circular(999),
-                onTap: onNotificationsTap,
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: const Icon(
-                    Icons.notifications_none_rounded,
-                    color: Color(0xFF1F2937),
-                    size: 20,
-                  ),
-                ),
-              ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -279,12 +291,12 @@ class _AppBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color.fromRGBO(255, 255, 255, 0.7),
-        border: Border(top: BorderSide(color: Color(0x99E2E8F0))),
+        color: Colors.white,
+        border: Border(top: BorderSide(color: kBorder)),
         boxShadow: [
           BoxShadow(
-            color: Color(0x0D000000),
-            blurRadius: 12,
+            color: Color(0x0A0F172A),
+            blurRadius: 16,
             offset: Offset(0, -4),
           ),
         ],
@@ -292,7 +304,7 @@ class _AppBottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
           child: Row(
             children: List.generate(items.length, (index) {
               final item = items[index];
@@ -302,12 +314,11 @@ class _AppBottomNav extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   onTap: () => onTap(index),
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOutCubic,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: selected
-                          ? kSoftBlue.withValues(alpha: 0.55)
-                          : Colors.transparent,
+                      color: selected ? kSoftBlue : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -325,10 +336,8 @@ class _AppBottomNav extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: selected
-                                ? kPrimary
-                                : const Color(0xFF94A3B8),
+                            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                            color: selected ? kPrimary : const Color(0xFF64748B),
                           ),
                         ),
                       ],

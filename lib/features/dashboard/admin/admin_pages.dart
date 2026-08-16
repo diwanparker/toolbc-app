@@ -23,7 +23,11 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _noteController = TextEditingController(); // specialty field for doctor
+  final _weightController = TextEditingController();
+  final _comorbiditiesController = TextEditingController();
 
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
   bool _submitting = false;
   String? _resultMessage;
 
@@ -60,13 +64,15 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _noteController.dispose();
+    _weightController.dispose();
+    _comorbiditiesController.dispose();
     super.dispose();
   }
 
   Future<void> _loadDoctors() async {
     setState(() => _loadingDoctors = true);
     try {
-      _doctorList = await DoctorService.fetchDoctors();
+      _doctorList = await DoctorService.fetchDoctors(forceRefresh: true);
     } catch (_) {
       _doctorList = [];
     }
@@ -99,9 +105,9 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
         role: widget.target.name,
         specialty: _isPatient ? null : _noteController.text.trim(),
         assignedDoctorId: _isPatient ? _selectedDoctor!.id : null,
+        weight: _isPatient ? double.tryParse(_weightController.text.trim()) : null,
+        comorbidities: _isPatient ? _comorbiditiesController.text.trim() : null,
       );
-
-      // Doctor account — store specialty
 
       if (!mounted) return;
 
@@ -111,7 +117,7 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
 
       setState(() {
         _resultMessage =
-            'Akun $_roleLabel berhasil dibuat di Supabase.$doctorInfo';
+            'Akun $_roleLabel berhasil dibuat.$doctorInfo';
         _clearFields();
       });
     } catch (e) {
@@ -150,6 +156,8 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
     _passwordController.clear();
     _confirmPasswordController.clear();
     _noteController.clear();
+    _weightController.clear();
+    _comorbiditiesController.clear();
     _selectedDoctor = null;
   }
 
@@ -162,6 +170,7 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
   @override
   Widget build(BuildContext context) {
     return AppPage(
+      onRefresh: _isPatient ? _loadDoctors : null,
       children: [
         PageHeader(
           title: 'Tambah Akun ${_isPatient ? 'Pasien/User' : 'Dokter'}',
@@ -197,6 +206,18 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
                   onSelected: (doc) => setState(() => _selectedDoctor = doc),
                   onRefresh: _loadDoctors,
                 ),
+                const SizedBox(height: 12),
+                AuthField(
+                  hintText: 'Berat badan (kg)',
+                  prefixIcon: Icons.monitor_weight_outlined,
+                  controller: _weightController,
+                ),
+                const SizedBox(height: 12),
+                AuthField(
+                  hintText: 'Komorbiditas (HIV, DM, dll)',
+                  prefixIcon: Icons.medical_information_outlined,
+                  controller: _comorbiditiesController,
+                ),
               ] else ...[
                 AuthField(
                   hintText: 'Spesialisasi / poli',
@@ -209,14 +230,37 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
                 hintText: 'Password',
                 prefixIcon: Icons.lock_outline_rounded,
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: !_passwordVisible,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _passwordVisible
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color: kMuted,
+                    size: 20,
+                  ),
+                  onPressed: () =>
+                      setState(() => _passwordVisible = !_passwordVisible),
+                ),
               ),
               const SizedBox(height: 12),
               AuthField(
                 hintText: 'Konfirmasi password',
                 prefixIcon: Icons.lock_outline_rounded,
                 controller: _confirmPasswordController,
-                obscureText: true,
+                obscureText: !_confirmPasswordVisible,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _confirmPasswordVisible
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color: kMuted,
+                    size: 20,
+                  ),
+                  onPressed: () => setState(
+                    () => _confirmPasswordVisible = !_confirmPasswordVisible,
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               SizedBox(

@@ -7,11 +7,11 @@ class ApiService {
 
   static const String _rawUrl = String.fromEnvironment('API_BASE_URL');
   static String get baseUrl {
-    if (_rawUrl.isEmpty) {
-      // Default fallback for physical Android via adb reverse, or Windows desktop
-      return 'https://toolbc-backend-production.up.railway.app/api';
+    if (_rawUrl.isNotEmpty) {
+      return _rawUrl.trim();
     }
-    return _rawUrl.trim();
+    // Default localhost for Web and Desktop
+    return 'http://localhost:5272/api';
   }
 
   static final http.Client _client = http.Client();
@@ -48,7 +48,7 @@ class ApiService {
     final response = await _client.get(
       Uri.parse('$baseUrl$endpoint'),
       headers: _headers,
-    );
+    ).timeout(const Duration(seconds: 15));
     return _handleResponse(response);
   }
 
@@ -57,7 +57,7 @@ class ApiService {
       Uri.parse('$baseUrl$endpoint'),
       headers: _headers,
       body: body != null ? jsonEncode(body) : null,
-    );
+    ).timeout(const Duration(seconds: 15));
     return _handleResponse(response);
   }
 
@@ -66,7 +66,7 @@ class ApiService {
       Uri.parse('$baseUrl$endpoint'),
       headers: _headers,
       body: body != null ? jsonEncode(body) : null,
-    );
+    ).timeout(const Duration(seconds: 15));
     return _handleResponse(response);
   }
 
@@ -75,8 +75,13 @@ class ApiService {
       if (response.body.trim().isEmpty) return null;
       return jsonDecode(response.body);
     }
-    
-    String errorMsg = 'Request failed (Status ${response.statusCode})';
+
+    if (response.statusCode == 401) {
+      clearToken();
+      throw StateError('Sesi telah berakhir. Silakan login ulang.');
+    }
+
+    String errorMsg = 'Permintaan gagal (Status ${response.statusCode})';
     try {
       final body = jsonDecode(response.body);
       if (body is Map && body.containsKey('error')) {
@@ -85,7 +90,7 @@ class ApiService {
         errorMsg = body['title']; // Handle ProblemDetails format
       }
     } catch (_) {}
-    
+
     throw StateError(errorMsg);
   }
 }
