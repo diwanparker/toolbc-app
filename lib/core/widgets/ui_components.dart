@@ -222,8 +222,8 @@ class HorizontalGoalCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        width: 155,
-        padding: const EdgeInsets.all(14),
+        width: 158,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: kSurface,
           borderRadius: BorderRadius.circular(20),
@@ -256,9 +256,10 @@ class HorizontalGoalCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   title,
@@ -276,7 +277,7 @@ class HorizontalGoalCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 14.5,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.3,
                     color: kText,

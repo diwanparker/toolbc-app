@@ -295,7 +295,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
             ),
             const SizedBox(height: 12),
             SizedBox(
-              height: 125,
+              height: 145,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
