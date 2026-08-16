@@ -40,7 +40,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
 
     if (!AuthService.isConfigured) {
       _showSnack(
-        'Supabase belum dikonfigurasi. Isi SUPABASE_URL dan SUPABASE_ANON_KEY.',
+        'Server belum terhubung. Periksa konfigurasi API_BASE_URL.',
       );
       return;
     }

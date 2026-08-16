@@ -16,6 +16,7 @@ class PatientSummary {
     required this.adherencePercent,
     required this.riskStatus,
     required this.badge,
+    this.phase = 'Intensif',
   });
 
   final String id;
@@ -25,6 +26,7 @@ class PatientSummary {
   final int adherencePercent;
   final String riskStatus;
   final String badge;
+  final String phase;
 
   factory PatientSummary.fromJson(Map<String, dynamic> json) {
     return PatientSummary(
@@ -35,6 +37,7 @@ class PatientSummary {
       adherencePercent: _asInt(json['adherencePercent']),
       riskStatus: _parseRisk(json['currentRisk']),
       badge: json['badge']?.toString() ?? '',
+      phase: json['phase']?.toString() ?? 'Intensif',
     );
   }
 
@@ -75,6 +78,7 @@ class TreatmentSummary {
     required this.completionPercent,
     required this.adherencePercent,
     required this.streakDays,
+    required this.phase,
     required this.medicineSummary,
     required this.nextDoseLabel,
   });
@@ -84,6 +88,7 @@ class TreatmentSummary {
   final int completionPercent;
   final int adherencePercent;
   final int streakDays;
+  final String phase;
   final String medicineSummary;
   final String nextDoseLabel;
 
@@ -94,6 +99,7 @@ class TreatmentSummary {
       completionPercent: _asInt(json['completionPercent']),
       adherencePercent: _asInt(json['adherencePercent']),
       streakDays: _asInt(json['streakDays']),
+      phase: json['phase']?.toString() ?? 'Intensif',
       medicineSummary: json['medicineSummary']?.toString() ?? '',
       nextDoseLabel: json['nextDoseLabel']?.toString() ?? '',
     );
@@ -106,12 +112,16 @@ class PatientDashboardData {
     this.treatment,
     this.doctorName,
     this.medicalRecordNumber,
+    this.weight,
+    this.comorbidities,
   });
 
   final UserProfile profile;
   final TreatmentSummary? treatment;
   final String? doctorName;
   final String? medicalRecordNumber;
+  final double? weight;
+  final String? comorbidities;
 }
 
 class MedicationLogEntry {
@@ -136,6 +146,7 @@ class MedicationLogEntry {
 
 class NotificationEntryData {
   const NotificationEntryData({
+    this.id = '',
     required this.type,
     required this.title,
     required this.body,
@@ -145,6 +156,7 @@ class NotificationEntryData {
     required this.createdAt,
   });
 
+  final String id;
   final String type;
   final String title;
   final String body;
@@ -155,13 +167,14 @@ class NotificationEntryData {
 
   factory NotificationEntryData.fromJson(Map<String, dynamic> json) {
     return NotificationEntryData(
+      id: json['id']?.toString() ?? '',
       type: json['type']?.toString().toLowerCase() ?? 'reminder',
-      title: json['title'] as String? ?? 'Notifikasi',
+      title: json['title'] as String? ?? json['patientName'] as String? ?? 'Notifikasi',
       body: json['message'] as String? ?? '',
       status: json['status']?.toString() ?? 'Info',
       severity: json['severity']?.toString() ?? 'normal',
       isRead: json['isRead'] as bool? ?? false,
-      createdAt: DateTime.tryParse('${json['createdAt']}'),
+      createdAt: DateTime.tryParse('${json['createdAt'] ?? json['scheduledAt']}'),
     );
   }
 }

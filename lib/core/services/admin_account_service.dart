@@ -11,6 +11,8 @@ class AdminAccountService {
     required String role,
     String? specialty,
     String? assignedDoctorId,
+    double? weight,
+    String? comorbidities,
   }) async {
     if (!ApiService.isAuthenticated) {
       throw StateError('Anda harus login sebagai admin.');
@@ -21,7 +23,7 @@ class AdminAccountService {
                     : role.trim().toLowerCase() == 'admin' ? 'Admin' 
                     : 'Patient';
 
-    final body = {
+    final body = <String, dynamic>{
       'fullName': fullName,
       'email': email,
       'password': password,
@@ -34,6 +36,14 @@ class AdminAccountService {
     
     if (assignedDoctorId != null && assignedDoctorId.isNotEmpty) {
       body['assignedDoctorId'] = assignedDoctorId;
+    }
+
+    if (weight != null) {
+      body['weight'] = weight;
+    }
+
+    if (comorbidities != null && comorbidities.isNotEmpty) {
+      body['comorbidities'] = comorbidities;
     }
 
     try {

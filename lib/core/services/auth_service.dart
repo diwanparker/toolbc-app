@@ -46,10 +46,10 @@ class AuthService {
       }
       
       throw StateError('Format response login tidak valid.');
+    } on StateError {
+      rethrow;
     } catch (e) {
-      // Allow specific error messages to pass through, or fallback
-      if (e is StateError) rethrow;
-      throw StateError('Login gagal: Email atau password salah.');
+      throw StateError('Tidak dapat terhubung ke server backend ($e). Pastikan server backend sedang berjalan.');
     }
   }
 

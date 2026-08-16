@@ -18,12 +18,14 @@ class _SymptomCheckupPageState extends State<SymptomCheckupPage> {
   bool _weightLoss = false;
   bool _submitting = false;
   String? _resultRisk;
+  String? _resultFeedback;
 
   Future<void> _submit() async {
     if (_submitting) return;
     setState(() {
       _submitting = true;
       _resultRisk = null;
+      _resultFeedback = null;
     });
 
     try {
@@ -34,10 +36,14 @@ class _SymptomCheckupPageState extends State<SymptomCheckupPage> {
         weightLoss: _weightLoss,
       );
       if (!mounted) return;
-      final risk = response['riskLevel']?.toString() ?? 'unknown';
-      setState(() => _resultRisk = risk);
+      final risk = response['riskLevel']?.toString() ?? 'Low';
+      final feedback = response['feedback']?.toString();
+      setState(() {
+        _resultRisk = risk;
+        _resultFeedback = feedback;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Checkup gejala berhasil dikirim! ✅')),
+        const SnackBar(content: Text('Checkup gejala berhasil terkirim ke dokter PJ! ✅')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -58,30 +64,20 @@ class _SymptomCheckupPageState extends State<SymptomCheckupPage> {
         elevation: 0,
         leading: const BackButton(color: kText),
         title: const Text(
-          'Checkup Gejala',
-          style: TextStyle(fontWeight: FontWeight.w700, color: kText),
+          'Checkup Gejala Mandiri',
+          style: TextStyle(fontWeight: FontWeight.w800, color: kText),
         ),
       ),
       body: AppPage(
         children: [
           const PageHeader(
-            title: 'Log Gejala Harian',
-            subtitle: 'Pilih gejala yang kamu rasakan hari ini.',
-          ),
-          const SizedBox(height: 16),
-          SectionCard(
-            background: kSoftBlue,
-            borderColor: const Color(0xFFBFDBFE),
-            title: 'Symptom Checker',
-            trailing: const StatusPill(text: 'i', bg: kPrimary, fg: Colors.white),
-            child: const Text(
-              'Centang gejala yang kamu rasakan, lalu tekan Kirim untuk analisis.',
-              style: TextStyle(fontSize: 9.8, color: kMuted),
-            ),
+            title: 'Laporan Gejala Harian 📋',
+            subtitle: 'Centang keluhan yang Anda rasakan untuk evaluasi risiko klinis otomatis.',
           ),
           const SizedBox(height: 16),
           SymptomTile(
-            label: 'Batuk Berkepanjangan',
+            label: 'Batuk Menetap',
+            description: 'Batuk berdahak atau bercampur darah lebih dari 2 minggu.',
             icon: Icons.air_rounded,
             tint: kSoftRed,
             selected: _persistentCough,
@@ -90,6 +86,7 @@ class _SymptomCheckupPageState extends State<SymptomCheckupPage> {
           const SizedBox(height: 12),
           SymptomTile(
             label: 'Demam / Menggigil',
+            description: 'Suhu tubuh meningkat terutama menjelang sore atau malam hari.',
             icon: Icons.thermostat_rounded,
             tint: kSoftAmber,
             selected: _feverOrChills,
@@ -97,7 +94,8 @@ class _SymptomCheckupPageState extends State<SymptomCheckupPage> {
           ),
           const SizedBox(height: 12),
           SymptomTile(
-            label: 'Keringat Malam',
+            label: 'Keringat Malam Berlebih',
+            description: 'Berkeringat basah saat tidur meski suhu ruangan sejuk.',
             icon: Icons.nightlight_round,
             tint: kSoftBlue,
             selected: _nightSweats,
@@ -106,7 +104,8 @@ class _SymptomCheckupPageState extends State<SymptomCheckupPage> {
           const SizedBox(height: 12),
           SymptomTile(
             label: 'Penurunan Berat Badan',
-            icon: Icons.restaurant_rounded,
+            description: 'Nafsu makan berkurang drastis atau berat badan turun signifikan.',
+            icon: Icons.monitor_weight_outlined,
             tint: kSoftGreen,
             selected: _weightLoss,
             onToggle: () => setState(() => _weightLoss = !_weightLoss),
@@ -116,16 +115,23 @@ class _SymptomCheckupPageState extends State<SymptomCheckupPage> {
               ? const Center(
                   child: Padding(
                     padding: EdgeInsets.all(12),
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(color: kPrimary),
                   ),
                 )
               : InkWell(
                   onTap: _submit,
                   borderRadius: BorderRadius.circular(14),
-                  child: const PrimaryBannerButton(label: 'Kirim Checkup'),
+                  child: const PrimaryBannerButton(
+                    label: 'Kirim Log Gejala',
+                    icon: Icons.send_rounded,
+                  ),
                 ),
           const SizedBox(height: 16),
-          if (_resultRisk != null) _RiskResultCard(risk: _resultRisk!),
+          if (_resultRisk != null)
+            _RiskResultCard(
+              risk: _resultRisk!,
+              feedback: _resultFeedback,
+            ),
         ],
       ),
     );
@@ -133,9 +139,10 @@ class _SymptomCheckupPageState extends State<SymptomCheckupPage> {
 }
 
 class _RiskResultCard extends StatelessWidget {
-  const _RiskResultCard({required this.risk});
+  const _RiskResultCard({required this.risk, this.feedback});
 
   final String risk;
+  final String? feedback;
 
   @override
   Widget build(BuildContext context) {
@@ -146,39 +153,75 @@ class _RiskResultCard extends StatelessWidget {
     final Color borderColor;
     final Color pillBg;
     final String label;
-    final String message;
+    final IconData icon;
+    final String defaultMessage;
 
     if (isHigh) {
       bg = kSoftRed;
-      borderColor = const Color(0xFFFCA5A5);
-      pillBg = const Color(0xFFEF4444);
+      borderColor = kBorderRed;
+      pillBg = kDanger;
       label = 'Risiko Tinggi';
-      message =
-          'Segera hubungi dokter penanggung jawab. Tetap minum obat sesuai jadwal.';
+      icon = Icons.warning_rounded;
+      defaultMessage =
+          'Segera hubungi dokter penanggung jawab Anda atau kunjungi fasilitas kesehatan terdekat. Tetap minum obat sesuai anjuran.';
     } else if (isModerate) {
       bg = kSoftAmber;
-      borderColor = const Color(0xFFFDBA74);
-      pillBg = const Color(0xFFF97316);
+      borderColor = kBorderAmber;
+      pillBg = kWarning;
       label = 'Risiko Sedang';
-      message =
-          'Tetap minum obat dan laporkan demam yang berkepanjangan ke dokter.';
+      icon = Icons.info_rounded;
+      defaultMessage =
+          'Tetap minum obat secara disiplin dan pantau perkembangan gejala dalam 1-2 hari ke depan.';
     } else {
       bg = kSoftGreen;
-      borderColor = const Color(0xFFBBF7D0);
-      pillBg = const Color(0xFF22C55E);
-      label = 'Stabil';
-      message =
-          'Kondisi kamu terlihat baik. Tetap konsisten minum obat!';
+      borderColor = kBorderGreen;
+      pillBg = kSuccess;
+      label = 'Kondisi Stabil';
+      icon = Icons.check_circle_rounded;
+      defaultMessage =
+          'Kondisi klinis kamu terpantau baik. Pertahankan pola hidup sehat dan kepatuhan minum obat!';
     }
 
-    return SectionCard(
-      background: bg,
-      borderColor: borderColor,
-      title: 'Hasil Analisis',
-      trailing: StatusPill(text: label, bg: pillBg, fg: Colors.white),
-      child: Text(
-        message,
-        style: const TextStyle(fontSize: 10.5, color: kMuted),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
+        boxShadow: kCardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: pillBg, size: 20),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'Hasil Evaluasi Klinis',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: kText,
+                  ),
+                ),
+              ),
+              StatusPill(text: label, bg: pillBg, fg: Colors.white),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            (feedback != null && feedback!.isNotEmpty) ? feedback! : defaultMessage,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: kTextSecondary,
+              height: 1.45,
+            ),
+          ),
+        ],
       ),
     );
   }

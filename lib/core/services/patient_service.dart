@@ -88,6 +88,8 @@ class PatientService {
           treatment: response['treatment'] != null ? TreatmentSummary.fromJson(response['treatment']) : null,
           doctorName: response['doctorName'],
           medicalRecordNumber: response['medicalRecordNumber'],
+          weight: response['weight'] != null ? double.tryParse('${response['weight']}') : null,
+          comorbidities: response['comorbidities']?.toString(),
         );
         _currentDashboardCache = _CacheEntry(result, DateTime.now());
         return result;
