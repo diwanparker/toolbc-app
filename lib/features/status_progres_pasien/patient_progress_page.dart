@@ -47,16 +47,25 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
       builder: (context) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         padding: const EdgeInsets.all(24).copyWith(bottom: MediaQuery.of(context).padding.bottom + 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Filter Riwayat',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: kText),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Filter Riwayat',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: kText),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded, color: kMuted),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             Wrap(
@@ -68,6 +77,13 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
                   label: Text(filter),
                   selected: selected,
                   selectedColor: kPastelCyan,
+                  backgroundColor: const Color(0xFFF8FAFC),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: selected ? kPrimary : const Color(0xFFE2E8F0),
+                    ),
+                  ),
                   labelStyle: TextStyle(
                     color: selected ? kPrimaryDark : kTextSecondary,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
@@ -98,12 +114,12 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
           onRefresh: _refresh,
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
           children: [
-            // Screen 3 Header (Reference Design: Title + Filter Icon)
+            // Screen Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Riwayat Aktivitas',
+                  'Riwayat & Statistik',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -130,9 +146,9 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
 
-            // Performance Summary (Reference Style Metric Row)
+            // Performance Summary (Two Side-by-Side Cards)
             Row(
               children: [
                 Expanded(
@@ -149,15 +165,15 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
                       children: [
                         const Text(
                           'Kepatuhan Terapi',
-                          style: TextStyle(fontSize: 11.5, color: kMuted, fontWeight: FontWeight.w500),
+                          style: TextStyle(fontSize: 12, color: kMuted, fontWeight: FontWeight.w600),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           '${treatment?.adherencePercent ?? 98}%',
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: kSuccess),
+                          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: kSuccess),
                         ),
                         const SizedBox(height: 2),
-                        const Text('Kondisi Sangat Baik', style: TextStyle(fontSize: 10.5, color: kMuted)),
+                        const Text('Kondisi Sangat Baik', style: TextStyle(fontSize: 11, color: kMuted)),
                       ],
                     ),
                   ),
@@ -177,15 +193,15 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
                       children: [
                         const Text(
                           'Hari Pengobatan',
-                          style: TextStyle(fontSize: 11.5, color: kMuted, fontWeight: FontWeight.w500),
+                          style: TextStyle(fontSize: 12, color: kMuted, fontWeight: FontWeight.w600),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           '${treatment?.treatmentDay ?? 0}',
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: kPrimary),
+                          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: kPrimary),
                         ),
                         const SizedBox(height: 2),
-                        Text('Fase ${treatment?.phase ?? "Intensif"}', style: const TextStyle(fontSize: 10.5, color: kMuted)),
+                        Text('Fase ${treatment?.phase ?? "Intensif"}', style: const TextStyle(fontSize: 11, color: kMuted)),
                       ],
                     ),
                   ),
@@ -195,7 +211,7 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
             const SizedBox(height: 24),
 
             // Date Group 1: Hari Ini
-            _DateGroupHeader(title: 'Hari Ini, 16 Agustus 2026'),
+            const _DateGroupHeader(title: 'Hari Ini, 16 Agustus 2026'),
             const SizedBox(height: 10),
             const ActivityItemTile(
               title: 'Minum OAT KDT (HRZE)',
@@ -216,10 +232,10 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
               trailingTitle: 'Risiko Rendah',
               trailingSubtitle: 'Aman',
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
 
             // Date Group 2: Kemarin
-            _DateGroupHeader(title: 'Kemarin, 15 Agustus 2026'),
+            const _DateGroupHeader(title: 'Kemarin, 15 Agustus 2026'),
             const SizedBox(height: 10),
             const ActivityItemTile(
               title: 'Minum OAT KDT (HRZE)',
@@ -240,10 +256,10 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
               trailingTitle: 'Terjawab',
               trailingSubtitle: 'Edukasi OAT',
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
 
             // Date Group 3: 14 Agustus
-            _DateGroupHeader(title: '14 Agustus 2026'),
+            const _DateGroupHeader(title: '14 Agustus 2026'),
             const SizedBox(height: 10),
             const ActivityItemTile(
               title: 'Pemeriksaan TCM Dahak',
@@ -266,8 +282,8 @@ class _PatientProgressPageState extends State<PatientProgressPage> {
             ),
 
             if (logs.isNotEmpty) ...[
-              const SizedBox(height: 20),
-              _DateGroupHeader(title: 'Riwayat Sebelumnya'),
+              const SizedBox(height: 22),
+              const _DateGroupHeader(title: 'Riwayat Sebelumnya'),
               const SizedBox(height: 10),
               for (final log in logs.take(6)) ...[
                 ActivityItemTile(

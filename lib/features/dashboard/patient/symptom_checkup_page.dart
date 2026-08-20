@@ -60,12 +60,12 @@ class _SymptomCheckupPageState extends State<SymptomCheckupPage> {
     return Scaffold(
       backgroundColor: kBackground,
       appBar: AppBar(
-        backgroundColor: Colors.white.withValues(alpha: 0.85),
+        backgroundColor: Colors.white.withValues(alpha: 0.9),
         elevation: 0,
         leading: const BackButton(color: kText),
         title: const Text(
           'Checkup Gejala Mandiri',
-          style: TextStyle(fontWeight: FontWeight.w800, color: kText),
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17, color: kText),
         ),
       ),
       body: AppPage(
@@ -110,7 +110,7 @@ class _SymptomCheckupPageState extends State<SymptomCheckupPage> {
             selected: _weightLoss,
             onToggle: () => setState(() => _weightLoss = !_weightLoss),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           _submitting
               ? const Center(
                   child: Padding(
@@ -120,9 +120,9 @@ class _SymptomCheckupPageState extends State<SymptomCheckupPage> {
                 )
               : InkWell(
                   onTap: _submit,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(16),
                   child: const PrimaryBannerButton(
-                    label: 'Kirim Log Gejala',
+                    label: 'Kirim Log Gejala ke Dokter',
                     icon: Icons.send_rounded,
                   ),
                 ),
@@ -184,10 +184,10 @@ class _RiskResultCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(color: borderColor),
         boxShadow: kCardShadow,
       ),
@@ -196,8 +196,8 @@ class _RiskResultCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, color: pillBg, size: 20),
-              const SizedBox(width: 8),
+              Icon(icon, color: pillBg, size: 22),
+              const SizedBox(width: 10),
               const Expanded(
                 child: Text(
                   'Hasil Evaluasi Klinis',
@@ -218,7 +218,7 @@ class _RiskResultCard extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: kTextSecondary,
-              height: 1.45,
+              height: 1.48,
             ),
           ),
         ],

@@ -50,8 +50,28 @@ class _AppShellState extends State<AppShell> {
   void _openAIChat() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => const Scaffold(
-          body: SafeArea(child: PatientChatPage()),
+        builder: (_) => Scaffold(
+          backgroundColor: kBackground,
+          appBar: AppBar(
+            backgroundColor: Colors.white.withValues(alpha: 0.9),
+            elevation: 0,
+            leading: const BackButton(color: kText),
+            title: const Row(
+              children: [
+                CircleAvatar(
+                  radius: 14,
+                  backgroundColor: kPrimary,
+                  child: Icon(Icons.smart_toy_rounded, size: 16, color: Colors.white),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  'Asisten AI ToolBC',
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: kText),
+                ),
+              ],
+            ),
+          ),
+          body: const SafeArea(child: PatientChatPage()),
         ),
       ),
     );
@@ -63,6 +83,7 @@ class _AppShellState extends State<AppShell> {
         return [
           _NavSpec(
             icon: Icons.home_rounded,
+            activeIcon: Icons.home_rounded,
             label: 'Home',
             subtitle: 'Progres pengobatan dan fokus hari ini.',
             builder: (_) =>
@@ -70,19 +91,22 @@ class _AppShellState extends State<AppShell> {
           ),
           _NavSpec(
             icon: Icons.history_rounded,
-            label: 'History',
+            activeIcon: Icons.history_rounded,
+            label: 'Riwayat',
             subtitle: 'Catatan log obat dan checkup mandiri.',
             builder: _patientHistoryPage,
           ),
           _NavSpec(
             icon: Icons.insights_rounded,
-            label: 'Statistics',
+            activeIcon: Icons.insights_rounded,
+            label: 'Statistik',
             subtitle: 'Analitik kepatuhan dan performa terapi.',
             builder: _patientProgressPage,
           ),
           _NavSpec(
             icon: Icons.person_outline_rounded,
-            label: 'Profile',
+            activeIcon: Icons.person_rounded,
+            label: 'Profil',
             subtitle: 'Akun, kontak dokter, dan pengaturan.',
             builder: _patientProfilePage,
           ),
@@ -90,26 +114,30 @@ class _AppShellState extends State<AppShell> {
       case AppMode.doctor:
         return [
           _NavSpec(
-            icon: Icons.dashboard_rounded,
-            label: 'Home',
+            icon: Icons.dashboard_outlined,
+            activeIcon: Icons.dashboard_rounded,
+            label: 'Dasbor',
             subtitle: 'Ringkasan operasional dan peringatan klinis.',
             builder: _doctorDashboardPage,
           ),
           _NavSpec(
             icon: Icons.people_alt_outlined,
-            label: 'Patients',
+            activeIcon: Icons.people_alt_rounded,
+            label: 'Pasien',
             subtitle: 'Pantau status pengobatan dan eskalasi pasien.',
             builder: _doctorPatientsPage,
           ),
           _NavSpec(
             icon: Icons.insights_rounded,
-            label: 'Adherence',
+            activeIcon: Icons.insights_rounded,
+            label: 'Kepatuhan',
             subtitle: 'Analitik kepatuhan dan pasien berisiko.',
             builder: _doctorAdherencePage,
           ),
           _NavSpec(
             icon: Icons.person_outline_rounded,
-            label: 'Profile',
+            activeIcon: Icons.person_rounded,
+            label: 'Profil',
             subtitle: 'Akun dokter dan preferensi klinik.',
             builder: _doctorProfilePage,
           ),
@@ -117,19 +145,22 @@ class _AppShellState extends State<AppShell> {
       case AppMode.admin:
         return [
           _NavSpec(
-            icon: Icons.person_add_alt_1_rounded,
+            icon: Icons.person_add_alt_1_outlined,
+            activeIcon: Icons.person_add_alt_1_rounded,
             label: 'Pasien Baru',
             subtitle: 'Pendaftaran akun pasien dan dokter PJ.',
             builder: _adminPatientPage,
           ),
           _NavSpec(
             icon: Icons.medical_services_outlined,
+            activeIcon: Icons.medical_services_rounded,
             label: 'Dokter Baru',
             subtitle: 'Pendaftaran akun dokter penanggung jawab.',
             builder: _adminDoctorPage,
           ),
           _NavSpec(
             icon: Icons.manage_accounts_outlined,
+            activeIcon: Icons.manage_accounts_rounded,
             label: 'Profil',
             subtitle: 'Akun dan manajemen sistem.',
             builder: _adminProfilePage,
@@ -160,16 +191,16 @@ class _AppShellState extends State<AppShell> {
                   ),
                   Expanded(
                     child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 220),
                       switchInCurve: Curves.easeOutCubic,
                       switchOutCurve: Curves.easeInCubic,
                       child: KeyedSubtree(
-                        key: ValueKey(current.label),
+                        key: ValueKey('${current.label}_$_index'),
                         child: current.builder(context),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 76), // Space for floating bottom nav
+                  const SizedBox(height: 78), // Space for floating bottom nav
                 ],
               ),
             ),
@@ -191,6 +222,10 @@ class _AppShellState extends State<AppShell> {
     );
   }
 }
+
+// =============================================================================
+// APP TOP BAR
+// =============================================================================
 
 class _AppTopBar extends StatelessWidget {
   const _AppTopBar({
@@ -292,6 +327,10 @@ class _AppTopBar extends StatelessWidget {
   }
 }
 
+// =============================================================================
+// FLOATING BOTTOM NAV
+// =============================================================================
+
 class _FloatingBottomNav extends StatelessWidget {
   const _FloatingBottomNav({
     required this.items,
@@ -316,23 +355,38 @@ class _FloatingBottomNav extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: kFloatingShadow,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           if (has4Items && showCenterAI) ...[
             _buildNavItem(0),
             _buildNavItem(1),
-            // Signature Center 4-dot AI Button
+            // Signature Center AI 4-dot Button with glowing pulse
             InkWell(
               onTap: onCenterTap,
               borderRadius: BorderRadius.circular(999),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                child: const FourDotIndicator(),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                child: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FourDotIndicator(),
+                    SizedBox(height: 3),
+                    Text(
+                      'AI',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        color: kPrimary,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             _buildNavItem(2),
@@ -353,23 +407,31 @@ class _FloatingBottomNav extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       onTap: () => onTap(index),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              item.icon,
-              color: selected ? kPrimary : const Color(0xFF94A3B8),
-              size: 22,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: selected ? kSoftBlue : Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                selected ? item.activeIcon : item.icon,
+                color: selected ? kPrimary : kSubtle,
+                size: 22,
+              ),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 2),
             Text(
               item.label,
               maxLines: 1,
               style: TextStyle(
                 fontSize: 10,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: selected ? kPrimary : const Color(0xFF94A3B8),
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                color: selected ? kPrimary : kSubtle,
               ),
             ),
           ],
@@ -382,12 +444,14 @@ class _FloatingBottomNav extends StatelessWidget {
 class _NavSpec {
   const _NavSpec({
     required this.icon,
+    required this.activeIcon,
     required this.label,
     required this.subtitle,
     required this.builder,
   });
 
   final IconData icon;
+  final IconData activeIcon;
   final String label;
   final String subtitle;
   final WidgetBuilder builder;

@@ -187,18 +187,18 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 1. Top Illustration Canvas (Screen 1 Reference)
+                      // 1. Top Illustration Canvas
                       const _TopHeroIllustrationCanvas(),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: 24),
 
                       // 2. Bold Headline & Subtitle
                       const Text(
                         'Monitoring Pengobatan TBC Lebih Teratur & Tuntas',
                         style: TextStyle(
-                          fontSize: 25,
+                          fontSize: 24,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.6,
-                          height: 1.22,
+                          height: 1.25,
                           color: kText,
                         ),
                       ),
@@ -254,7 +254,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
                         keyboardType: TextInputType.emailAddress,
                         fieldKey: const ValueKey('auth_email_field'),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       _NeoCleanField(
                         controller: _passwordController,
                         hint: 'Password',
@@ -272,7 +272,7 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
                       ),
                       const SizedBox(height: 24),
 
-                      // 5. Bottom Navigation & Action Bar (Screen 1 Layout)
+                      // 5. Bottom Navigation & Action Bar
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -329,15 +329,9 @@ class _AuthLoginPageState extends State<AuthLoginPage> {
                                   child: CircularProgressIndicator(strokeWidth: 2.8, color: kPrimary),
                                 )
                               : Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(18),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: kPrimary.withValues(alpha: 0.28),
-                                        blurRadius: 14,
-                                        offset: const Offset(0, 6),
-                                      ),
-                                    ],
+                                  decoration: const BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(18)),
+                                    boxShadow: kButtonShadow,
                                   ),
                                   child: ElevatedButton(
                                     key: const ValueKey('auth_login_button'),
@@ -435,11 +429,11 @@ class _TopHeroIllustrationCanvas extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: const Color(0xFFEDF2F7)),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
-                    color: const Color(0xFF0F172A).withValues(alpha: 0.06),
+                    color: Color(0x100F172A),
                     blurRadius: 18,
-                    offset: const Offset(0, 8),
+                    offset: Offset(0, 8),
                   ),
                 ],
               ),
@@ -608,7 +602,7 @@ class _NeoCleanField extends StatelessWidget {
               style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: kText),
               decoration: InputDecoration(
                 hintText: hint,
-                hintStyle: const TextStyle(fontSize: 13, color: kMuted, fontWeight: FontWeight.w500),
+                hintStyle: const TextStyle(fontSize: 13, color: kSubtle, fontWeight: FontWeight.w400),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
