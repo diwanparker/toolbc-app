@@ -144,6 +144,7 @@ class _PatientChatPageState extends State<PatientChatPage> {
                 backgroundColor: kDanger,
                 foregroundColor: Colors.white,
                 elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () {
                 Navigator.pop(context);
@@ -159,7 +160,7 @@ class _PatientChatPageState extends State<PatientChatPage> {
                   );
                 });
               },
-              child: const Text('Hapus'),
+              child: const Text('Hapus', style: TextStyle(fontWeight: FontWeight.w700)),
             ),
           ],
         );
@@ -184,7 +185,7 @@ class _PatientChatPageState extends State<PatientChatPage> {
                     _AssistantInfoCard(),
                     const SizedBox(height: 16),
                     _QuickPromptsSection(onQuickPrompt: _sendMessage),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -249,20 +250,21 @@ class _AssistantInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: kSoftBlue,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: kBorderBlue),
+        boxShadow: kCardShadow,
       ),
       child: const Row(
         children: [
           CircleAvatar(
-            radius: 20,
+            radius: 22,
             backgroundColor: kPrimary,
-            child: Icon(Icons.smart_toy_rounded, color: Colors.white, size: 20),
+            child: Icon(Icons.smart_toy_rounded, color: Colors.white, size: 22),
           ),
-          SizedBox(width: 12),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,12 +274,12 @@ class _AssistantInfoCard extends StatelessWidget {
                     Text(
                       'AI Asisten Medis TBC',
                       style: TextStyle(
-                        fontSize: 13.5,
+                        fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: kPrimary,
                       ),
                     ),
-                    SizedBox(width: 6),
+                    SizedBox(width: 8),
                     StatusPill(
                       text: 'Online',
                       bg: Color(0xFFDCFCE7),
@@ -285,10 +287,10 @@ class _AssistantInfoCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 2),
+                SizedBox(height: 3),
                 Text(
                   'Konsultasi edukatif 24/7 seputar TBC & pengobatan.',
-                  style: TextStyle(fontSize: 11, color: kMuted),
+                  style: TextStyle(fontSize: 11.5, color: kMuted),
                 ),
               ],
             ),
@@ -325,12 +327,12 @@ class _QuickPromptsSection extends StatelessWidget {
             for (final item in _quickPrompts)
               InkWell(
                 onTap: () => onQuickPrompt(item.prompt),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: kSurface,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: kBorder),
                     boxShadow: kCardShadow,
                   ),
@@ -413,10 +415,10 @@ class _ChatComposer extends StatelessWidget {
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   hintText: 'Ketik pertanyaan seputar TBC...',
-                  hintStyle: TextStyle(fontSize: 13, color: kMuted),
+                  hintStyle: TextStyle(fontSize: 13, color: kSubtle),
                   contentPadding: EdgeInsets.symmetric(vertical: 12),
                 ),
-                style: const TextStyle(fontSize: 13.5, color: kText),
+                style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: kText),
               ),
             ),
           ),

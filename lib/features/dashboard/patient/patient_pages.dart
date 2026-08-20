@@ -71,8 +71,28 @@ class _PatientHomePageState extends State<PatientHomePage> {
   void _openAIChat() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => const Scaffold(
-          body: SafeArea(child: PatientChatPage()),
+        builder: (_) => Scaffold(
+          backgroundColor: kBackground,
+          appBar: AppBar(
+            backgroundColor: Colors.white.withValues(alpha: 0.9),
+            elevation: 0,
+            leading: const BackButton(color: kText),
+            title: const Row(
+              children: [
+                CircleAvatar(
+                  radius: 14,
+                  backgroundColor: kPrimary,
+                  child: Icon(Icons.smart_toy_rounded, size: 16, color: Colors.white),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  'Asisten AI ToolBC',
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: kText),
+                ),
+              ],
+            ),
+          ),
+          body: const SafeArea(child: PatientChatPage()),
         ),
       ),
     );
@@ -86,7 +106,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
       builder: (context) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         padding: const EdgeInsets.all(24).copyWith(bottom: MediaQuery.of(context).padding.bottom + 20),
         child: Column(
@@ -97,7 +117,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Hasil Laboratorium',
+                  'Hasil Laboratorium Pasien',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: kText),
                 ),
                 IconButton(
@@ -113,7 +133,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
               icon: Icons.biotech_rounded,
               iconBg: kPastelCyan,
               iconFg: kPrimaryDark,
-              trailingWidget: StatusPill(text: 'Positif (Sensitif RIF)', bg: kPastelAmber, fg: kWarning),
+              trailingWidget: StatusPill(text: 'Sensitif RIF', bg: kPastelGreen, fg: kSuccess),
             ),
             const SizedBox(height: 10),
             const ActivityItemTile(
@@ -125,7 +145,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
               trailingWidget: StatusPill(text: 'TB Paru Aktif', bg: kPastelCyan, fg: kPrimaryDark),
             ),
             const SizedBox(height: 16),
-            Center(
+            const Center(
               child: Text(
                 'Evaluasi sputum ulang dijadwalkan pada akhir Bulan ke-2.',
                 textAlign: TextAlign.center,
@@ -146,7 +166,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
       builder: (context) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         padding: const EdgeInsets.all(24).copyWith(bottom: MediaQuery.of(context).padding.bottom + 20),
         child: Column(
@@ -167,21 +187,21 @@ class _PatientHomePageState extends State<PatientHomePage> {
               ],
             ),
             const SizedBox(height: 14),
-            _EduTile(
+            const _EduTile(
               icon: Icons.access_time_filled_rounded,
               title: 'Minum OAT Teratur Setiap Hari',
               desc: 'Jangan putus obat! Pengobatan TBC standar berlangsung 6 bulan (2 bulan Intensif HRZE + 4 bulan Lanjutan HR).',
             ),
             const SizedBox(height: 10),
-            _EduTile(
+            const _EduTile(
               icon: Icons.masks_rounded,
-              title: 'Etika Batuk & Ventilasi',
+              title: 'Etika Batuk & Ventilasi Rumah',
               desc: 'Gunakan masker saat batuk dan pastikan sirkulasi udara di rumah mendapat sinar matahari yang cukup.',
             ),
             const SizedBox(height: 10),
-            _EduTile(
+            const _EduTile(
               icon: Icons.restaurant_rounded,
-              title: 'Gizi & Nutrisi',
+              title: 'Gizi & Nutrisi Pendukung',
               desc: 'Konsumsi makanan tinggi protein (telur, ikan, tahu) untuk membantu pemulihan berat badan dan imunitas.',
             ),
           ],
@@ -207,18 +227,19 @@ class _PatientHomePageState extends State<PatientHomePage> {
           onRefresh: _refresh,
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
           children: [
-            // Top Balance / Treatment Status Header (Reference Screen 2 Header)
-            _TreatmentHeader(
+            // Top Balance / Treatment Status Card
+            _TreatmentHeaderCard(
               day: day,
               totalDays: totalDays,
               phase: phase,
+              adherence: adherence,
               onNotificationsTap: widget.onOpenNotifications,
             ),
             const SizedBox(height: 24),
 
             // Service Row (5 Circular Pastel Buttons)
             const Text(
-              'Layanan',
+              'Layanan Utama',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -285,8 +306,8 @@ class _PatientHomePageState extends State<PatientHomePage> {
                   child: const Text(
                     'Panduan',
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
                       color: kPrimary,
                     ),
                   ),
@@ -295,14 +316,14 @@ class _PatientHomePageState extends State<PatientHomePage> {
             ),
             const SizedBox(height: 12),
             SizedBox(
-              height: 145,
+              height: 148,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
                 children: [
                   HorizontalGoalCard(
                     title: 'Fase Terapi',
-                    subtitle: 'HRZE 4 Tablet',
+                    subtitle: 'HRZE 4 Tablet/hari',
                     value: 'Fase $phase',
                     icon: Icons.healing_rounded,
                     iconBg: kPastelCyan,
@@ -322,7 +343,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
                   const SizedBox(width: 12),
                   HorizontalGoalCard(
                     title: 'Berat Badan',
-                    subtitle: 'Target: Naik',
+                    subtitle: 'Target: Naik/Stabil',
                     value: '$weight kg',
                     icon: Icons.monitor_weight_outlined,
                     iconBg: kPastelAmber,
@@ -331,8 +352,8 @@ class _PatientHomePageState extends State<PatientHomePage> {
                   ),
                   const SizedBox(width: 12),
                   HorizontalGoalCard(
-                    title: 'Hari Berturut',
-                    subtitle: 'Streak Sempurna',
+                    title: 'Streak Harian',
+                    subtitle: 'Kepatuhan Rutin',
                     value: '${treatment?.streak ?? 1} Hari',
                     icon: Icons.local_fire_department_rounded,
                     iconBg: kPastelRose,
@@ -344,7 +365,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
             ),
             const SizedBox(height: 24),
 
-            // Aktivitas Terbaru ("Received Activity" style)
+            // Aktivitas Hari Ini
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -361,8 +382,8 @@ class _PatientHomePageState extends State<PatientHomePage> {
                   child: const Text(
                     'Lihat semua',
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
                       color: kPrimary,
                     ),
                   ),
@@ -371,7 +392,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
             ),
             const SizedBox(height: 12),
 
-            // Dose Card
+            // Dose Action Card
             ActivityItemTile(
               title: _doseTakenToday
                   ? 'Dosis OAT Hari Ini Diminum'
@@ -388,7 +409,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
                       ? const SizedBox(
                           width: 24,
                           height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2.2),
+                          child: CircularProgressIndicator(strokeWidth: 2.2, color: kPrimary),
                         )
                       : ElevatedButton(
                           onPressed: _confirmDose,
@@ -412,7 +433,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
             // Symptom Checkup Tile
             ActivityItemTile(
               title: 'Checkup Gejala Mandiri',
-              subtitle: 'Laporkan batuk, demam & keluhan',
+              subtitle: 'Laporkan batuk, demam & keluhan harian',
               icon: Icons.health_and_safety_outlined,
               iconBg: kPastelAmber,
               iconFg: kPastelAmberFg,
@@ -420,7 +441,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
                 onPressed: _openSymptomCheckup,
                 child: const Text(
                   'Cek Sekarang',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: kWarning),
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: kWarning),
                 ),
               ),
             ),
@@ -444,80 +465,102 @@ class _PatientHomePageState extends State<PatientHomePage> {
   }
 }
 
-class _TreatmentHeader extends StatelessWidget {
-  const _TreatmentHeader({
+// =============================================================================
+// TREATMENT HERO CARD
+// =============================================================================
+
+class _TreatmentHeaderCard extends StatelessWidget {
+  const _TreatmentHeaderCard({
     required this.day,
     required this.totalDays,
     required this.phase,
+    required this.adherence,
     required this.onNotificationsTap,
   });
 
   final int day;
   final int totalDays;
   final String phase;
+  final int adherence;
   final VoidCallback onNotificationsTap;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final progress = totalDays > 0 ? (day / totalDays).clamp(0.0, 1.0) : 0.0;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: kBorder),
+        boxShadow: kCardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Status Pengobatan',
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w500,
-                  color: kMuted,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Status Terapi Pengobatan',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: kMuted,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    day <= 0 ? 'Fase Persiapan' : 'Hari ke-$day',
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.6,
+                      color: kText,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
-              Text(
-                day <= 0 ? 'Fase Persiapan' : 'Hari ke-$day',
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.8,
-                  color: kText,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'dari $totalDays Hari • Fase $phase',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: kMuted,
-                ),
+              StatusPill(
+                text: 'Fase $phase',
+                bg: kPastelCyan,
+                fg: kPrimaryDark,
+                icon: Icons.healing_rounded,
               ),
             ],
           ),
-        ),
-        Row(
-          children: [
-            InkWell(
-              onTap: onNotificationsTap,
-              borderRadius: BorderRadius.circular(999),
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF1F5F9),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.notifications_none_rounded,
-                  color: kText,
-                  size: 20,
-                ),
-              ),
+          const SizedBox(height: 16),
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: const Color(0xFFF1F5F9),
+              valueColor: const AlwaysStoppedAnimation<Color>(kPrimary),
             ),
-          ],
-        ),
-      ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Selesai ${(progress * 100).toInt()}% • $day dari $totalDays Hari',
+                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: kMuted),
+              ),
+              Text(
+                'Kepatuhan: $adherence%',
+                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: kSuccess),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -540,11 +583,22 @@ class _EduTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: kBackground,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: kBorder),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: kPrimary, size: 22),
+          Container(
+            width: 38,
+            height: 38,
+            decoration: const BoxDecoration(
+              color: kPastelCyan,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Icon(icon, color: kPrimaryDark, size: 20),
+            ),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -552,12 +606,16 @@ class _EduTile extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: kText),
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: kText,
+                  ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   desc,
-                  style: const TextStyle(fontSize: 11.5, color: kTextSecondary, height: 1.4),
+                  style: const TextStyle(fontSize: 11.5, height: 1.45, color: kMuted),
                 ),
               ],
             ),

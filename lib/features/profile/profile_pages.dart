@@ -36,7 +36,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
             ),
             const SizedBox(height: 16),
             _IdentityCard(profile: profile, fallbackRole: 'Pasien'),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             SectionCard(
               title: 'Pengaturan Akun & Layanan',
               child: Column(
@@ -113,7 +113,7 @@ class _AdminProfilePageState extends State<AdminProfilePage> {
             ),
             const SizedBox(height: 16),
             _IdentityCard(profile: profile, fallbackRole: 'Administrator'),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             SectionCard(
               title: 'Manajemen Sistem',
               child: Column(
@@ -167,40 +167,40 @@ class _IdentityCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: kSurface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: kBorder),
         boxShadow: kCardShadow,
       ),
       child: Column(
         children: [
           CircleAvatar(
-            radius: 36,
+            radius: 38,
             backgroundColor: kSoftBlue,
             child: Text(
               profile?.initials ?? 'T',
               style: const TextStyle(
-                fontSize: 24,
+                fontSize: 26,
                 fontWeight: FontWeight.w800,
                 color: kPrimary,
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Text(
             displayName,
             style: const TextStyle(
-              fontSize: 17,
+              fontSize: 18,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.3,
               color: kText,
             ),
           ),
-          const SizedBox(height: 3),
-          Text(email, style: const TextStyle(fontSize: 12, color: kMuted)),
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
+          Text(email, style: const TextStyle(fontSize: 12.5, color: kMuted)),
+          const SizedBox(height: 14),
           StatusPill(
             text: profile == null ? fallbackRole : profile!.role.name.toUpperCase(),
             bg: kSoftGreen,

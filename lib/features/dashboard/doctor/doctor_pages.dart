@@ -10,6 +10,10 @@ import '../../../core/services/auth_service.dart';
 import '../../../core/services/doctor_service.dart';
 import '../../auth/login_page.dart';
 
+// =============================================================================
+// DOCTOR DASHBOARD PAGE
+// =============================================================================
+
 class DoctorDashboardPage extends StatefulWidget {
   const DoctorDashboardPage({super.key});
 
@@ -87,7 +91,7 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
                 data.urgentAlerts > 0
                     ? '${data.urgentAlerts} peringatan risiko memerlukan perhatian atau kontak pasien.'
                     : 'Tidak ada kasus kritis mendesak saat ini.',
-                style: const TextStyle(fontSize: 12, color: kTextSecondary, height: 1.4),
+                style: const TextStyle(fontSize: 12.5, color: kTextSecondary, height: 1.45),
               ),
             ),
             const SizedBox(height: 16),
@@ -116,6 +120,10 @@ class _DoctorDashboardPageState extends State<DoctorDashboardPage> {
     );
   }
 }
+
+// =============================================================================
+// DOCTOR PATIENTS PAGE
+// =============================================================================
 
 class DoctorPatientsPage extends StatefulWidget {
   const DoctorPatientsPage({super.key});
@@ -198,7 +206,8 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
               title: 'Pengingat & Pasien',
               subtitle: 'Pantau kepatuhan pasien dan selesaikan antrian eskalasi.',
             ),
-            // Top Search Bar (Reference Screen 4)
+            const SizedBox(height: 16),
+            // Top Search Bar
             CleanSearchBar(
               hint: 'Cari nama atau no. RM pasien...',
               trailing: IconButton(
@@ -214,7 +223,7 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
             ),
             const SizedBox(height: 20),
 
-            // Horizontal Recent Patients Avatars (Reference Screen 4 'Recent Contacts')
+            // Horizontal Recent Patients Avatars
             if (data.patients.isNotEmpty) ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -237,19 +246,19 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
                     },
                     child: const Text(
                       'Lihat Semua',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: kPrimary),
+                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: kPrimary),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               SizedBox(
-                height: 86,
+                height: 88,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   clipBehavior: Clip.none,
                   children: [
-                    // 'Add' Button (First item in reference image)
+                    // 'Tambah' Button
                     Padding(
                       padding: const EdgeInsets.only(right: 14),
                       child: Column(
@@ -307,7 +316,7 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
                               ),
                               const SizedBox(height: 6),
                               SizedBox(
-                                width: 56,
+                                width: 58,
                                 child: Text(
                                   patient.fullName.split(' ').first,
                                   maxLines: 1,
@@ -340,7 +349,7 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
                 unread > 0
                     ? '$unread pengingat menunggu konfirmasi atau tindak lanjut dokter.'
                     : 'Tidak ada pengingat tertunda saat ini.',
-                style: const TextStyle(fontSize: 12, color: kTextSecondary, height: 1.4),
+                style: const TextStyle(fontSize: 12.5, color: kTextSecondary, height: 1.45),
               ),
             ),
             const SizedBox(height: 12),
@@ -351,7 +360,7 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
               ),
               const SizedBox(height: 10),
             ],
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -359,7 +368,7 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
                   'Daftar Pasien Binaan',
                   style: TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     color: kText,
                   ),
                 ),
@@ -414,6 +423,10 @@ class _DoctorPatientsPageState extends State<DoctorPatientsPage> {
     );
   }
 }
+
+// =============================================================================
+// DOCTOR ADHERENCE PAGE
+// =============================================================================
 
 class DoctorAdherencePage extends StatefulWidget {
   const DoctorAdherencePage({super.key});
@@ -497,14 +510,14 @@ class _DoctorAdherencePageState extends State<DoctorAdherencePage> {
             ),
             const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF065F46), Color(0xFF059669), Color(0xFF10B981)],
+                  colors: [Color(0xFF047857), Color(0xFF059669), Color(0xFF10B981)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
                 boxShadow: kHeroShadow,
               ),
               child: Row(
@@ -525,37 +538,37 @@ class _DoctorAdherencePageState extends State<DoctorAdherencePage> {
                         Text(
                           '$average%',
                           style: const TextStyle(
-                            fontSize: 32,
+                            fontSize: 34,
                             fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
+                            letterSpacing: -0.6,
                             color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Total $totalPatients pasien dalam pengawasan aktif.',
-                          style: const TextStyle(fontSize: 11.5, color: Color(0xFFD1FAE5)),
+                          style: const TextStyle(fontSize: 12, color: Color(0xFFD1FAE5)),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    width: 56,
-                    height: 56,
+                    width: 58,
+                    height: 58,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                     child: const Icon(
                       Icons.insights_rounded,
                       color: Colors.white,
-                      size: 30,
+                      size: 32,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             SectionCard(
               title: 'Klaster Risiko Pasien',
               child: Column(
@@ -589,6 +602,10 @@ class _DoctorAdherencePageState extends State<DoctorAdherencePage> {
     );
   }
 }
+
+// =============================================================================
+// DOCTOR PROFILE PAGE
+// =============================================================================
 
 class DoctorProfilePage extends StatefulWidget {
   const DoctorProfilePage({super.key});
@@ -635,28 +652,28 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
             ),
             const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: kSurface,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(22),
                 border: Border.all(color: kBorder),
                 boxShadow: kCardShadow,
               ),
               child: Row(
                 children: [
                   CircleAvatar(
-                    radius: 28,
+                    radius: 30,
                     backgroundColor: kSoftGreen,
                     child: Text(
                       name.isNotEmpty ? name[0] : 'D',
                       style: const TextStyle(
-                        fontSize: 22,
+                        fontSize: 24,
                         fontWeight: FontWeight.w800,
                         color: kSuccess,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -664,19 +681,20 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         Text(
                           name,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 17,
                             fontWeight: FontWeight.w800,
+                            letterSpacing: -0.2,
                             color: kText,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           specialty,
-                          style: const TextStyle(fontSize: 12.5, color: kPrimary, fontWeight: FontWeight.w600),
+                          style: const TextStyle(fontSize: 13, color: kPrimary, fontWeight: FontWeight.w700),
                         ),
                         Text(
                           email,
-                          style: const TextStyle(fontSize: 11, color: kMuted),
+                          style: const TextStyle(fontSize: 11.5, color: kMuted),
                         ),
                       ],
                     ),
@@ -684,24 +702,24 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             SectionCard(
               title: 'Pengaturan & Keamanan',
               child: Column(
                 children: [
-                  AccountRowTile(
+                  const AccountRowTile(
                     icon: Icons.schedule_outlined,
                     title: 'Jadwal Konsultasi',
                     subtitle: 'Atur jam ketersediaan respons klinis',
                   ),
                   const SizedBox(height: 10),
-                  AccountRowTile(
+                  const AccountRowTile(
                     icon: Icons.notifications_active_outlined,
                     title: 'Preferensi Pengingat',
                     subtitle: 'Ambang batas peringatan risiko',
                   ),
                   const SizedBox(height: 10),
-                  AccountRowTile(
+                  const AccountRowTile(
                     icon: Icons.security_outlined,
                     title: 'Keamanan Akun',
                     subtitle: 'Kata sandi dan sesi aktif',
@@ -709,8 +727,9 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                   const SizedBox(height: 10),
                   AccountRowTile(
                     icon: Icons.logout_rounded,
-                    title: 'Keluar',
+                    title: 'Keluar Akun',
                     subtitle: 'Keluar dari akun dokter',
+                    titleColor: kDanger,
                     onTap: () => _logout(context),
                   ),
                 ],
@@ -722,6 +741,10 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     );
   }
 }
+
+// =============================================================================
+// DOCTOR ALL PATIENTS PAGE
+// =============================================================================
 
 class DoctorAllPatientsPage extends StatefulWidget {
   const DoctorAllPatientsPage({super.key});
@@ -765,27 +788,20 @@ class _DoctorAllPatientsPageState extends State<DoctorAllPatientsPage> {
         return Scaffold(
           backgroundColor: kBackground,
           appBar: AppBar(
-            backgroundColor: Colors.white.withValues(alpha: 0.85),
+            backgroundColor: Colors.white.withValues(alpha: 0.9),
             elevation: 0,
             leading: const BackButton(color: kText),
             title: const Text(
               'Semua Pasien Binaan',
-              style: TextStyle(fontWeight: FontWeight.w700, color: kText),
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17, color: kText),
             ),
           ),
           body: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Cari nama pasien...',
-                    hintStyle: const TextStyle(color: kMuted, fontSize: 13),
-                    prefixIcon: const Icon(Icons.search, color: kMuted),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                  ),
+                CleanSearchBar(
+                  hint: 'Cari nama pasien atau rekam medis...',
                   onChanged: (value) => setState(() => _searchQuery = value),
                 ),
                 const SizedBox(height: 16),
@@ -833,6 +849,10 @@ class _DoctorAllPatientsPageState extends State<DoctorAllPatientsPage> {
     );
   }
 }
+
+// =============================================================================
+// INTERNAL MODELS & HELPER COMPONENTS
+// =============================================================================
 
 class _DoctorDashboardData {
   const _DoctorDashboardData({
@@ -1066,74 +1086,74 @@ class _DoctorPatientTile extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(18),
       child: Container(
         padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: kSurface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: kBorder),
-        boxShadow: kCardShadow,
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: kSoftBlue,
-            child: Text(
-              patient.fullName.isEmpty ? '?' : patient.fullName[0],
-              style: const TextStyle(fontWeight: FontWeight.w800, color: kPrimary),
+        decoration: BoxDecoration(
+          color: kSurface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: kBorder),
+          boxShadow: kCardShadow,
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: kSoftBlue,
+              child: Text(
+                patient.fullName.isEmpty ? '?' : patient.fullName[0],
+                style: const TextStyle(fontWeight: FontWeight.w800, color: kPrimary),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      patient.fullName,
-                      style: const TextStyle(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w700,
-                        color: kText,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        patient.fullName,
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                          color: kText,
+                        ),
                       ),
-                    ),
-                    if (isOverdue) ...[
-                      const SizedBox(width: 6),
-                      const Icon(Icons.warning_rounded, color: kDanger, size: 14),
+                      if (isOverdue) ...[
+                        const SizedBox(width: 6),
+                        const Icon(Icons.warning_rounded, color: kDanger, size: 14),
+                      ],
                     ],
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    StatusPill(
-                      text: patient.phase,
-                      bg: patient.phase.toLowerCase() == 'intensif' ? kSoftAmber : kSoftGreen,
-                      fg: patient.phase.toLowerCase() == 'intensif' ? kWarning : kSuccess,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        '• ${patient.treatmentLabel} • ${patient.adherenceLabel}',
-                        style: const TextStyle(fontSize: 10.5, color: kMuted),
-                        overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      StatusPill(
+                        text: patient.phase,
+                        bg: patient.phase.toLowerCase() == 'intensif' ? kSoftAmber : kSoftGreen,
+                        fg: patient.phase.toLowerCase() == 'intensif' ? kWarning : kSuccess,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '• ${patient.treatmentLabel} • ${patient.adherenceLabel}',
+                          style: const TextStyle(fontSize: 11, color: kMuted),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          StatusPill(
-            text: patient.riskLabel,
-            bg: color.withValues(alpha: 0.12),
-            fg: color,
-          ),
-        ],
-      ),
+            StatusPill(
+              text: patient.riskLabel,
+              bg: color.withValues(alpha: 0.12),
+              fg: color,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1189,7 +1209,6 @@ class _DoctorPatientDetailSheetState extends State<_DoctorPatientDetailSheet> {
   }
 
   Future<void> _addLabResult() async {
-    // A simple mock for now or use a dialog
     setState(() => _loading = true);
     try {
       await DoctorService.addLabResult(widget.patient.id, 'Dahak Mikroskopis', 'Negatif', 'Hasil aman');
@@ -1208,9 +1227,9 @@ class _DoctorPatientDetailSheetState extends State<_DoctorPatientDetailSheet> {
     return Container(
       decoration: const BoxDecoration(
         color: kBackground,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      padding: const EdgeInsets.all(20).copyWith(bottom: MediaQuery.of(context).padding.bottom + 20),
+      padding: const EdgeInsets.all(22).copyWith(bottom: MediaQuery.of(context).padding.bottom + 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1238,12 +1257,12 @@ class _DoctorPatientDetailSheetState extends State<_DoctorPatientDetailSheet> {
           if (isOverdue)
             Container(
               margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: kSoftAmber, borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: kSoftAmber, borderRadius: BorderRadius.circular(16), border: Border.all(color: kBorderAmber)),
               child: Row(
                 children: [
                   const Icon(Icons.warning_rounded, color: kWarning),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1255,22 +1274,22 @@ class _DoctorPatientDetailSheetState extends State<_DoctorPatientDetailSheet> {
                   ),
                   ElevatedButton(
                     onPressed: _loading ? null : _transitionPhase,
-                    style: ElevatedButton.styleFrom(backgroundColor: kWarning, foregroundColor: Colors.white),
-                    child: const Text('Transisi Fase'),
+                    style: ElevatedButton.styleFrom(backgroundColor: kWarning, foregroundColor: Colors.white, elevation: 0),
+                    child: const Text('Transisi'),
                   ),
                 ],
               ),
             ),
           SectionCard(
-            title: 'Hasil Lab',
+            title: 'Hasil Lab Pasien',
             trailing: InkWell(
               onTap: _loading ? null : _addLabResult,
               child: const Icon(Icons.add_circle_outline, color: kPrimary),
             ),
             child: _loading && _labResults.isEmpty
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator()))
                 : _labResults.isEmpty
-                    ? const Text('Belum ada data lab', style: TextStyle(color: kMuted, fontSize: 12))
+                    ? const Text('Belum ada data hasil lab.', style: TextStyle(color: kMuted, fontSize: 12))
                     : Column(
                         children: _labResults.map((e) {
                           final isPos = '${e['result']}'.toLowerCase() == 'positif';
@@ -1279,7 +1298,7 @@ class _DoctorPatientDetailSheetState extends State<_DoctorPatientDetailSheet> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('${e['testType']}', style: const TextStyle(fontSize: 12)),
+                                Text('${e['testType']}', style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
                                 StatusPill(text: '${e['result']}', bg: isPos ? kSoftRed : kSoftGreen, fg: isPos ? kDanger : kSuccess),
                               ],
                             ),
@@ -1304,7 +1323,7 @@ class _ReminderQueueTile extends StatelessWidget {
     final color = _riskColor(item.severity);
 
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(18),
       onTap: onUpdateStatus != null && !item.isRead && item.id.isNotEmpty
           ? () => onUpdateStatus!(item.id, 'Resolved')
           : null,
@@ -1312,18 +1331,18 @@ class _ReminderQueueTile extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: kSurface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(color: kBorder),
           boxShadow: kCardShadow,
         ),
         child: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
                 color: kSoftBlue,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.notifications_active_outlined,
@@ -1383,8 +1402,8 @@ class _RiskBucketTile extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [

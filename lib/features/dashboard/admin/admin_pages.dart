@@ -182,7 +182,7 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
         _RoleInfoCard(isPatient: _isPatient, emailSuffix: _emailSuffix),
         const SizedBox(height: 16),
         SectionCard(
-          title: 'Account Form',
+          title: 'Formulir Akun',
           child: Column(
             children: [
               AuthField(
@@ -208,19 +208,19 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
                 ),
                 const SizedBox(height: 12),
                 AuthField(
-                  hintText: 'Berat badan (kg)',
+                  hintText: 'Berat badan awal (kg)',
                   prefixIcon: Icons.monitor_weight_outlined,
                   controller: _weightController,
                 ),
                 const SizedBox(height: 12),
                 AuthField(
-                  hintText: 'Komorbiditas (HIV, DM, dll)',
+                  hintText: 'Komorbiditas (HIV, DM, Hipertensi, dll)',
                   prefixIcon: Icons.medical_information_outlined,
                   controller: _comorbiditiesController,
                 ),
               ] else ...[
                 AuthField(
-                  hintText: 'Spesialisasi / poli',
+                  hintText: 'Spesialisasi / Poli (e.g. Paru, TB Dots)',
                   prefixIcon: Icons.badge_outlined,
                   controller: _noteController,
                 ),
@@ -262,10 +262,10 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 52,
                 child: ElevatedButton.icon(
                   onPressed: _submitting ? null : _submit,
                   icon: _submitting
@@ -282,12 +282,14 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
                     _submitting
                         ? 'Membuat akun...'
                         : 'Buat Akun ${_isPatient ? 'Pasien' : 'Dokter'}',
+                    style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kPrimary,
                     foregroundColor: Colors.white,
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                 ),
@@ -298,17 +300,17 @@ class _AdminCreateAccountPageState extends State<AdminCreateAccountPage> {
         if (_resultMessage != null) ...[
           const SizedBox(height: 16),
           SectionCard(
-            background: const Color(0xFFF0FDF4),
-            borderColor: const Color(0xFFBBF7D0),
+            background: kSoftGreen,
+            borderColor: kBorderGreen,
             title: 'Sukses',
             trailing: const StatusPill(
-              text: 'Done',
-              bg: Color(0xFF22C55E),
+              text: 'Selesai',
+              bg: kSuccess,
               fg: Colors.white,
             ),
             child: Text(
               _resultMessage!,
-              style: const TextStyle(fontSize: 10.5, color: kMuted),
+              style: const TextStyle(fontSize: 12.5, color: kTextSecondary, height: 1.45),
             ),
           ),
         ],
@@ -346,7 +348,7 @@ class _DoctorSelector extends StatelessWidget {
           children: [
             const Icon(
               Icons.medical_information_outlined,
-              color: Color(0xFF9CA3AF),
+              color: kMuted,
               size: 18,
             ),
             const SizedBox(width: 8),
@@ -356,7 +358,7 @@ class _DoctorSelector extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF374151),
+                  color: kText,
                 ),
               ),
             ),
@@ -389,7 +391,7 @@ class _DoctorSelector extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 24),
             decoration: BoxDecoration(
               color: const Color(0xFFF9FAFB),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: const Color(0xFFE5E7EB)),
             ),
             child: const Column(
@@ -416,7 +418,7 @@ class _DoctorSelector extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
             decoration: BoxDecoration(
               color: const Color(0xFFFEF2F2),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: const Color(0xFFFCA5A5)),
             ),
             child: Row(
@@ -430,7 +432,7 @@ class _DoctorSelector extends StatelessWidget {
                 const Expanded(
                   child: Text(
                     'Tidak ada dokter tersedia. Buat akun dokter terlebih dahulu.',
-                    style: TextStyle(fontSize: 10.5, color: Color(0xFF991B1B)),
+                    style: TextStyle(fontSize: 11, color: Color(0xFF991B1B)),
                   ),
                 ),
                 InkWell(
@@ -454,36 +456,28 @@ class _DoctorSelector extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: InkWell(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 onTap: () => onSelected(isSelected ? null : doc),
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 180),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
                     color: isSelected ? kSoftBlue : const Color(0xFFF9FAFB),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: isSelected ? kPrimary : const Color(0xFFE5E7EB),
                       width: isSelected ? 1.8 : 1,
                     ),
-                    boxShadow: isSelected
-                        ? const [
-                            BoxShadow(
-                              color: Color(0x1A2563EB),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ]
-                        : null,
+                    boxShadow: isSelected ? kButtonShadow : null,
                   ),
                   child: Row(
                     children: [
                       // Avatar
                       CircleAvatar(
-                        radius: 18,
+                        radius: 20,
                         backgroundColor: isSelected
                             ? kPrimary
                             : const Color(0xFFE2E8F0),
@@ -492,7 +486,7 @@ class _DoctorSelector extends StatelessWidget {
                               ? doc.fullName[0].toUpperCase()
                               : '?',
                           style: TextStyle(
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
                             color: isSelected ? Colors.white : kText,
                             fontSize: 14,
                           ),
@@ -508,7 +502,7 @@ class _DoctorSelector extends StatelessWidget {
                             Text(
                               doc.fullName,
                               style: TextStyle(
-                                fontSize: 12.5,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: isSelected ? kPrimary : kText,
                               ),
@@ -517,7 +511,7 @@ class _DoctorSelector extends StatelessWidget {
                             Text(
                               doc.specialty,
                               style: const TextStyle(
-                                fontSize: 10.5,
+                                fontSize: 11,
                                 color: kMuted,
                               ),
                             ),
@@ -527,7 +521,7 @@ class _DoctorSelector extends StatelessWidget {
 
                       // Selection indicator
                       AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 180),
                         width: 22,
                         height: 22,
                         decoration: BoxDecoration(
@@ -560,26 +554,26 @@ class _DoctorSelector extends StatelessWidget {
           const SizedBox(height: 4),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF0FDF4),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFBBF7D0)),
+              color: kSoftGreen,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: kBorderGreen),
             ),
             child: Row(
               children: [
                 const Icon(
                   Icons.check_circle_rounded,
-                  color: Color(0xFF22C55E),
-                  size: 16,
+                  color: kSuccess,
+                  size: 18,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Ditangani oleh: ${selected!.fullName} (${selected!.specialty})',
                     style: const TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
                       color: Color(0xFF15803D),
                     ),
                   ),
@@ -618,9 +612,9 @@ class _RoleInfoCard extends StatelessWidget {
       ),
       child: Text(
         isPatient
-            ? 'Tidak ada register publik. Akun dibuat dari halaman admin setelah login. Wajib pilih dokter penanggung jawab.'
-            : 'Tidak ada register publik. Akun dibuat dari halaman admin setelah login.',
-        style: const TextStyle(fontSize: 10.5, color: kMuted),
+            ? 'Tidak ada registrasi publik. Akun dibuat dari halaman admin setelah login faskes. Wajib pilih dokter penanggung jawab.'
+            : 'Tidak ada registrasi publik. Akun dokter dibuat dari halaman admin untuk akses pemantauan pasien.',
+        style: const TextStyle(fontSize: 11.5, color: kTextSecondary, height: 1.45),
       ),
     );
   }
