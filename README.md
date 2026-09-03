@@ -1,47 +1,96 @@
 # ToolBC App
 
-ToolBC is a Flutter application for TBC care workflows: account-based access, patient/doctor/admin dashboards, adherence monitoring, symptom checkups, notification workflows, and an AI education chatbot.
+Aplikasi mobile & web klinis modern untuk manajemen dan pemantauan pasien Tuberkulosis (TBC / TB) berbasis standar DOTS (*Directly Observed Treatment Short-course*), panduan Kemenkes RI, dan WHO.
 
-## Runtime Configuration
+---
 
-The Flutter client communicates with the ToolBC Backend (.NET Web API) using REST APIs. By default, it targets the production Railway backend (`https://toolbc-backend-production.up.railway.app/api`).
+## 🌟 Fitur Utama
 
-To run locally or target a custom backend:
+- **Manajemen Kepatuhan Obat (DOTS Monitoring)**:
+  - Pencatatan dosis obat harian (Fase Intensif HRZE & Fase Lanjutan HR).
+  - Penghitungan otomatis persentase kepatuhan (*Adherence Rate*) dan hari terapi aktif.
+- **Checkup Gejala Mandiri (Symptom Checkup)**:
+  - Skrining harian untuk evaluasi gejala kritis (Batuk menetap, demam, keringat malam, penurunan BB).
+  - Triage risiko klinis otomatis (*Low, Moderate, High Risk*) dengan eskalasi instan ke dokter penanggung jawab.
+- **Asisten AI Edukasi TBC (AI Chatbot)**:
+  - Konsultasi 24/7 terintegrasi dengan AI router (`ag/gemini-3.6-flash-medium` via `9router`).
+  - Dilengkapi *Markdown Rich Text Parser* untuk visualisasi respon yang rapi (bold, italic, bullet list, header).
+- **Dasbor Multi-Role Terpadu**:
+  - **Pasien**: Target terapi, konfirmasi minum obat, asisten AI, dan riwayat klinis.
+  - **Dokter**: Pemantauan pasien binaan, antrian eskalasi resiko, evaluasi hasil lab (TCM / GeneXpert), dan transisi fase pengobatan.
+  - **Admin**: Manajemen hak akses, pendaftaran pasien baru, dan penugasan dokter (*Doctor Assignment*).
+
+---
+
+## 🎨 Sistem Desain (Medical Grade UI/UX)
+
+- **Aksesibilitas**: Kontras tinggi sesuai standar **WCAG 2.1 AAA**.
+- **Palet Warna Klinis**:
+  - 🔵 **Azure Medical Blue (`#0284C7`)**: Identitas brand & status aktif.
+  - 🟢 **Emerald Green (`#059669`)**: Kepatuhan tinggi & kondisi stabil.
+  - 🟠 **Warm Amber (`#D97706`)**: Fase intensif & peringatan dini.
+  - 🔴 **Rose Crimson (`#E11D48`)**: Gejala kritis & kasus mendesak.
+- **Micro-Interactions**: *Diffuse multi-layer shadows*, tombol ergonomis (>= 48px touch target), dan *floating bottom navigation bar*.
+
+---
+
+## 🚀 Panduan Menjalankan
+
+### 1. Prasyarat
+- Flutter SDK 3.10+ / Dart 3.0+
+- Backend ToolBC aktif di `http://localhost:5272` (atau endpoint server yang sesuai)
+
+### 2. Menjalankan di Lokal (Web / Desktop / Mobile)
 
 ```bash
-flutter run \
-  --dart-define=API_BASE_URL="http://localhost:5272/api"
+# Masuk ke direktori app
+cd toolbc-app
+
+# Install dependencies
+flutter pub get
+
+# Jalankan di Google Chrome (Web)
+flutter run -d chrome
+
+# Jalankan di Windows Desktop
+flutter run -d windows
+
+# Jalankan dengan target backend custom
+flutter run -d chrome --dart-define=API_BASE_URL="http://localhost:5272/api"
 ```
 
-For Android physical devices connected via USB, run `adb reverse tcp:5272 tcp:5272` or specify your local LAN IP address.
+Untuk pengujian di perangkat fisik Android melalui USB:
+```bash
+adb reverse tcp:5272 tcp:5272
+```
 
-## Account Model
+---
 
-There is no public registration. Admin users create doctor and patient accounts through the `/api/admin/users` endpoint. Runtime routing uses the authenticated user's `role` claim from JWT auth.
+## 🔑 Akun Uji Coba Demo
 
-Supported roles:
-- `patient`
-- `doctor`
-- `admin`
+| Role | Email | Password |
+|---|---|---|
+| **Pasien** | `davina@pasien.com` | `Pasien123!` |
+| **Dokter** | `arya@dokter.com` | `Dokter123!` |
+| **Admin** | `admin@admin.com` | `Admin123!` |
 
-## Local Verification
+---
+
+## 📦 Build & Rilis
 
 ```bash
-flutter pub get
+# Verifikasi kode & analisis statis
 flutter analyze
 flutter test
-flutter build apk --debug
+
+# Build Android APK
+flutter build apk --release
+
+# Build Android App Bundle (Play Store)
+flutter build appbundle --release --dart-define=API_BASE_URL="https://your-production-backend.com/api"
 ```
 
-## Android Release Build
+---
 
-```bash
-flutter build appbundle --release \
-  --dart-define=API_BASE_URL="https://toolbc-backend-production.up.railway.app/api"
-```
-
-Configure `android/key.properties` from `android/key.properties.example` before publishing to Google Play Store.
-
-## Release Readiness
-
-Use `RELEASE_CHECKLIST.md` before closed testing or production release.
+## 📄 Lisensi & Hak Cipta
+Dikelola oleh Tim Pengembang **ToolBC** ([github.com/toolbc](https://github.com/toolbc)).
